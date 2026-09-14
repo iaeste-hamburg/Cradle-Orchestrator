@@ -1,0 +1,18 @@
+{
+  "run_name": "phase1-research-antigravity",
+  "workdir": "/tmp/ringer-phase1",
+  "tasks": [
+    {
+      "key": "research-antigravity-cli",
+      "engine": "opencode",
+      "model": "gpt-5.4",
+      "task_type": "research",
+      "timeout_s": 1800,
+      "spec": "Search the live web for current, official documentation of the 'agy' / Antigravity CLI (Google's Gemini/Antigravity agent CLI). Confirm, with a source URL for each: (1) the exact flag for headless/non-interactive execution and its exit code convention; (2) how to override the Gemini/Vertex API base URL (flag vs env var, exact variable names); (3) whether/how MCP servers are registered and discovered (file paths, CLI subcommands); (4) the exact model-selection flag and accepted model slug format; (5) whether a --sandbox or permission-bypass flag exists for headless runs. Write ONLY a JSON object to antigravity-cli-facts.json with keys: headless_flag, exit_code_convention, base_url_mechanism (object per provider), mcp_discovery_paths (array), model_flag, model_slug_examples (array), sandbox_flags, sources (array of {claim, url}). Every factual field must have a matching entry in sources. If a fact cannot be confirmed from an official or credibly current source, set that field to null and do not guess.",
+      "check": "python3 -c \"import json,sys; d=json.load(open('antigravity-cli-facts.json')); required=['headless_flag','exit_code_convention','base_url_mechanism','mcp_discovery_paths','model_flag','sources']; missing=[k for k in required if k not in d]; assert not missing, f'FAIL: missing keys {missing}'; assert len(d['sources'])>0, 'FAIL: no sources cited'; print('OK')\"",
+      "expect_files": ["antigravity-cli-facts.json"],
+      "verified": "Confirms antigravity-cli-facts.json exists, is valid JSON, has the required schema keys, and cites at least one source URL.",
+      "max_attempts": 2
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "run_name": "phase2-author-antigravity-engine",
+  "workdir": "/tmp/ringer-phase2",
+  "tasks": [
+    {
+      "key": "write-antigravity-engine-config",
+      "engine": "opencode",
+      "model": "gpt-5.4",
+      "task_type": "docs",
+      "spec": "Read /tmp/ringer-phase1/research-antigravity-cli/antigravity-cli-facts.json. Using ONLY facts present there (do not invent flags not in that file), write a TOML file antigravity-engine-block.toml containing a single [engines.antigravity] table matching this schema exactly: bin, args_template (argv array using {taskdir}, {spec}, {access_args}, {model}, {engine_args} placeholders), sandbox_args, full_access_args, model_default. Model default must be 'gemini-3.8-medium'. Add a comment above each line naming which facts-file field justified it.",
+      "check": "python3 -c \"import tomllib; d=tomllib.load(open('antigravity-engine-block.toml','rb')); e=d['engines']['antigravity']; required=['bin','args_template','sandbox_args','full_access_args','model_default']; missing=[k for k in required if k not in e]; assert not missing, f'FAIL: missing {missing}'; assert '{spec}' in e['args_template'], 'FAIL: no {spec} placeholder'; assert '{model}' in ' '.join(e['args_template']), 'FAIL: no {model} placeholder'; print('OK')\"",
+      "expect_files": ["antigravity-engine-block.toml"],
+      "verified": "Confirms a syntactically valid [engines.antigravity] TOML block with all required keys and placeholders was produced from sourced facts, not invention.",
+      "max_attempts": 2
+    }
+  ]
+}
