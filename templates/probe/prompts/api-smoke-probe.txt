@@ -1,4 +1,4 @@
-You are running an API smoke probe under Ringer.
+You are running an API smoke probe under Laufgitter.
 
 Boundary: do not edit project files, do not retry with different inputs unless the command says to, and do not call destructive endpoints unless explicitly authorized. Own only {{TRANSCRIPT_FILE}} and {{OUTPUT_FILE}}.
 

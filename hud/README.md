@@ -1,6 +1,6 @@
-# Ringside
+# Zentrale
 
-The native mission-control HUD for [Ringer](../README.md). Tauri v2 — one codebase builds macOS, Windows, and Linux.
+The native mission-control HUD for [Laufgitter](../README.md). Tauri v2 — one codebase builds macOS, Windows, and Linux.
 
 ## Build
 
@@ -15,6 +15,6 @@ The frontend is synced from the repo's shared `dashboard/dashboard.html` plus `f
 ## Behavior
 
 - Frameless, always-on-top, visible on all Spaces/desktops; drag anywhere that isn't a control.
-- Watches the Ringer state dir (`~/.ringer/runs/`, or `state_dir` from `~/.config/ringer/config.toml`) and renders every swarm: live, finished, and died (orchestrator gone without finishing).
+- Watches the Laufgitter state dir (`~/.laufgitter/runs/`, or `state_dir` from `~/.config/laufgitter/config.toml`) and renders every swarm: live, finished, and died (orchestrator gone without finishing).
 - Tray icon: show/hide, version, quit. Closing the window hides it; the app stays in the tray.
 - macOS-style close control top-left; ESC also hides.

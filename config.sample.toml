@@ -1,14 +1,14 @@
-# Sample config for ringer.py.
-# Copy to ~/.config/ringer/config.toml or pass with --config /path/to/config.toml.
+# Sample config for laufgitter.py.
+# Copy to ~/.config/laufgitter/config.toml or pass with --config /path/to/config.toml.
 
 # Default identity stamped into state JSON and eval rows. Resolution order:
-# --identity flag > FLEET_IDENTITY / RINGER_IDENTITY env > a .fleet-agent file
+# --identity flag > FLEET_IDENTITY / LAUFGITTER_IDENTITY env > a .fleet-agent file
 # found walking up from the working directory (per-repo agent name) > this
 # value > short hostname.
 # identity_default = "codex-mini"
 
 # State files live under <state_dir>/runs/<run_id>.json.
-state_dir = "~/.ringer"
+state_dir = "~/.laufgitter"
 
 # First localhost port tried for the per-run dashboard. The server will scan the
 # next 49 ports if this one is busy.
@@ -16,7 +16,7 @@ dashboard_port_base = 8787
 
 # Optional native HUD app path. Public installs should omit this and let the
 # dashboard open in the browser.
-# hud_app_path = "/Applications/Ringside.app"
+# hud_app_path = "/Applications/Zentrale.app"
 
 # Belt-and-suspenders full-access gate. A task with "full_access": true will
 # still fail unless this is true.
@@ -25,25 +25,25 @@ allow_full_access = false
 [update]
 # Check origin/main before command dispatch and let a long-running HUD check
 # again on this interval. Updates apply only as a clean ff-only move on main.
-# Set auto=false to disable both automatic paths; `./ringer.py self-update`
+# Set auto=false to disable both automatic paths; `./laufgitter.py self-update`
 # remains available as an explicit check.
 # auto = true
 # check_interval_s = 3600
 # For one command, pass --no-self-update. To disable automatic checks in an
-# environment or service, set RINGER_NO_SELF_UPDATE=1.
+# environment or service, set LAUFGITTER_NO_SELF_UPDATE=1.
 
 # Optional model steering. The directory must contain profiles/ with one
-# Markdown profile per model. Ringer creates observations/ringer/ beneath this
+# Markdown profile per model. Laufgitter creates observations/laufgitter/ beneath this
 # directory automatically as attempts finish.
 # [steering]
-# dir = "~/.ringer/steering"
+# dir = "~/.laufgitter/steering"
 # inject_candidates = true
 
 [eval]
 # Safe public default: write one JSON object per attempt to a local JSONL file.
 # Use "postgres" only when [eval.postgres] is configured.
 backend = "jsonl"
-jsonl_path = "~/.ringer/runs.jsonl"
+jsonl_path = "~/.laufgitter/runs.jsonl"
 
 # Optional Supabase/Postgres logging. The env file should define:
 # SUPABASE_DB_HOST, SUPABASE_DB_PORT, SUPABASE_DB_USER,
@@ -87,7 +87,7 @@ full_access_args = ["--dangerously-bypass-approvals-and-sandbox"]
 token_regex = "tokens\\s+used\\s*:?\\s*([0-9][0-9,]*)"
 
 # First capture group should be the model slug self-reported by the harness.
-# Ringer applies this to captured worker output after every attempt. The Codex
+# Laufgitter applies this to captured worker output after every attempt. The Codex
 # default reads the `model:` header; override it here only if that format changes.
 model_report_regex = "(?m)^model:[ \\t]*([^ \\t\\r\\n]+)[ \\t]*\\r?$"
 
@@ -126,11 +126,11 @@ model_report_regex = "(?m)^model:[ \\t]*([^ \\t\\r\\n]+)[ \\t]*\\r?$"
 # also does not self-report a model, so no model_report_regex is configured.
 # token_regex = "\"total_tokens\"\\s*:\\s*([0-9]+)"
 
-# For CI, acceptance evals, and trying Ringer without an API bill.
+# For CI, acceptance evals, and trying Laufgitter without an API bill.
 # [engines.mock]
 # bin = "python3"
 # args_template = [
-#   "/absolute/path/to/ringer/engines/mock_worker.py",
+#   "/absolute/path/to/laufgitter/engines/mock_worker.py",
 #   "{spec}",
 # ]
 # sandbox_args = []
@@ -150,7 +150,7 @@ model_report_regex = "(?m)^model:[ \\t]*([^ \\t\\r\\n]+)[ \\t]*\\r?$"
 # Per-task engine_args can set reasoning effort ("--variant", "low|high|max").
 # Uncomment and set an absolute path for `bin` to enable.
 # [engines.opencode]
-# bin = "/absolute/path/to/ringer/engines/opencode-sandboxed.sh"
+# bin = "/absolute/path/to/laufgitter/engines/opencode-sandboxed.sh"
 # model_default = "openrouter/z-ai/glm-5.2"
 # args_template = [
 #   "{taskdir}",
@@ -174,13 +174,13 @@ model_report_regex = "(?m)^model:[ \\t]*([^ \\t\\r\\n]+)[ \\t]*\\r?$"
 # Zero-LLM, self-contained HTML artifacts rendered directly from state — no model calls, no
 # network. Three files per config, all pure stdlib templates:
 #   - `out`: the live status page, re-rendered on every ~1s state flush while a run is in
-#     progress (meta-refresh, no JS needed). Ringside can embed or open this.
+#     progress (meta-refresh, no JS needed). Zentrale can embed or open this.
 #   - `report_out`: the final report, rendered once when a run finishes — full task table,
 #     timings, attempts/retries, check output, links to each task's worker.log/report files.
 #   - `index_out`: a single multi-run index listing every run under state_dir (handy when
 #     several swarms run at once).
 # Templates support {run_id} and {run_name} substitution. Disable with --no-artifact.
 enabled = true
-out = "~/.ringer/artifacts/{run_id}.html"
-report_out = "~/.ringer/artifacts/{run_id}-report.html"
-index_out = "~/.ringer/artifacts/index.html"
+out = "~/.laufgitter/artifacts/{run_id}.html"
+report_out = "~/.laufgitter/artifacts/{run_id}-report.html"
+index_out = "~/.laufgitter/artifacts/index.html"

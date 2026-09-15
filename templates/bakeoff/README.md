@@ -18,10 +18,10 @@ Use it when you need evidence about which model or configuration performs better
 | Placeholder | What goes there |
 |---|---|
 | `{{PRODUCT}}` | Product, prompt, repo, or workflow being tested. |
-| `{{WORKDIR}}` | Absolute scratch directory where Ringer creates matrix cell session directories. |
+| `{{WORKDIR}}` | Absolute scratch directory where Laufgitter creates matrix cell session directories. |
 | `{{MODEL_KEY}}` | Short model label for the task key, such as `glm52` or `kimi27`. |
 | `{{SCENARIO_KEY}}` | Stable key for the scenario row. |
-| `{{ENGINE — e.g. opencode, the harness engine that reads the task model field}}` | Ringer engine block to use. For OpenRouter models this is usually `opencode`. |
+| `{{ENGINE — e.g. opencode, the harness engine that reads the task model field}}` | Laufgitter engine block to use. For OpenRouter models this is usually `opencode`. |
 | `{{CANDIDATE_MODEL — e.g. openrouter/z-ai/glm-5.2}}` | The model slug for this cell. This belongs in the task `model` field, not a cloned engine block. |
 | `{{SCENARIO — the persona, prompt, or task; keep wording identical for every model in this scenario row}}` | The exact scenario text. Keep it unchanged across candidate models. |
 | `{{HARNESS_COMMAND_WITH_MODEL — exact command that runs this scenario against the manifest model and writes to the session dir}}` | Command that drives the product for this cell using the manifest-selected model. |

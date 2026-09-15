@@ -4,7 +4,7 @@
 
 A media-production swarm for producing checked asset libraries: HTML animations rendered to video by the host, idempotent image-generation batches, HTML diagrams rendered to retina PNG, and real screen captures. Workers author sources or execute exact commands; checks render, execute, and validate the actual media.
 
-This pattern keeps browser and recording work on the host side, where sandboxed workers cannot reliably launch browsers, while still making every worker output visible in Ringer.
+This pattern keeps browser and recording work on the host side, where sandboxed workers cannot reliably launch browsers, while still making every worker output visible in Laufgitter.
 
 ## When to use
 

@@ -52,7 +52,7 @@ class SetupErrorDiagnosticsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_root:
             root = Path(temp_root)
             home = root / "home"
-            ringer_home = root / "ringer-home"
+            laufgitter_home = root / "laufgitter-home"
             state_dir = root / "state"
             workdir = root / "work"
             repo = root / "repo"
@@ -60,7 +60,7 @@ class SetupErrorDiagnosticsTests(unittest.TestCase):
             manifest_path = root / "manifest.json"
 
             home.mkdir()
-            ringer_home.mkdir()
+            laufgitter_home.mkdir()
             init_git_repo(repo)
 
             # Simulate what a previous failed run leaves behind: either a real
@@ -137,14 +137,14 @@ class SetupErrorDiagnosticsTests(unittest.TestCase):
 
             env = os.environ.copy()
             env["HOME"] = str(home)
-            env["RINGER_HOME"] = str(ringer_home)
+            env["LAUFGITTER_HOME"] = str(laufgitter_home)
             env["XDG_CONFIG_HOME"] = str(root / "xdg-config")
-            env["RINGER_NO_SELF_UPDATE"] = "1"
+            env["LAUFGITTER_NO_SELF_UPDATE"] = "1"
 
             proc = subprocess.run(
                 [
                     sys.executable,
-                    "ringer.py",
+                    "laufgitter.py",
                     "run",
                     str(manifest_path),
                     "--config",

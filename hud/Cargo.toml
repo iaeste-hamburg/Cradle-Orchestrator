@@ -1,7 +1,7 @@
 [package]
-name = "ringside"
+name = "zentrale"
 version = "0.1.1"
-description = "Ringside mission-control HUD for Ringer"
+description = "Zentrale mission-control HUD for Laufgitter"
 authors = ["Jonathan Edwards"]
 edition = "2021"
 rust-version = "1.77"

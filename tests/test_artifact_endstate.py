@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ringer import (  # noqa: E402
+from laufgitter import (  # noqa: E402
     ArtifactConfig,
     ArtifactRenderer,
     EngineConfig,
@@ -31,7 +31,7 @@ class ArtifactEndstateTests(unittest.TestCase):
         self.addCleanup(self.restore_env)
         self.root = Path(self.tmp.name)
         os.environ["HOME"] = str(self.root / "home")
-        os.environ["RINGER_HOME"] = str(self.root / "ringer-home")
+        os.environ["LAUFGITTER_HOME"] = str(self.root / "laufgitter-home")
         self.state_dir = self.root / "state"
         self.workdir = self.root / "work"
         self.renderer = ArtifactRenderer(self.root / "artifacts" / "run.html")

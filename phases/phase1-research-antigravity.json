@@ -1,6 +1,6 @@
 {
   "run_name": "phase1-research-antigravity",
-  "workdir": "/tmp/ringer-phase1",
+  "workdir": "/tmp/laufgitter-phase1",
   "tasks": [
     {
       "key": "research-antigravity-cli",

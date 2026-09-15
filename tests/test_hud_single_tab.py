@@ -10,8 +10,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-import ringer  # noqa: E402
-from ringer import AppConfig, ArtifactConfig, EvalConfig, ensure_hud_running  # noqa: E402
+import laufgitter  # noqa: E402
+from laufgitter import AppConfig, ArtifactConfig, EvalConfig, ensure_hud_running  # noqa: E402
 
 
 def config(root: Path) -> AppConfig:
@@ -38,22 +38,22 @@ class HudSingleTabTests(unittest.TestCase):
     def test_already_alive_does_not_open_browser(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             opened: list[str] = []
-            original_alive = ringer.hud_is_alive
-            original_open = ringer.open_in_browser
-            original_popen = ringer.subprocess.Popen
+            original_alive = laufgitter.hud_is_alive
+            original_open = laufgitter.open_in_browser
+            original_popen = laufgitter.subprocess.Popen
             try:
-                ringer.hud_is_alive = lambda _port: True
-                ringer.open_in_browser = opened.append
+                laufgitter.hud_is_alive = lambda _port: True
+                laufgitter.open_in_browser = opened.append
 
                 def fail_popen(*_args: object, **_kwargs: object) -> object:
                     raise AssertionError("should not spawn a HUD that is already alive")
 
-                ringer.subprocess.Popen = fail_popen
+                laufgitter.subprocess.Popen = fail_popen
                 ensure_hud_running(config(Path(temp)), open_browser=True)
             finally:
-                ringer.hud_is_alive = original_alive
-                ringer.open_in_browser = original_open
-                ringer.subprocess.Popen = original_popen
+                laufgitter.hud_is_alive = original_alive
+                laufgitter.open_in_browser = original_open
+                laufgitter.subprocess.Popen = original_popen
             self.assertEqual([], opened)
 
     def test_dead_then_alive_opens_once_after_spawn(self) -> None:
@@ -61,23 +61,23 @@ class HudSingleTabTests(unittest.TestCase):
             opened: list[str] = []
             spawned: list[object] = []
             alive_results = iter([False, True, True])
-            original_alive = ringer.hud_is_alive
-            original_open = ringer.open_in_browser
-            original_popen = ringer.subprocess.Popen
+            original_alive = laufgitter.hud_is_alive
+            original_open = laufgitter.open_in_browser
+            original_popen = laufgitter.subprocess.Popen
             try:
-                ringer.hud_is_alive = lambda _port: next(alive_results)
-                ringer.open_in_browser = opened.append
+                laufgitter.hud_is_alive = lambda _port: next(alive_results)
+                laufgitter.open_in_browser = opened.append
 
                 def fake_popen(*args: object, **_kwargs: object) -> object:
                     spawned.append(args)
                     return object()
 
-                ringer.subprocess.Popen = fake_popen
+                laufgitter.subprocess.Popen = fake_popen
                 ensure_hud_running(config(Path(temp)), open_browser=True)
             finally:
-                ringer.hud_is_alive = original_alive
-                ringer.open_in_browser = original_open
-                ringer.subprocess.Popen = original_popen
+                laufgitter.hud_is_alive = original_alive
+                laufgitter.open_in_browser = original_open
+                laufgitter.subprocess.Popen = original_popen
             self.assertEqual(1, len(spawned))
             self.assertEqual(["http://127.0.0.1:8700"], opened)
 

@@ -4,7 +4,7 @@
 
 ## What it is
 
-A test-hardening swarm assigns one module or behavior to each worker and lets that worker add tests only inside owned test files. The check runs the real test command, parses the runner summary, proves the test count increased, rejects assertion-free tests, rejects production-code edits, and exports the patch before Ringer deletes the passing worktree.
+A test-hardening swarm assigns one module or behavior to each worker and lets that worker add tests only inside owned test files. The check runs the real test command, parses the runner summary, proves the test count increased, rejects assertion-free tests, rejects production-code edits, and exports the patch before Laufgitter deletes the passing worktree.
 
 This is a blueprint, not a recorded proven kit. Adapt the test-count regex and assertion pattern to the runner before using it on a real branch.
 
@@ -20,7 +20,7 @@ Do not use this when workers need to change production code, shared fixtures, gl
 |---|---|
 | `{{PROJECT}}` | Short project name used in the run name. |
 | `{{WORKDIR}}` | Scratch run directory outside the repo. |
-| `{{REPO_PATH}}` | Absolute path to the repo that Ringer should create task worktrees from. |
+| `{{REPO_PATH}}` | Absolute path to the repo that Laufgitter should create task worktrees from. |
 | `{{TEST_KEY}}` | Stable task key; also becomes the exported patch filename. |
 | `{{OWNED_TEST_FILES — semicolon-separated repo-relative test files or test directory prefixes this worker may modify}}` | Exact test files or test directory prefixes this worker may create or edit. Do not include `src/` or production directories. |
 | `{{FORBIDDEN_PATHS}}` | Semicolon-separated production paths that must not change, for example `src/;app/;lib/;packages/core/src/`. |
@@ -30,7 +30,7 @@ Do not use this when workers need to change production code, shared fixtures, gl
 | `{{BASELINE_TEST_COUNT}}` | Integer test count from the same runner command before the swarm starts. |
 | `{{NEW_TEST_FILES}}` | Semicolon-separated repo-relative test files that must exist after the worker finishes. |
 | `{{PYTHON}}` | Python executable for the check script. |
-| `{{KIT_DIR}}` | Absolute path to `templates/test-hardening` in this Ringer checkout or copied kit location. |
+| `{{KIT_DIR}}` | Absolute path to `templates/test-hardening` in this Laufgitter checkout or copied kit location. |
 | `{{TEST_COUNT_REGEX}}` | Regex with one capture group for the total test count in runner output, or `AUTO` for common pytest, Jest, Vitest, Mocha, and unittest summaries. |
 | `{{ASSERTION_PATTERN}}` | Regex counted as an assertion, for example `\\b(expect|assert|toEqual|toBe|pytest\\.raises)\\b`. |
 | `{{MIN_ASSERTIONS_PER_FILE}}` | Minimum assertion-pattern matches required in each new test file. |
@@ -45,7 +45,7 @@ It verifies every `{{NEW_TEST_FILES}}` path exists, counts assertion matches and
 
 This is hard to game because a worker cannot make tests pass by editing source, cannot add empty smoke tests with no assertions, and cannot claim more coverage unless the runner summary count actually increases.
 
-`expect_files` is empty on purpose. In worktrees mode, the patch is produced by the check outside the task worktree; Ringer's normal task-file harvest would otherwise point at files that are deleted after PASS.
+`expect_files` is empty on purpose. In worktrees mode, the patch is produced by the check outside the task worktree; Laufgitter's normal task-file harvest would otherwise point at files that are deleted after PASS.
 
 ## Mix with
 

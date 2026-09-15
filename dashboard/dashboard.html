@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ringside mission control</title>
+  <title>Zentrale mission control</title>
   <style>
     :root {
       color-scheme: dark;
@@ -922,9 +922,9 @@
     <header class="topbar">
       <span id="topDot" class="top-dot"></span>
       <div class="title">
-        <h1 id="headline">Ringside mission control</h1>
-        <div id="subtitle" class="subtitle">no ringers running</div>
-        <div id="runCounts" class="counts">0 ringers · 0 agents</div>
+        <h1 id="headline">Zentrale mission control</h1>
+        <div id="subtitle" class="subtitle">no laufgitters running</div>
+        <div id="runCounts" class="counts">0 laufgitters · 0 agents</div>
       </div>
       <div id="clock" class="clock">00:00</div>
       <button type="button" id="hudClose" class="hud-close" title="Collapse" aria-label="Collapse" data-no-drag>×</button>
@@ -978,7 +978,7 @@
         </div>
       </div>
     </div>
-    <main id="app"><div class="empty">no ringers running</div></main>
+    <main id="app"><div class="empty">no laufgitters running</div></main>
     <div class="artifact-view" id="artifactView">
       <div class="artifact-layout">
         <div class="artifact-library" id="artifactLibrary" data-no-drag></div>
@@ -1005,7 +1005,7 @@
     <div class="models-view" id="modelsView" data-no-drag>
       <div class="models-state" id="modelsState">models not loaded</div>
       <div class="models-table-wrap" id="modelsTableWrap">
-        <div class="models-empty">No model results yet. Run './ringer.py models' for the local scoreboard docs.</div>
+        <div class="models-empty">No model results yet. Run './laufgitter.py models' for the local scoreboard docs.</div>
       </div>
     </div>
   </div>
@@ -1176,7 +1176,7 @@
           ...run,
           state,
           identity: run.identity || "unknown",
-          run_name: run.run_name || "ringer",
+          run_name: run.run_name || "laufgitter",
           dashboard_port: run.dashboard_port ?? run.port ?? null,
           elapsed_s: elapsedFromStart(run),
           pass,
@@ -1196,7 +1196,7 @@
     function createEmptyNode() {
       const node = document.createElement("div");
       node.className = "empty";
-      node.textContent = "no ringers running";
+      node.textContent = "no laufgitters running";
       return node;
     }
 
@@ -1676,7 +1676,7 @@
 
     function updateRunRecord(record, run) {
       const identity = run.identity || "unknown";
-      const name = run.run_name || "ringer";
+      const name = run.run_name || "laufgitter";
       const final = run.state === "live"
         ? `ok ${run.pass} fail ${run.fail}`
         : (run.state === "died" ? `died · ok ${run.pass} fail ${run.fail}` : `ok ${run.pass} fail ${run.fail}`);
@@ -1790,19 +1790,19 @@
       if (topDot.className !== topDotClass) topDot.className = topDotClass;
 
       if (liveRuns.length === 1) {
-        setText(headline, liveRuns[0].run_name || "ringer");
+        setText(headline, liveRuns[0].run_name || "laufgitter");
         setText(subtitle, liveRuns[0].identity || "unknown");
       } else if (liveRuns.length > 1) {
-        setText(headline, "Ringside mission control");
-        setText(subtitle, "live ringers");
+        setText(headline, "Zentrale mission control");
+        setText(subtitle, "live laufgitters");
       } else if (newest) {
-        setText(headline, newest.state === "died" ? `${newest.run_name || "ringer"} died` : (newest.run_name || "ringer"));
+        setText(headline, newest.state === "died" ? `${newest.run_name || "laufgitter"} died` : (newest.run_name || "laufgitter"));
         setText(subtitle, newest.identity || "finished");
       } else {
-        setText(headline, "Ringside mission control");
-        setText(subtitle, "no ringers running");
+        setText(headline, "Zentrale mission control");
+        setText(subtitle, "no laufgitters running");
       }
-      setText(runCounts, `${plural(countedRuns.length, "ringer", "ringers")} · ${plural(agents, "agent", "agents")}`);
+      setText(runCounts, `${plural(countedRuns.length, "laufgitter", "laufgitters")} · ${plural(agents, "agent", "agents")}`);
       const maxElapsed = runs.reduce((max, run) => Math.max(max, Number(run.elapsed_s || 0)), 0);
       setText(clock, fmtElapsed(maxElapsed));
     }
@@ -1880,7 +1880,7 @@
         setText(modelsState, error ? `models unavailable: ${error}` : `updated ${formatModelDate(modelsPayload?.generated_at)}`);
       }
       if (rows.length === 0) {
-        renderModelsEmpty("No model results yet. Run './ringer.py models' for the local scoreboard docs.");
+        renderModelsEmpty("No model results yet. Run './laufgitter.py models' for the local scoreboard docs.");
         return;
       }
       const body = [];
@@ -2523,7 +2523,7 @@
       if (!frame) {
         artifactFrameWrap.innerHTML = "";
         frame = document.createElement("iframe");
-        frame.setAttribute("title", "Ringside artifact");
+        frame.setAttribute("title", "Zentrale artifact");
         frame.addEventListener("error", () => showArtifactLoadError("frame load failed"));
         artifactFrameWrap.appendChild(frame);
       }
@@ -2539,7 +2539,7 @@
       const frame = ensureArtifactFrame();
       if (opts.force || lastArtifactPath !== path || displayedArtifactSrc !== href) {
         frame.removeAttribute(INLINE_FRAME_ATTR);
-        const src = opts.force && opts.cacheBust !== false ? cacheBustHref(href, "ringside") : href;
+        const src = opts.force && opts.cacheBust !== false ? cacheBustHref(href, "zentrale") : href;
         frame.setAttribute("src", src);
         displayedArtifactSrc = href;
         displayedArtifactHtml = null;
@@ -2562,7 +2562,7 @@
       const staticHtml = stripMetaRefresh(html);
       if (opts.force || lastArtifactPath !== path || displayedArtifactHtml !== staticHtml || displayedArtifactSrc !== null) {
         frame.removeAttribute("src");
-        frame[INLINE_FRAME_ATTR] = opts.force ? `${staticHtml}\n<!-- ringside-refresh:${Date.now()} -->` : staticHtml;
+        frame[INLINE_FRAME_ATTR] = opts.force ? `${staticHtml}\n<!-- zentrale-refresh:${Date.now()} -->` : staticHtml;
         displayedArtifactHtml = staticHtml;
         displayedArtifactSrc = null;
       }
@@ -2572,7 +2572,7 @@
     async function artifactServerResponds(href) {
       if (!href) return false;
       try {
-        const response = await fetch(cacheBustHref(href, "ringside_probe"), {
+        const response = await fetch(cacheBustHref(href, "zentrale_probe"), {
           method: "GET",
           cache: "no-store",
           mode: "no-cors",

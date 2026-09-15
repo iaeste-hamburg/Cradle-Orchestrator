@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ringer import Manifest, TaskSpec, Verifier, lint_manifest  # noqa: E402
+from laufgitter import Manifest, TaskSpec, Verifier, lint_manifest  # noqa: E402
 
 
 LONG_SPEC = (

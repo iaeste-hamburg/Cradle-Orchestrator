@@ -12,8 +12,8 @@ from typing import Any
 
 
 NUDGE_TEXT = (
-    "Ringer routing check: this looks like swarm-shaped work happening inline "
-    "(model call/harness/edit loop outside a live Ringer run). Load the ringer "
+    "Laufgitter routing check: this looks like swarm-shaped work happening inline "
+    "(model call/harness/edit loop outside a live Laufgitter run). Load the laufgitter "
     "skill and route it as a manifest — a single task is a one-task manifest. "
     "If the user explicitly asked for inline work, proceed."
 )
@@ -31,11 +31,11 @@ HARNESS_RE = re.compile(
 )
 
 
-def ringer_home() -> Path:
-    value = os.environ.get("RINGER_HOME")
+def laufgitter_home() -> Path:
+    value = os.environ.get("LAUFGITTER_HOME")
     if value and value.strip():
         return Path(value).expanduser()
-    return Path.home() / ".ringer"
+    return Path.home() / ".laufgitter"
 
 
 def pid_is_alive(pid: Any) -> bool:
@@ -145,7 +145,7 @@ def should_nudge_pre_bash(payload: dict[str, Any], home: Path) -> bool:
     command = tool_input.get("command")
     if not isinstance(command, str) or not command.strip():
         return False
-    if "ringer.py" in command:
+    if "laufgitter.py" in command:
         return False
     if not (PROVIDER_RE.search(command) or HARNESS_RE.search(command)):
         return False
@@ -219,7 +219,7 @@ def run(argv: list[str]) -> int:
     if payload is None:
         return 0
 
-    home = ringer_home()
+    home = laufgitter_home()
     session_id = payload.get("session_id")
 
     if mode == "pre-bash":

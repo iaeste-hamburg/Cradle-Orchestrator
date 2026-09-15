@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ringer import TaskSpec, Verifier  # noqa: E402
+from laufgitter import TaskSpec, Verifier  # noqa: E402
 
 
 LONG_SPEC = (
@@ -53,7 +53,7 @@ class VerifyOrderTests(unittest.TestCase):
         self.assertFalse(result.ok)
         self.assertEqual(("out.txt",), result.missing_files)
         self.assertTrue(
-            result.raw_output_excerpt.startswith("[ringer] missing expected files: out.txt"),
+            result.raw_output_excerpt.startswith("[laufgitter] missing expected files: out.txt"),
             result.raw_output_excerpt,
         )
 
@@ -71,7 +71,7 @@ class VerifyOrderTests(unittest.TestCase):
         self.assertFalse(result.ok)
         self.assertEqual((), result.missing_files)
         self.assertTrue(
-            result.raw_output_excerpt.startswith("[ringer] check failed silently"),
+            result.raw_output_excerpt.startswith("[laufgitter] check failed silently"),
             result.raw_output_excerpt,
         )
 

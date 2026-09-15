@@ -1,6 +1,6 @@
 {
   "run_name": "phase0-litellm-probe",
-  "workdir": "/tmp/ringer-phase0",
+  "workdir": "/tmp/laufgitter-phase0",
   "tasks": [
     {
       "key": "gpt54-routing-probe",

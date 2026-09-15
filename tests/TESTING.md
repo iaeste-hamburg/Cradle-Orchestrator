@@ -1,11 +1,11 @@
 # Test recipes
 
-## `ringer.py ask`
+## `laufgitter.py ask`
 
 Status: tested
 
 Purpose: verify context-packet selection, one-worker execution, opt-in request
-redaction, Ringside state, artifact registration, and the one-attempt contract.
+redaction, Zentrale state, artifact registration, and the one-attempt contract.
 
 Safe actions:
 
@@ -20,9 +20,9 @@ Unsafe actions:
 
 Verification steps:
 
-1. Run `RINGER_NO_SELF_UPDATE=1 python3 -m unittest discover -s tests`.
+1. Run `LAUFGITTER_NO_SELF_UPDATE=1 python3 -m unittest discover -s tests`.
 2. Create a temporary Markdown source containing a distinctive answer passage.
-3. Run `RINGER_NO_SELF_UPDATE=1 python3 ./ringer.py ask "<question>" --source
+3. Run `LAUFGITTER_NO_SELF_UPDATE=1 python3 ./laufgitter.py ask "<question>" --source
    <temp-file> --dry-run`.
 4. Confirm the packet report names the source passage and stdout says
    `No model call was made.`

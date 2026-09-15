@@ -19,7 +19,7 @@ Do not use it when discovery is the main job. Run a broader research pass first,
 | Placeholder | What goes there |
 |---|---|
 | `{{PROJECT}}` | Short project or market name used in the run name. |
-| `{{WORKDIR}}` | Scratch run directory for Ringer task folders. |
+| `{{WORKDIR}}` | Scratch run directory for Laufgitter task folders. |
 | `{{TARGET_KEY}}` | Stable slug for one competitor or product, for example `acme-pro`. |
 | `{{TARGET_NAME}}` | Human-readable competitor or product name. |
 | `{{TARGET_DESCRIPTION}}` | One sentence describing this target and why it is in the comparison. |

@@ -57,8 +57,8 @@ class BackfillModelFromLogsTests(unittest.TestCase):
         self.write_fixture(
             {"run_id": "run-1", "task_key": "task-a", "model": "", "notes": "original"},
             command_lines=[
-                "[ringer.py] command: codex exec -m old-model 'first spec'",
-                "[ringer.py] command: codex exec --model=gpt-5.6-sol 'second spec' < /dev/null",
+                "[laufgitter.py] command: codex exec -m old-model 'first spec'",
+                "[laufgitter.py] command: codex exec --model=gpt-5.6-sol 'second spec' < /dev/null",
             ],
         )
 
@@ -69,13 +69,13 @@ class BackfillModelFromLogsTests(unittest.TestCase):
         self.assertEqual("gpt-5.6-sol", row["model"])
         self.assertEqual("original\nmodel_backfill=command_log", row["notes"])
         self.assertIn("model '' -> 'gpt-5.6-sol'", result.stdout)
-        self.assertIn("python3 ringer.py db rebuild --log", result.stdout)
+        self.assertIn("python3 laufgitter.py db rebuild --log", result.stdout)
 
     def test_does_not_guess_without_model_flag(self) -> None:
         original = {"run_id": "run-1", "task_key": "task-a", "notes": "keep"}
         self.write_fixture(
             original,
-            command_lines=["[ringer.py] command: codex exec --sandbox workspace-write 'spec'"],
+            command_lines=["[laufgitter.py] command: codex exec --sandbox workspace-write 'spec'"],
         )
         before = self.eval_log.read_bytes()
 
@@ -91,8 +91,8 @@ class BackfillModelFromLogsTests(unittest.TestCase):
         self.write_fixture(
             {"run_id": "run-1", "task_key": "task-a", "model": ""},
             command_lines=[
-                "[ringer.py] command: codex exec -m old-model 'first spec'",
-                "[ringer.py] command: codex exec --sandbox workspace-write 'latest spec'",
+                "[laufgitter.py] command: codex exec -m old-model 'first spec'",
+                "[laufgitter.py] command: codex exec --sandbox workspace-write 'latest spec'",
             ],
         )
         before = self.eval_log.read_bytes()
@@ -106,7 +106,7 @@ class BackfillModelFromLogsTests(unittest.TestCase):
     def test_dry_run_is_read_only_and_reports_change(self) -> None:
         worker_log = self.write_fixture(
             {"run_id": "run-1", "task_key": "task-a", "model": ""},
-            command_lines=["[ringer.py] command: codex exec --model gpt-dry-run 'spec'"],
+            command_lines=["[laufgitter.py] command: codex exec --model gpt-dry-run 'spec'"],
         )
         before_eval = self.eval_log.read_bytes()
         before_state = (self.state_dir / "runs" / "run-1.json").read_bytes()
@@ -125,7 +125,7 @@ class BackfillModelFromLogsTests(unittest.TestCase):
     def test_real_run_creates_exact_backup(self) -> None:
         self.write_fixture(
             {"run_id": "run-1", "task_key": "task-a", "model": "", "notes": "n"},
-            command_lines=["[ringer.py] command: codex exec -m backed-up 'spec'"],
+            command_lines=["[laufgitter.py] command: codex exec -m backed-up 'spec'"],
         )
         before = self.eval_log.read_bytes()
 
@@ -140,7 +140,7 @@ class BackfillModelFromLogsTests(unittest.TestCase):
     def test_second_run_is_idempotent(self) -> None:
         self.write_fixture(
             {"run_id": "run-1", "task_key": "task-a", "model": ""},
-            command_lines=["[ringer.py] command: codex exec -m stable-model 'spec'"],
+            command_lines=["[laufgitter.py] command: codex exec -m stable-model 'spec'"],
         )
         first = self.run_script()
         after_first = self.eval_log.read_bytes()
@@ -158,7 +158,7 @@ class BackfillModelFromLogsTests(unittest.TestCase):
     def test_unparseable_line_passes_through_byte_for_byte(self) -> None:
         worker_log = Path(self.temp.name) / "worker.log"
         worker_log.write_text(
-            "[ringer.py] command: codex exec -m recovered 'spec'\n", encoding="utf-8"
+            "[laufgitter.py] command: codex exec -m recovered 'spec'\n", encoding="utf-8"
         )
         (self.state_dir / "runs" / "run-1.json").write_text(
             json.dumps({"tasks": [{"key": "task-a", "log_path": str(worker_log)}]}),

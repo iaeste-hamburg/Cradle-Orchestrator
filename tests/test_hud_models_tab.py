@@ -12,7 +12,7 @@ from urllib.request import urlopen
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ringer import MODEL_SCOREBOARD_COLUMNS, PersistentHudServer  # noqa: E402
+from laufgitter import MODEL_SCOREBOARD_COLUMNS, PersistentHudServer  # noqa: E402
 
 
 def write_jsonl(path: Path, rows: list[dict[str, object]]) -> None:
@@ -51,11 +51,11 @@ class HudModelsTabTests(unittest.TestCase):
         self.addCleanup(self.restore_env)
         self.root = Path(self.tmp.name)
         os.environ["HOME"] = str(self.root / "home")
-        os.environ["RINGER_HOME"] = str(self.root / "ringer-home")
+        os.environ["LAUFGITTER_HOME"] = str(self.root / "laufgitter-home")
         self.state_dir = self.root / "state"
         self.state_dir.mkdir(parents=True)
         self.log_path = self.root / "models.jsonl"
-        self.db_path = self.root / "ringer.db"
+        self.db_path = self.root / "laufgitter.db"
 
     def restore_env(self) -> None:
         os.environ.clear()
@@ -112,7 +112,7 @@ class HudModelsTabTests(unittest.TestCase):
 
     def test_api_models_override_log_without_db_does_not_touch_default_db(self) -> None:
         write_jsonl(self.log_path, [attempt(run_id="run-1", task_key="a", task_type="code-feature")])
-        default_db = Path(os.environ["RINGER_HOME"]) / "ringer.db"
+        default_db = Path(os.environ["LAUFGITTER_HOME"]) / "laufgitter.db"
         _server, port = self.start_server(use_db=False)
 
         with urlopen(f"http://127.0.0.1:{port}/api/models", timeout=5) as response:

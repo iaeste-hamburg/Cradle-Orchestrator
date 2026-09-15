@@ -18,7 +18,7 @@ Use it when one context window cannot review the whole system well. The orchestr
 | Placeholder | What goes there |
 |---|---|
 | `{{PROJECT}}` | Short project or repo name for the run name and worker brief. |
-| `{{WORKDIR}}` | Absolute scratch directory where Ringer creates task directories. |
+| `{{WORKDIR}}` | Absolute scratch directory where Laufgitter creates task directories. |
 | `{{SURFACE_KEY}}` | Stable task key for one reviewed surface, such as `auth-routes` or `billing-ui`. |
 | `{{ONE_LINE_DESCRIPTION}}` | One sentence describing the product or repo being reviewed. |
 | `{{REPO_PATH}}` | Absolute path to the repo or source bundle the scout may read. |

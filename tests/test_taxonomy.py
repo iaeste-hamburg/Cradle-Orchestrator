@@ -15,14 +15,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ringer import (  # noqa: E402
+from laufgitter import (  # noqa: E402
     AppConfig,
     ArtifactConfig,
     EngineConfig,
     EvalConfig,
     Manifest,
     RESERVED_FIXTURE_MODELS,
-    RingerRunner,
+    LaufgitterRunner,
     VerifyResult,
     WorkerResult,
     aggregate_model_log_rows,
@@ -66,7 +66,7 @@ class TaxonomyTests(unittest.TestCase):
         self.old_env = os.environ.copy()
         self.addCleanup(self.restore_env)
         os.environ["HOME"] = str(self.root / "home")
-        os.environ["RINGER_HOME"] = str(self.root / "ringer-home")
+        os.environ["LAUFGITTER_HOME"] = str(self.root / "laufgitter-home")
         self.registry_path = self.root / "model-identity.toml"
         self.registry_path.write_text(
             """
@@ -221,7 +221,7 @@ source = "fixture"
                 ],
             }
         )
-        runner = RingerRunner(
+        runner = LaufgitterRunner(
             manifest,
             config=self.config(log_path=log_path, engines={"codex": engine}),
             identity="tester",
@@ -275,7 +275,7 @@ source = "fixture"
         self.assertIn(">DemoLab<", html)
 
     def test_existing_database_migrates_reasoning_effort_without_data_loss(self) -> None:
-        db_path = self.root / "ringer.db"
+        db_path = self.root / "laufgitter.db"
         with sqlite3.connect(db_path) as conn:
             conn.executescript(
                 """

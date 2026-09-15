@@ -1,6 +1,6 @@
-# Ringer Template Library
+# Laufgitter Template Library
 
-A kit is a reusable Ringer starter: a manifest skeleton, check skeletons, and a short README that capture one proven or planned task shape. At manifest-writing time, make one of three sanctioned moves: choose one kit and fill in the placeholders; mix and match by lifting a round, task shape, or check from one kit into another; or roll your own when nothing fits. Task specs and checks are designed to be lifted whole, so prefer moving complete pieces over rewriting them from memory. If you roll your own, skim the two nearest kits first so your manifest still inherits the prior art.
+A kit is a reusable Laufgitter starter: a manifest skeleton, check skeletons, and a short README that capture one proven or planned task shape. At manifest-writing time, make one of three sanctioned moves: choose one kit and fill in the placeholders; mix and match by lifting a round, task shape, or check from one kit into another; or roll your own when nothing fits. Task specs and checks are designed to be lifted whole, so prefer moving complete pieces over rewriting them from memory. If you roll your own, skim the two nearest kits first so your manifest still inherits the prior art.
 
 ## Catalog
 
@@ -24,7 +24,7 @@ A kit is a reusable Ringer starter: a manifest skeleton, check skeletons, and a 
 
 ## Kit Anatomy
 
-Standard kit files are `manifest.json`, `README.md`, and usually one or more executable helpers under `checks/`. Placeholders use bare identifiers like `{{NAME}}` for required values and freeform prompts like `{{THING — inline guidance}}` when the placeholder itself explains the choice to make. After fill-in, every manifest must pass `./ringer.py lint` before a run. Kit checks are skeletons to adapt to the real task; never turn them into `exit 0`, `true`, or any other check that cannot fail.
+Standard kit files are `manifest.json`, `README.md`, and usually one or more executable helpers under `checks/`. Placeholders use bare identifiers like `{{NAME}}` for required values and freeform prompts like `{{THING — inline guidance}}` when the placeholder itself explains the choice to make. After fill-in, every manifest must pass `./laufgitter.py lint` before a run. Kit checks are skeletons to adapt to the real task; never turn them into `exit 0`, `true`, or any other check that cannot fail.
 
 ## Composition Guide
 

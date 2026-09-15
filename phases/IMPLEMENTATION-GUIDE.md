@@ -4,13 +4,13 @@ This guide walks through the actual execution and manual gates between phases.
 
 ## Pre-Flight Checklist
 
-- [ ] `ringer.py` executable and in parent directory (`../ringer.py`)
+- [ ] `laufgitter.py` executable and in parent directory (`../laufgitter.py`)
 - [ ] Python 3.12+ installed
 - [ ] OpenCode CLI installed: `opencode --version`
 - [ ] OpenCode authenticated with litellm proxy: `opencode auth list` shows a provider
-- [ ] `~/.config/ringer/config.toml` exists with `[engines.opencode]` block
+- [ ] `~/.config/laufgitter/config.toml` exists with `[engines.opencode]` block
 - [ ] `opencode-sandboxed.sh` exists and is referenced in config by absolute path
-- [ ] Temporary directories writable: `/tmp/ringer-phase0/`, `/tmp/ringer-phase1/`, etc.
+- [ ] Temporary directories writable: `/tmp/laufgitter-phase0/`, `/tmp/laufgitter-phase1/`, etc.
 
 ## Phase 0 Execution
 
@@ -24,15 +24,15 @@ export OPENAI_API_KEY=your-litellm-key
 ### 2. Lint the manifest
 
 ```bash
-cd /path/to/Cradle-Orchestrator
-./ringer.py lint phases/phase0-litellm-probe.json
+cd /path/to/Laufgitter
+./laufgitter.py lint phases/phase0-litellm-probe.json
 # Expected output: "lint: clean (1 tasks)"
 ```
 
 ### 3. Run Phase 0
 
 ```bash
-./ringer.py run phases/phase0-litellm-probe.json
+./laufgitter.py run phases/phase0-litellm-probe.json
 ```
 
 Expected output: task "gpt54-routing-probe" should PASS or RETRY (if the check grep fails initially).
@@ -42,7 +42,7 @@ Expected output: task "gpt54-routing-probe" should PASS or RETRY (if the check g
 **This is the critical gate.** The check only grepped for "ROUTING_OK"; you must verify the backend:
 
 ```bash
-cat /tmp/ringer-phase0/gpt54-routing-probe/worker.log
+cat /tmp/laufgitter-phase0/gpt54-routing-probe/worker.log
 ```
 
 Look for a line like:
@@ -67,7 +67,7 @@ ROUTING_OK claude-3-opus-20250219  # (if it fell back to a default provider)
 ### 1. Lint
 
 ```bash
-./ringer.py lint phases/phase1-research-antigravity.json
+./laufgitter.py lint phases/phase1-research-antigravity.json
 ```
 
 Expected: "lint: clean (1 tasks)"
@@ -75,7 +75,7 @@ Expected: "lint: clean (1 tasks)"
 ### 2. Run Phase 1
 
 ```bash
-./ringer.py run phases/phase1-research-antigravity.json
+./laufgitter.py run phases/phase1-research-antigravity.json
 ```
 
 This will spawn one OpenCode worker that searches the web for Antigravity CLI docs. Timeout is 1800s (30 min). Expected PASS or RETRY with max_attempts: 2.
@@ -83,7 +83,7 @@ This will spawn one OpenCode worker that searches the web for Antigravity CLI do
 ### 3. Read and verify output
 
 ```bash
-jq . /tmp/ringer-phase1/research-antigravity-cli/antigravity-cli-facts.json | less
+jq . /tmp/laufgitter-phase1/research-antigravity-cli/antigravity-cli-facts.json | less
 ```
 
 **Verification checklist**:
@@ -142,19 +142,19 @@ jq . /tmp/ringer-phase1/research-antigravity-cli/antigravity-cli-facts.json | le
 If you edited `antigravity-cli-facts.json` by hand in Phase 1, confirm it's valid JSON:
 
 ```bash
-python3 -c "import json; json.load(open('/tmp/ringer-phase1/research-antigravity-cli/antigravity-cli-facts.json'))"; echo "Valid JSON"
+python3 -c "import json; json.load(open('/tmp/laufgitter-phase1/research-antigravity-cli/antigravity-cli-facts.json'))"; echo "Valid JSON"
 ```
 
 ### 2. Lint Phase 2
 
 ```bash
-./ringer.py lint phases/phase2-author-antigravity-engine.json
+./laufgitter.py lint phases/phase2-author-antigravity-engine.json
 ```
 
 ### 3. Run Phase 2
 
 ```bash
-./ringer.py run phases/phase2-author-antigravity-engine.json
+./laufgitter.py run phases/phase2-author-antigravity-engine.json
 ```
 
 Expected: gpt-5.4 reads Phase 1's facts and writes a TOML config block. PASS or RETRY.
@@ -162,7 +162,7 @@ Expected: gpt-5.4 reads Phase 1's facts and writes a TOML config block. PASS or 
 ### 4. Read and verify output
 
 ```bash
-cat /tmp/ringer-phase2/write-antigravity-engine-config/antigravity-engine-block.toml
+cat /tmp/laufgitter-phase2/write-antigravity-engine-config/antigravity-engine-block.toml
 ```
 
 Expected structure:
@@ -196,13 +196,13 @@ model_default = "gemini-3.8-medium"
 
 ```bash
 # Backup your current config
-cp ~/.config/ringer/config.toml ~/.config/ringer/config.toml.backup
+cp ~/.config/laufgitter/config.toml ~/.config/laufgitter/config.toml.backup
 
 # Append the antigravity engine block
-cat /tmp/ringer-phase2/write-antigravity-engine-config/antigravity-engine-block.toml >> ~/.config/ringer/config.toml
+cat /tmp/laufgitter-phase2/write-antigravity-engine-config/antigravity-engine-block.toml >> ~/.config/laufgitter/config.toml
 
 # Verify TOML is still valid
-python3 -c "import tomllib; tomllib.load(open('/home/$USER/.config/ringer/config.toml', 'rb'))"; echo "Config valid"
+python3 -c "import tomllib; tomllib.load(open('/home/$USER/.config/laufgitter/config.toml', 'rb'))"; echo "Config valid"
 ```
 
 ### 6. Set environment variables for Phase 3
@@ -235,30 +235,30 @@ If not installed, per Phase 1's findings, install it (likely via `npm`, `pip`, o
 ### 2. Lint Phase 3
 
 ```bash
-./ringer.py lint phases/phase3-antigravity-screenshot.json
+./laufgitter.py lint phases/phase3-antigravity-screenshot.json
 ```
 
 ### 3. Run Phase 3
 
 ```bash
 export GOOGLE_GENERATIVE_AI_API_KEY=<key>  # or other env vars from Phase 1/2
-./ringer.py run phases/phase3-antigravity-screenshot.json
+./laufgitter.py run phases/phase3-antigravity-screenshot.json
 ```
 
 Expected:
 - Task "write-contract": gpt-5.4 writes `contract.json`. PASS immediately.
 - Task "execute-screenshot": antigravity reads the contract, uses MCP tools to capture a screenshot, saves `screenshot.png`. PASS or RETRY.
-- After both PASS: check copies `screenshot.png` to `/tmp/ringer-phase3/artifacts-out/`.
+- After both PASS: check copies `screenshot.png` to `/tmp/laufgitter-phase3/artifacts-out/`.
 
 ### 4. Verify final artifact
 
 ```bash
-ls -lh /tmp/ringer-phase3/artifacts-out/screenshot.png
-file /tmp/ringer-phase3/artifacts-out/screenshot.png  # Should say "image data"
+ls -lh /tmp/laufgitter-phase3/artifacts-out/screenshot.png
+file /tmp/laufgitter-phase3/artifacts-out/screenshot.png  # Should say "image data"
 
 # Open and view
-open /tmp/ringer-phase3/artifacts-out/screenshot.png  # macOS
-# or: xdg-open /tmp/ringer-phase3/artifacts-out/screenshot.png  # Linux
+open /tmp/laufgitter-phase3/artifacts-out/screenshot.png  # macOS
+# or: xdg-open /tmp/laufgitter-phase3/artifacts-out/screenshot.png  # Linux
 ```
 
 Expected: A valid PNG image with dimensions meeting or exceeding the contract minimums.
@@ -270,8 +270,8 @@ python3 << 'EOF'
 import json
 from PIL import Image
 
-contract = json.load(open('/tmp/ringer-phase3/write-contract/contract.json'))
-img = Image.open('/tmp/ringer-phase3/artifacts-out/screenshot.png')
+contract = json.load(open('/tmp/laufgitter-phase3/write-contract/contract.json'))
+img = Image.open('/tmp/laufgitter-phase3/artifacts-out/screenshot.png')
 
 print(f"Contract min: {contract['min_width']}x{contract['min_height']}")
 print(f"Screenshot:   {img.width}x{img.height}")
@@ -289,9 +289,9 @@ Expected output: `Pass: True`
 
 | Problem | Diagnosis | Fix |
 |---------|-----------|-----|
-| `ringer.py: command not found` | ringer.py not executable or not in PATH | `cd /path/to/Cradle-Orchestrator && chmod +x ringer.py` |
+| `laufgitter.py: command not found` | laufgitter.py not executable or not in PATH | `cd /path/to/Laufgitter && chmod +x laufgitter.py` |
 | `ModuleNotFoundError: No module named 'tomllib'` | Python < 3.12 | Upgrade Python to 3.12+ |
-| `/tmp/ringer-phaseN/...` not found after run | Ringer cleaned up temp directory | Re-run the phase; check live results in `~/.ringer/runs/` |
+| `/tmp/laufgitter-phaseN/...` not found after run | Laufgitter cleaned up temp directory | Re-run the phase; check live results in `~/.laufgitter/runs/` |
 
 ### Phase 0
 
@@ -320,7 +320,7 @@ Expected output: `Pass: True`
 
 | Problem | Diagnosis | Fix |
 |---------|-----------|-----|
-| execute-screenshot task fails with "No such file" | `/tmp/ringer-phase3/write-contract/contract.json` doesn't exist | Ensure Phase 3 runs with `max_parallel: 1` so write-contract completes first |
+| execute-screenshot task fails with "No such file" | `/tmp/laufgitter-phase3/write-contract/contract.json` doesn't exist | Ensure Phase 3 runs with `max_parallel: 1` so write-contract completes first |
 | `agy: command not found` | Antigravity CLI not installed or not in PATH | Install per Phase 1's findings; ensure it's executable |
 | PIL import error in check | Python doesn't have Pillow installed | `pip install Pillow` |
 | Screenshot dimensions too small | antigravity produced smaller image than contract requires | Adjust contract minimums in Phase 3 spec, or debug antigravity's MCP tool |
@@ -333,9 +333,9 @@ Your integration is complete when:
 
 1. ✅ Phase 0: `worker.log` confirms gpt-5.4 is routed through litellm
 2. ✅ Phase 1: `antigravity-cli-facts.json` is populated with sourced facts and no key contradictions
-3. ✅ Phase 2: `antigravity-engine-block.toml` is valid TOML and merged into `~/.config/ringer/config.toml`
+3. ✅ Phase 2: `antigravity-engine-block.toml` is valid TOML and merged into `~/.config/laufgitter/config.toml`
 4. ✅ Phase 3: `screenshot.png` is a valid image meeting contract dimensions
-5. ✅ Antigravity engine is registered and can be used in future Ringer manifests:
+5. ✅ Antigravity engine is registered and can be used in future Laufgitter manifests:
    ```bash
-   ./ringer.py run my-manifest.json --engine antigravity
+   ./laufgitter.py run my-manifest.json --engine antigravity
    ```

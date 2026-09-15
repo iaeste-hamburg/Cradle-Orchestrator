@@ -15,8 +15,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-import ringer  # noqa: E402
-from ringer import (  # noqa: E402
+import laufgitter  # noqa: E402
+from laufgitter import (  # noqa: E402
     AppConfig,
     ArtifactConfig,
     EvalConfig,
@@ -75,7 +75,7 @@ class ScoreboardPageTests(unittest.TestCase):
         self.old_env = os.environ.copy()
         self.addCleanup(self.restore_env)
         os.environ["HOME"] = str(self.root / "home")
-        os.environ["RINGER_HOME"] = str(self.root / "ringer-home")
+        os.environ["LAUFGITTER_HOME"] = str(self.root / "laufgitter-home")
         self.log_path = self.root / "eval.jsonl"
         self.catalog_path = self.root / "catalog.json"
         self.notes_path = self.root / "MODEL-NOTES.md"
@@ -298,8 +298,8 @@ class ScoreboardPageTests(unittest.TestCase):
         self.assertIn("no judgment notes yet", html)
 
     def test_html_header_links_watchlist_and_footer_diagnostics(self) -> None:
-        generated_at = ringer.datetime.fromisoformat("2026-07-06T12:20:00+00:00")
-        with mock.patch.object(ringer, "datetime", wraps=ringer.datetime) as mocked_datetime:
+        generated_at = laufgitter.datetime.fromisoformat("2026-07-06T12:20:00+00:00")
+        with mock.patch.object(laufgitter, "datetime", wraps=laufgitter.datetime) as mocked_datetime:
             mocked_datetime.now.return_value = generated_at
             html = self.render_to(self.root / "scoreboard.html")
 
@@ -384,14 +384,14 @@ class ScoreboardPageTests(unittest.TestCase):
     def test_html_path_with_open_writes_and_opens_explicit_path_without_library(self) -> None:
         html_path = self.root / "custom-open.html"
         out = io.StringIO()
-        with mock.patch.object(ringer, "open_in_browser") as open_in_browser:
+        with mock.patch.object(laufgitter, "open_in_browser") as open_in_browser:
             with contextlib.redirect_stdout(out):
                 self.assertEqual(0, run_models_command(self.config, self.args(html=str(html_path), open=True)))
 
         self.assertEqual(str(html_path.resolve()) + "\n", out.getvalue())
         self.assertTrue(html_path.exists())
         self.assertFalse(artifact_library_path(self.config.state_dir).exists())
-        open_in_browser.assert_called_once_with(ringer.file_href(html_path.resolve()))
+        open_in_browser.assert_called_once_with(laufgitter.file_href(html_path.resolve()))
 
     def test_html_without_path_writes_live_artifact_library_entry(self) -> None:
         out = io.StringIO()

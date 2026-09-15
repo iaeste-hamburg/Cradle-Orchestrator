@@ -1,8 +1,8 @@
-# Ringer
+# Laufgitter
 
-[![tests](https://github.com/NateBJones-Projects/ringer/actions/workflows/tests.yml/badge.svg)](https://github.com/NateBJones-Projects/ringer/actions/workflows/tests.yml)
+[![tests](https://github.com/iaeste-hamburg/Laufgitter/actions/workflows/tests.yml/badge.svg)](https://github.com/iaeste-hamburg/Laufgitter/actions/workflows/tests.yml)
 
-![Ringer — she reviews; the wall works](docs/hero.png)
+![Laufgitter — she reviews; the wall works](docs/hero.png)
 
 **Parallel AI-agent swarms that prove their work. Your expensive model plans and reviews; cheap workers do the typing.**
 
@@ -10,28 +10,28 @@ Frontier models are finally good enough to trust with real implementation — bu
 
 So split the roles. Your best model writes the specs and reviews the results. A swarm of cheap workers — Codex, Grok, anything with a CLI — does the implementation in parallel. Your premium budget stops scaling with lines of code written and starts scaling with decisions made.
 
-One problem: parallel agents lie. "Done" doesn't mean working. Ringer doesn't take the worker's word for anything — it **executes your check command** against the artifact. Pass or fail is decided by running the code, not by reading the agent's summary. Failures retry once with the failure context injected, and every attempt is logged so your setup gets measurably better over time.
+One problem: parallel agents lie. "Done" doesn't mean working. Laufgitter doesn't take the worker's word for anything — it **executes your check command** against the artifact. Pass or fail is decided by running the code, not by reading the agent's summary. Failures retry once with the failure context injected, and every attempt is logged so your setup gets measurably better over time.
 
-And because a swarm you can't see is a swarm you don't trust: **Ringside**, a local web page every run opens automatically, showing every live swarm on your machine — who's running it, what each worker is doing, elapsed time, token burn — in real time, plus a versioned library of what past runs produced.
+And because a swarm you can't see is a swarm you don't trust: **Zentrale**, a local web page every run opens automatically, showing every live swarm on your machine — who's running it, what each worker is doing, elapsed time, token burn — in real time, plus a versioned library of what past runs produced.
 
 ## How it works
 
 ```
-manifest.json ──▶ ringer.py ──▶ N parallel workers (codex exec, each in its own dir)
+manifest.json ──▶ laufgitter.py ──▶ N parallel workers (codex exec, each in its own dir)
                       │                │
                       │                ▼
                       │         executed checks ── fail ──▶ retry once w/ failure context
                       │                │
                       ▼                ▼
-              ~/.ringer/runs/    eval log (JSONL or Postgres)
+              ~/.laufgitter/runs/    eval log (JSONL or Postgres)
                       │
                       ▼
-              Ringside, in the browser (live, all swarms, all identities)
+              Zentrale, in the browser (live, all swarms, all identities)
 ```
 
 ## Quickstart
 
-Ringer runs on macOS and Linux (Windows via WSL) and needs Python 3.12+.
+Laufgitter runs on macOS and Linux (Windows via WSL) and needs Python 3.12+.
 
 1. Install a worker CLI and sign in (Codex is the built-in default engine):
 
@@ -43,29 +43,29 @@ codex login                    # sign in with your ChatGPT plan
 2. Get the repo:
 
 ```bash
-git clone https://github.com/NateBJones-Projects/ringer && cd ringer
-mkdir -p ~/.config/ringer && cp config.sample.toml ~/.config/ringer/config.toml   # optional — sane defaults without it
+git clone https://github.com/iaeste-hamburg/Laufgitter && cd laufgitter
+mkdir -p ~/.config/laufgitter && cp config.sample.toml ~/.config/laufgitter/config.toml   # optional — sane defaults without it
 ```
 
-3. Teach your agent to route work through Ringer:
+3. Teach your agent to route work through Laufgitter:
 
 ```bash
-# optional but recommended: teach your agent to route work through ringer
-./ringer.py install-agent
+# optional but recommended: teach your agent to route work through laufgitter
+./laufgitter.py install-agent
 ```
 
 4. Run the demo:
 
 ```bash
-./ringer.py demo                                      # 3 real workers, verified end to end
+./laufgitter.py demo                                      # 3 real workers, verified end to end
 ```
 
-The demo spawns three Codex workers in parallel, verifies each artifact by executing it, and prints a verdict table — and Ringside, the live dashboard, opens in your browser on its own. If all three say PASS, that's the whole setup.
+The demo spawns three Codex workers in parallel, verifies each artifact by executing it, and prints a verdict table — and Zentrale, the live dashboard, opens in your browser on its own. If all three say PASS, that's the whole setup.
 
 Run your own batch:
 
 ```bash
-./ringer.py run swarm.json --max-parallel 4
+./laufgitter.py run swarm.json --max-parallel 4
 ```
 
 ```json
@@ -84,15 +84,15 @@ Run your own batch:
 }
 ```
 
-Each task gets its own directory, its own worker, its own log, and its own verdict. `check` is any shell command — exit 0 is the only thing Ringer believes.
+Each task gets its own directory, its own worker, its own log, and its own verdict. `check` is any shell command — exit 0 is the only thing Laufgitter believes.
 
 > **Write checks that print why they fail.** A silent `exit 1` (the `git diff --quiet` style) costs you twice: the retry prompt gets no failure context to fix against, and the eval log records an undiagnosable row. `diff` beats `diff -q`; an assert with a message beats a bare test.
 
 > **A check cannot demand evidence the spec never supplied.** Before failing a worker for missing evidence or input, re-read the task inputs. If the spec didn't provide a value, the check must not invent one and fail on its absence — an honest UNVERIFIABLE answer is not a failure. Reserve hard failure for what the spec actually asserted.
 
-> **Executed checks catch laziness, not subtle wrongness.** A check that *runs* the artifact catches a plausible-but-wrong change far less often than it catches a missing one. Whenever a swarm touches a dogfood artifact (Ringer's own docs, config, or checks), add an "our own artifact passes our own validator" test so the checker exercises what it preaches. And keep orchestrator patch review mandatory regardless of PASS status — a green check is not proof of semantic correctness.
+> **Executed checks catch laziness, not subtle wrongness.** A check that *runs* the artifact catches a plausible-but-wrong change far less often than it catches a missing one. Whenever a swarm touches a dogfood artifact (Laufgitter's own docs, config, or checks), add an "our own artifact passes our own validator" test so the checker exercises what it preaches. And keep orchestrator patch review mandatory regardless of PASS status — a green check is not proof of semantic correctness.
 
-**Identity**: runs are stamped with an orchestrator identity (shown in Ringside and eval rows). Resolution order: `--identity` > `FLEET_IDENTITY`/`RINGER_IDENTITY` env > a `.fleet-agent` file found walking up from the working directory (drop one in a repo root to give that repo's swarms their own name) > `identity_default` in config > short hostname.
+**Identity**: runs are stamped with an orchestrator identity (shown in Zentrale and eval rows). Resolution order: `--identity` > `FLEET_IDENTITY`/`LAUFGITTER_IDENTITY` env > a `.fleet-agent` file found walking up from the working directory (drop one in a repo root to give that repo's swarms their own name) > `identity_default` in config > short hostname.
 
 ### Manifest fields
 
@@ -107,7 +107,7 @@ Each task gets its own directory, its own worker, its own log, and its own verdi
 | `task_type` | Optional free-form string naming the kind of work this task is, so the model-performance log can slice pass rates by task shape rather than only by model. Suggested vocabulary: `code-feature`, `code-fix`, `code-review`, `test-hardening`, `docs`, `research`, `persona-review`, `copywriting`, `site-build`, `motion-design`, `image-gen`, `data-pipeline`, `format-conversion`, `probe`, `bakeoff`. Empty is allowed; the log just reports it under `(none)`. |
 | `timeout_s` | Per-task kill timer (default 900) |
 | `max_attempts` | How many times this task may run (default 2 — one try plus one retry with the check's failure output injected). Set `1` for a hard no-retry lane |
-| `redact_spec` | Replace this task's spec with `[redacted request packet]` in the run state, the logged command line, and the eval row, for specs carrying sensitive material. Redacts Ringer's own records only — captured worker output is never rewritten (invariant), so a worker that echoes its request still puts that text in `worker.log` |
+| `redact_spec` | Replace this task's spec with `[redacted request packet]` in the run state, the logged command line, and the eval row, for specs carrying sensitive material. Redacts Laufgitter's own records only — captured worker output is never rewritten (invariant), so a worker that echoes its request still puts that text in `worker.log` |
 | `engine_args` | Extra CLI flags for this task's worker, spliced in at the engine's `{engine_args}` placeholder — e.g. `["-c", "model_reasoning_effort=low"]` so the orchestrator picks reasoning depth per task |
 | `verified` | One plain-English sentence saying what the check proves — shown on the results page next to "finished & checked" |
 | `full_access` | Worker runs unsandboxed — required for workers that spawn their own sub-workers; must also be enabled in config |
@@ -124,15 +124,15 @@ source you can already point at, `ask` selects the passages that match the
 request, caps the packet, and runs a single worker on it:
 
 ```bash
-./ringer.py ask "Why did the Wednesday release slip?" --source notes/status.md
-./ringer.py ask "..." --source src/ --source docs/ --dry-run   # show the packet, spend nothing
+./laufgitter.py ask "Why did the Wednesday release slip?" --source notes/status.md
+./laufgitter.py ask "..." --source src/ --source docs/ --dry-run   # show the packet, spend nothing
 ```
 
 Repeat `--source` for more files or directories. `--state` takes a small file
 of settled decisions and is preferred over ordinary sources when the packet is
 tight. `--max-packet-bytes` sets the budget (default 16,000). `--dry-run`
 prints the selection report and stops before any model call. `--redact` keeps
-the request out of the run state and eval row. The run appears on Ringside and
+the request out of the run state and eval row. The run appears on Zentrale and
 in the artifact library like any other.
 
 If everything that matches is too big for the packet, `ask` says so — naming the
@@ -146,7 +146,7 @@ one resolving to a sensitive filename, is skipped and reported. A file you name
 explicitly is always read — naming it is consent.
 
 > `ask` verifies only that an answer was produced and is non-empty. There is
-> nothing to execute against free-form prose, so this is the one lane in Ringer
+> nothing to execute against free-form prose, so this is the one lane in Laufgitter
 > where the check does not prove the result is right. Read the answer. Anything
 > whose output a check could actually execute belongs in a manifest.
 
@@ -155,7 +155,7 @@ explicitly is always read — naming it is consent.
 Lint checks a manifest for the mistakes that make swarms hard to trust: checks that cannot fail, silent checks, worktree deliverables that disappear, worker commits that die with deleted worktrees, serial fan-out, write collisions, and underspecified specs.
 
 ```bash
-./ringer.py lint templates/review-swarm/manifest.json
+./laufgitter.py lint templates/review-swarm/manifest.json
 lint: clean (1 tasks)
 ```
 
@@ -168,7 +168,7 @@ A check that cannot fail is trusting the worker with extra steps.
 Lint reads the manifest; `--baseline` executes it — every task's `check` runs against the unmodified tree, spawning no workers and writing no eval rows:
 
 ```bash
-./ringer.py run swarm.json --baseline
+./laufgitter.py run swarm.json --baseline
 ```
 
 Each check runs in a fresh scratch dir (a detached worktree when the manifest uses worktrees) through the same verifier as a real run. Reading the results: an assertion that demands the NEW behavior workers will build is *expected* to FAIL baseline; an assertion about UNCHANGED behavior that fails baseline is a bug in the check itself, and at run time it would burn a worker's attempts against something no model can satisfy. Fix the check before spawning.
@@ -180,12 +180,12 @@ Between swarms, agents drift back to invisible inline work. Reminders decay, so 
 Run one command:
 
 ```bash
-./ringer.py install-agent
+./laufgitter.py install-agent
 ```
 
-It installs the ringer skill — the orchestrator playbook — user-level for Claude Code, and registers two gentle hooks: a Bash hook that notices model-calling or harness commands running outside a live Ringer run, and an edit-loop hook that notices batch editing without a run. Each hook nudges ONCE per session, pointing the agent at the skill.
+It installs the laufgitter skill — the orchestrator playbook — user-level for Claude Code, and registers two gentle hooks: a Bash hook that notices model-calling or harness commands running outside a live Laufgitter run, and an edit-loop hook that notices batch editing without a run. Each hook nudges ONCE per session, pointing the agent at the skill.
 
-The hooks never block anything. A user who says "just do it inline" is obeyed; uninstall with `./ringer.py uninstall-agent`.
+The hooks never block anything. A user who says "just do it inline" is obeyed; uninstall with `./laufgitter.py uninstall-agent`.
 
 For CI and evals, `config.sample.toml` includes `[engines.mock]` so the enforcement stack can be tested without an API bill.
 
@@ -193,7 +193,7 @@ For CI and evals, `config.sample.toml` includes `[engines.mock]` so the enforcem
 
 ![Identical workers, each under its own light](docs/engines.png)
 
-Ringer ships with three worker lanes: **Codex CLI** is the built-in default, and `config.sample.toml` carries verified engine blocks for **Grok Build CLI** (works as-is once you `grok login`) and **OpenCode + OpenRouter** (one edit: point `bin` at the sandbox wrapper in your clone). Anything else with a headless CLI is a config block away:
+Laufgitter ships with three worker lanes: **Codex CLI** is the built-in default, and `config.sample.toml` carries verified engine blocks for **Grok Build CLI** (works as-is once you `grok login`) and **OpenCode + OpenRouter** (one edit: point `bin` at the sandbox wrapper in your clone). Anything else with a headless CLI is a config block away:
 
 ```toml
 [engines.mymodel]
@@ -207,7 +207,7 @@ Per-task `"engine": "mymodel"` routes work to it — the invariants (stdin close
 
 Unless a model ships its own first-class harness (Codex does), OpenCode is the harness that runs it — one engine block covers every OpenRouter-served model. `config.sample.toml` includes a ready-to-uncomment engine whose `{model}` placeholder is filled per task from the manifest's `"model"` field, with `model_default` as the fallback. The shipped default is OpenRouter's `z-ai/glm-5.2` — roughly $0.74/M input and $2.33/M output (2026-07), about 20-30x cheaper output than frontier coding models; a complete write-code-and-pass-the-check task lands around a penny.
 
-OpenCode ships no OS sandbox, so the engine's `bin` points at an absolute path to `engines/opencode-sandboxed.sh` (ringer does not resolve engine bins relative to the repo): a macOS Seatbelt wrapper that leaves network and reads open but confines writes to the task dir, a per-run scratch dir (wired as the agent's `TMPDIR`/`XDG_CACHE_HOME`), and OpenCode's own state/config dirs. Its `--dangerously-skip-permissions` flag only silences OpenCode's interactive prompts; Seatbelt is the actual containment. Task paths reach the profile as `sandbox-exec -D` parameters rather than string interpolation, so a task dir with quotes or parens can't inject sandbox rules. `--no-sandbox` is wired as the engine's `full_access_args`, so ringer's `allow_full_access` gate still governs escapes. Non-macOS installs need their own sandbox (or full-access mode).
+OpenCode ships no OS sandbox, so the engine's `bin` points at an absolute path to `engines/opencode-sandboxed.sh` (laufgitter does not resolve engine bins relative to the repo): a macOS Seatbelt wrapper that leaves network and reads open but confines writes to the task dir, a per-run scratch dir (wired as the agent's `TMPDIR`/`XDG_CACHE_HOME`), and OpenCode's own state/config dirs. Its `--dangerously-skip-permissions` flag only silences OpenCode's interactive prompts; Seatbelt is the actual containment. Task paths reach the profile as `sandbox-exec -D` parameters rather than string interpolation, so a task dir with quotes or parens can't inject sandbox rules. `--no-sandbox` is wired as the engine's `full_access_args`, so laufgitter's `allow_full_access` gate still governs escapes. Non-macOS installs need their own sandbox (or full-access mode).
 
 Setting it up takes about five minutes:
 
@@ -220,7 +220,7 @@ curl -fsSL https://opencode.ai/install | bash
 # 2) Connect OpenRouter — create a key at https://openrouter.ai/settings/keys
 opencode auth login   # select OpenRouter, paste the key
 
-# 3) In ~/.config/ringer/config.toml, uncomment [engines.opencode] and set
+# 3) In ~/.config/laufgitter/config.toml, uncomment [engines.opencode] and set
 #    bin to the ABSOLUTE path of engines/opencode-sandboxed.sh in this clone.
 #    (Linux/WSL: the wrapper is macOS-only — set bin to the opencode binary
 #    itself; there is no OS write-confinement then, so keep manifests scoped.)
@@ -240,12 +240,12 @@ curl -fsSL https://x.ai/cli/install.sh | bash
 # 2) Sign in — OAuth on a SuperGrok or X Premium Plus plan
 grok login
 
-# 3) In ~/.config/ringer/config.toml, uncomment [engines.grok]
+# 3) In ~/.config/laufgitter/config.toml, uncomment [engines.grok]
 ```
 
 Route with per-task `"engine": "grok"` and pick the model with `"model": "grok-build"` or `"model": "grok-composer-2.5-fast"` (the shipped default — the speed pick). Grok brings its own OS sandbox on macOS (profile `workspace`: read everywhere, writes confined to the task dir, temp, and `~/.grok`), and its JSON output exposes no token counts — plan-billed workers report cost as included in plan.
 
-`args_template` is an argv array, not a shell string. Ringer replaces `{taskdir}`, `{spec}`, and `{model}` inside each argv element. `{access_args}`, `{sandbox_args}`, `{full_access_args}`, `{model_args}` (becomes `-m <resolved model>` when the task or engine names one), and `{engine_args}` (the task's per-task `engine_args`) expand to multiple argv elements only when they appear as their own array item.
+`args_template` is an argv array, not a shell string. Laufgitter replaces `{taskdir}`, `{spec}`, and `{model}` inside each argv element. `{access_args}`, `{sandbox_args}`, `{full_access_args}`, `{model_args}` (becomes `-m <resolved model>` when the task or engine names one), and `{engine_args}` (the task's per-task `engine_args`) expand to multiple argv elements only when they appear as their own array item.
 
 Watch for variadic CLI flags. If an engine has a flag that consumes all following values, put `{spec}` before that flag. For Claude-style CLIs, prefer:
 
@@ -261,34 +261,34 @@ args_template = ["-p", "--allowedTools", "Bash", "{spec}"]
 
 Each worker process runs with cwd set to `workdir/<task.key>/`. Use absolute paths in `spec` when workers need shared inputs outside their task directory.
 
-## Ringside — mission control
+## Zentrale — mission control
 
-![Ringside in the browser: a run's live results page with per-worker status and verification](docs/ringside.png)
+![Zentrale in the browser: a run's live results page with per-worker status and verification](docs/zentrale.png)
 
-Ringside is a local web page — no install, no account, nothing leaves your machine. Your first run opens it automatically; every later run streams into the same tab:
+Zentrale is a local web page — no install, no account, nothing leaves your machine. Your first run opens it automatically; every later run streams into the same tab:
 
 ```bash
-./ringer.py run manifest.json   # starts Ringside and opens the tab for you
-./ringer.py hud                 # or open it any time → http://127.0.0.1:8700
+./laufgitter.py run manifest.json   # starts Zentrale and opens the tab for you
+./laufgitter.py hud                 # or open it any time → http://127.0.0.1:8700
 ```
 
 The top of the page is the run's live results document: what the job is, a progress bar of rounds, and "The work" — every deliverable each worker filed, with a plain-English line saying what the check proved and the raw check output one click away. Below it, the agents: expand a worker to see the exact brief it was handed, which engine and model are typing, and its live work stream. Past runs stay in a versioned library, and a swarm whose orchestrator *died* without finishing gets its own unmissable state — the failure mode every dashboard forgets.
 
-Multiple swarms at once is the designed-for case: run three batches under three identities and Ringside shows all three, live. `--browser` opens a simpler per-run fallback dashboard, and `--no-dashboard` runs headless.
+Multiple swarms at once is the designed-for case: run three batches under three identities and Zentrale shows all three, live. `--browser` opens a simpler per-run fallback dashboard, and `--no-dashboard` runs headless.
 
 A native desktop build (Tauri, under `hud/`) exists as a v0.1.1 prototype; the web dashboard is currently ahead of it — start there.
 
 ## Self-update
 
-Ringer checks `origin/main` at process start, before it dispatches the requested command. Checks are throttled to once per hour by default. You can also run `./ringer.py self-update` for an immediate, human-readable check that ignores the throttle.
+Laufgitter checks `origin/main` at process start, before it dispatches the requested command. Checks are throttled to once per hour by default. You can also run `./laufgitter.py self-update` for an immediate, human-readable check that ignores the throttle.
 
-An automatic update applies only when the checkout containing `ringer.py` is on `main`, has no tracked changes, and `origin/main` can be reached with a fast-forward-only update. Untracked files do not block it. After applying, Ringer restarts the original invocation so the requested command runs on the new code.
+An automatic update applies only when the checkout containing `laufgitter.py` is on `main`, has no tracked changes, and `origin/main` can be reached with a fast-forward-only update. Untracked files do not block it. After applying, Laufgitter restarts the original invocation so the requested command runs on the new code.
 
-Ringer never creates a merge commit, never rebases, never stashes or deletes changes, and never updates a dirty tracked tree. Regular commands do not update in the middle of a run: their only check happens at process start before dispatch.
+Laufgitter never creates a merge commit, never rebases, never stashes or deletes changes, and never updates a dirty tracked tree. Regular commands do not update in the middle of a run: their only check happens at process start before dispatch.
 
-The persistent `hud` command is the exception for long-running code. It checks on the configured interval and restarts itself after an ff-only update. It also restarts when the checkout's on-disk HEAD changes after a manual pull. Before restarting it closes the HTTP server, whose socket is configured for immediate reuse. If an update is available but blocked, Ringside keeps serving the running code and shows the reason in a dismissible banner.
+The persistent `hud` command is the exception for long-running code. It checks on the configured interval and restarts itself after an ff-only update. It also restarts when the checkout's on-disk HEAD changes after a manual pull. Before restarting it closes the HTTP server, whose socket is configured for immediate reuse. If an update is available but blocked, Zentrale keeps serving the running code and shows the reason in a dismissible banner.
 
-Disable automatic checks for one invocation with `--no-self-update`, for an environment or service with `RINGER_NO_SELF_UPDATE=1`, or permanently in config:
+Disable automatic checks for one invocation with `--no-self-update`, for an environment or service with `LAUFGITTER_NO_SELF_UPDATE=1`, or permanently in config:
 
 ```toml
 [update]
@@ -308,22 +308,22 @@ Every worker attempt — pass, fail, timeout, retry — is logged with its spec,
 
 The scoreboard keeps the trained model, its lab, the invoking harness, the access plan, and any explicit reasoning effort as separate fields. Reserved test names never render, and historical rows without a stamped model are quarantined instead of being credited to an engine default. Models with a declared canonical access route are enforced at lint and run time — a manifest that reaches a model through a non-sanctioned harness/slug is refused unless you pass `--allow-noncanonical-route`, and historical rows from such routes display as `misrouted` and are never ranked. See the normative [model identity taxonomy](docs/TAXONOMY.md).
 
-Every task attempt is logged **automatically and locally** to `~/.ringer/runs.jsonl` — no setup, no account, nothing leaves your machine. Each row carries the per-attempt verdict straight from the EXECUTED check, plus duration, tokens, the resolved `model`, the task's `task_type` (if the manifest set one), and the `retry` number.
+Every task attempt is logged **automatically and locally** to `~/.laufgitter/runs.jsonl` — no setup, no account, nothing leaves your machine. Each row carries the per-attempt verdict straight from the EXECUTED check, plus duration, tokens, the resolved `model`, the task's `task_type` (if the manifest set one), and the `retry` number.
 
 Read it with:
 
 ```bash
-./ringer.py models          # per-(model, task_type) scoreboard across the local log
+./laufgitter.py models          # per-(model, task_type) scoreboard across the local log
 ```
 
-The scoreboard reports, per model and task_type: tasks, attempts, `pass_rate`, `first_try_pass_rate`, median duration and token count, and `last_seen`. The signal for routing is `first_try_pass_rate` — the share of tasks that passed on attempt 1 without a retry; `pass_rate` is the rescued rate after Ringer's single retry, so the gap between the two is the cost of the retry lane. Slice the log with `--log` (a different JSONL), `--task-type`, `--model`, `--engine`, `--since`, or `--json` for piping elsewhere.
+The scoreboard reports, per model and task_type: tasks, attempts, `pass_rate`, `first_try_pass_rate`, median duration and token count, and `last_seen`. The signal for routing is `first_try_pass_rate` — the share of tasks that passed on attempt 1 without a retry; `pass_rate` is the rescued rate after Laufgitter's single retry, so the gap between the two is the cost of the retry lane. Slice the log with `--log` (a different JSONL), `--task-type`, `--model`, `--engine`, `--since`, or `--json` for piping elsewhere.
 
 History from before the `model` / `task_type` / `retry` columns existed can be seeded in one pass:
 
 ```bash
 ./scripts/backfill_model_log.py \
-  --log ~/.ringer/runs.jsonl \
-  --runs-dir ~/.ringer/runs \
+  --log ~/.laufgitter/runs.jsonl \
+  --runs-dir ~/.laufgitter/runs \
   --mapping mapping.json
 ```
 
@@ -339,10 +339,10 @@ Rows that match nothing keep their old `task_type` (empty); rows whose run-state
 
 ### Evidence-based routing
 
-The scoreboard only knows models you've already run. To reason about models you *haven't* tried yet, Ringer keeps a local snapshot of the OpenRouter catalog and a change log alongside the runs log:
+The scoreboard only knows models you've already run. To reason about models you *haven't* tried yet, Laufgitter keeps a local snapshot of the OpenRouter catalog and a change log alongside the runs log:
 
 ```bash
-./ringer.py catalog                  # fetch/refresh ~/.ringer/openrouter-catalog.json
+./laufgitter.py catalog                  # fetch/refresh ~/.laufgitter/openrouter-catalog.json
 ```
 
 | Flag | What it does |
@@ -354,15 +354,15 @@ The scoreboard only knows models you've already run. To reason about models you 
 | `--changes` | Print the recorded add/remove/price_change/went_free/went_paid events from `.changes.jsonl` |
 | `--json` | Emit the snapshot (or, with `--changes`, the event log) as JSON for piping |
 
-The snapshot lives at `~/.ringer/openrouter-catalog.json`; the change log sits beside it as `~/.ringer/openrouter-catalog.changes.jsonl`, appending one row per added, removed, price-changed, went-free, or went-paid event between snapshots. Free promos get their own call-out (`went_free`) because a temporarily-free model is a zero-cost experiment — the cheapest way to audition a new model is to catch it while someone else is paying for it.
+The snapshot lives at `~/.laufgitter/openrouter-catalog.json`; the change log sits beside it as `~/.laufgitter/openrouter-catalog.changes.jsonl`, appending one row per added, removed, price-changed, went-free, or went-paid event between snapshots. Free promos get their own call-out (`went_free`) because a temporarily-free model is a zero-cost experiment — the cheapest way to audition a new model is to catch it while someone else is paying for it.
 
-Catalog fetches are throttled to once per 24 hours. A `run` triggers that refresh in the background on its way up; it never blocks or fails a run — if the fetch is slow or the network is down, Ringer carries on with the snapshot it has. The throttle and the auto-refresh-on-run are both documented in `./ringer.py run --help` and can be turned off there.
+Catalog fetches are throttled to once per 24 hours. A `run` triggers that refresh in the background on its way up; it never blocks or fails a run — if the fetch is slow or the network is down, Laufgitter carries on with the snapshot it has. The throttle and the auto-refresh-on-run are both documented in `./laufgitter.py run --help` and can be turned off there.
 
 Once you have a catalog and a log, `models --explore` joins them into a routing recommendation:
 
 ```bash
-./ringer.py models --explore                 # tiers across all task types
-./ringer.py models --explore --task-type docs # tiers for one task shape
+./laufgitter.py models --explore                 # tiers across all task types
+./laufgitter.py models --explore --task-type docs # tiers for one task shape
 ```
 
 Models with local evidence are sorted into tiers:
@@ -377,7 +377,7 @@ The per-user philosophy, stated plainly: every user's workload is different, so 
 
 ## Steering profiles
 
-Ringer can optionally load per-model steering profiles, prepend applicable worker rules to both first-attempt and retry prompts, print driver guidance for the orchestrator, and collect one local observation row per attempt. The feature is fail-open: missing or malformed steering data never blocks a run. Setup, the profile contract, and the observation schema are documented in [`docs/STEERING.md`](docs/STEERING.md).
+Laufgitter can optionally load per-model steering profiles, prepend applicable worker rules to both first-attempt and retry prompts, print driver guidance for the orchestrator, and collect one local observation row per attempt. The feature is fail-open: missing or malformed steering data never blocks a run. Setup, the profile contract, and the observation schema are documented in [`docs/STEERING.md`](docs/STEERING.md).
 
 ## Hard-won invariants
 
@@ -392,6 +392,8 @@ Four rules are baked into every worker invocation. They all cost us real debuggi
 
 Every community PR that lands in main is credited here — that's a project rule, enforced by a test. Thank you:
 
+- [@iaeste-hamburg](https://github.com/iaeste-hamburg) — four-phase Antigravity integration workflow with contract-driven execution (#1)
+- [@le-dawg](https://github.com/le-dawg) — codebase renaming to Laufgitter and Zentrale, SSH commit signing configuration
 - [@Fiddlehead-MB](https://github.com/Fiddlehead-MB) (Melinda Byerley) — exact-byte demo checks, explicit newline instructions, and regression coverage (#101)
 - [@oceanonline](https://github.com/oceanonline) — portable `python3` in template checks + lint quickstart path fix (#24)
 - [@davekopecek](https://github.com/davekopecek) (Dave Kopecek) — committed the design-reference fixture so the design-token guard runs on every machine (#30)
@@ -402,14 +404,14 @@ Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the phi
 
 ## License
 
-[PolyForm Shield 1.0.0](LICENSE.md) — free to use, modify, and share, including inside your own commercial work. The one thing you can't do is offer Ringer or Ringside (or a derivative that competes with them) as a product or service of your own. Commercial rights to the tool itself belong to Nate Jones Media LLC.
+[PolyForm Shield 1.0.0](LICENSE.md) — free to use, modify, and share, including inside your own commercial work. The one thing you can't do is offer Laufgitter or Zentrale (or a derivative that competes with them) as a product or service of your own. Commercial rights to the tool itself belong to Nate Jones Media LLC.
 
 ## Requirements
 
 - Python 3.12+ (stdlib only; `psycopg` needed only for the optional Postgres eval backend)
   - **Changed:** the supported floor moved from 3.11 to 3.12. CI has only ever run 3.12, so 3.11 was a promise nothing enforced — the honest fix is to state the version we actually test. Today's code still happens to run on 3.11; that is no longer guaranteed, and 3.11 breakage won't be treated as a bug.
 - At least one agent CLI (Codex works out of the box)
-- Rust toolchain, only if you're building Ringside from source
+- Rust toolchain, only if you're building Zentrale from source
 
 ![Between rounds](docs/between-rounds.png)
 

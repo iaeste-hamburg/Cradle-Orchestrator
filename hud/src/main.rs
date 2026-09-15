@@ -18,19 +18,19 @@ use tauri::{
 };
 
 mod names {
-    pub const TOOL_NAME: &str = "ringer";
-    pub const PRODUCT_NAME: &str = "Ringside";
-    pub const BUNDLE_IDENTIFIER: &str = "com.jonedwards.ringside";
+    pub const TOOL_NAME: &str = "laufgitter";
+    pub const PRODUCT_NAME: &str = "Zentrale";
+    pub const BUNDLE_IDENTIFIER: &str = "com.jonedwards.zentrale";
     pub const CONFIG_DIR_NAME: &str = TOOL_NAME;
     pub const CONFIG_FILE_NAME: &str = "config.toml";
-    pub const ENV_VAR_PREFIX: &str = "RINGER";
-    pub const STATE_DIR_NAME: &str = ".ringer";
+    pub const ENV_VAR_PREFIX: &str = "LAUFGITTER";
+    pub const STATE_DIR_NAME: &str = ".laufgitter";
     pub const MAIN_WINDOW_LABEL: &str = "main";
     pub const TRAY_ID: &str = "main-tray";
     pub const MENU_TOGGLE_ID: &str = "toggle";
     pub const MENU_VERSION_ID: &str = "version";
     pub const MENU_QUIT_ID: &str = "quit";
-    pub const RUNS_EVENT: &str = "ringer-runs";
+    pub const RUNS_EVENT: &str = "laufgitter-runs";
 }
 
 const DEFAULT_WIDTH: f64 = 360.0;
@@ -126,8 +126,8 @@ fn resize_main_window<R: Runtime>(
     Ok(())
 }
 
-/// Read a Tier 0 HTML artifact ringer.py rendered to disk for callers that need raw HTML.
-/// The Ringside artifact view loads artifact files through Tauri's asset protocol instead.
+/// Read a Tier 0 HTML artifact laufgitter.py rendered to disk for callers that need raw HTML.
+/// The Zentrale artifact view loads artifact files through Tauri's asset protocol instead.
 /// Restricted to canonical paths under `<state_dir>/artifacts`.
 #[tauri::command]
 fn read_artifact_html(path: String) -> Result<String, String> {
@@ -169,9 +169,9 @@ fn read_artifact_library() -> Result<String, String> {
 
 /// Feature 5 (settings panel): plain JSON file, not UserDefaults (this is Tauri, not Swift),
 /// so the same file could later be read by a Tier 0 HTML artifact for matching theme. Lives
-/// alongside ringer's own state under `<state_dir>/ringside-settings.json`.
+/// alongside laufgitter's own state under `<state_dir>/zentrale-settings.json`.
 fn settings_path() -> PathBuf {
-    load_state_dir().join("ringside-settings.json")
+    load_state_dir().join("zentrale-settings.json")
 }
 
 #[tauri::command]
@@ -214,7 +214,7 @@ fn main() {
             save_settings
         ])
         .setup(|app| {
-            debug_assert_eq!(names::BUNDLE_IDENTIFIER, "com.jonedwards.ringside");
+            debug_assert_eq!(names::BUNDLE_IDENTIFIER, "com.jonedwards.zentrale");
             configure_main_window(app.handle());
             build_tray(app)?;
             start_state_poller(app.handle().clone());

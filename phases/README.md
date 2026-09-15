@@ -1,33 +1,33 @@
-# Antigravity Integration: Four-Phase Ringer Workflow
+# Antigravity Integration: Four-Phase Laufgitter Workflow
 
-This directory contains sequential Ringer manifests implementing end-to-end integration of Google's Antigravity CLI (`agy`) as a worker engine. The spec treats all information about antigravity as unverified until Phase 1 confirms it via live web search.
+This directory contains sequential Laufgitter manifests implementing end-to-end integration of Google's Antigravity CLI (`agy`) as a worker engine. The spec treats all information about antigravity as unverified until Phase 1 confirms it via live web search.
 
 ## Quick Start
 
 1. **Ensure prerequisites**:
    - Python 3.12+
-   - `ringer.py` in the parent directory
+   - `laufgitter.py` in the parent directory
    - OpenCode CLI installed and authenticated (for Phase 0–2)
-   - ~/.config/ringer/config.toml with `[engines.opencode]` configured
+   - ~/.config/laufgitter/config.toml with `[engines.opencode]` configured
    - Export litellm proxy env vars before Phase 0: `export OPENAI_BASE_URL=<litellm_proxy>` etc.
 
 2. **Run phases sequentially** (cannot run in parallel due to cross-phase dependencies):
 
 ```bash
 cd ..
-./ringer.py run phases/phase0-litellm-probe.json
+./laufgitter.py run phases/phase0-litellm-probe.json
 # Check Phase 0 results manually (see verification checklist below)
 
-./ringer.py run phases/phase1-research-antigravity.json
-# **MANUAL GATE**: Read /tmp/ringer-phase1/research-antigravity-cli/antigravity-cli-facts.json
+./laufgitter.py run phases/phase1-research-antigravity.json
+# **MANUAL GATE**: Read /tmp/laufgitter-phase1/research-antigravity-cli/antigravity-cli-facts.json
 # Verify sources match your expectations before proceeding
 
-./ringer.py run phases/phase2-author-antigravity-engine.json
-# **MANUAL GATE**: Read /tmp/ringer-phase2/write-antigravity-engine-config/antigravity-engine-block.toml
-# Merge into ~/.config/ringer/config.toml by hand (human-in-the-loop by design)
+./laufgitter.py run phases/phase2-author-antigravity-engine.json
+# **MANUAL GATE**: Read /tmp/laufgitter-phase2/write-antigravity-engine-config/antigravity-engine-block.toml
+# Merge into ~/.config/laufgitter/config.toml by hand (human-in-the-loop by design)
 
-./ringer.py run phases/phase3-antigravity-screenshot.json
-# Verify final artifact: /tmp/ringer-phase3/artifacts-out/screenshot.png
+./laufgitter.py run phases/phase3-antigravity-screenshot.json
+# Verify final artifact: /tmp/laufgitter-phase3/artifacts-out/screenshot.png
 ```
 
 ## Phase Descriptions
@@ -39,7 +39,7 @@ cd ..
 **What it does**:
 - Single probe task requesting gpt-5.4 to echo its model identity
 - Weak check (only grep, cannot assert backend without manual inspection)
-- **Manual verification**: read `/tmp/ringer-phase0/.../worker.log` and confirm the reported model identity is your Azure-routed gpt-5.4
+- **Manual verification**: read `/tmp/laufgitter-phase0/.../worker.log` and confirm the reported model identity is your Azure-routed gpt-5.4
 
 **Environment**:
 ```bash
@@ -56,7 +56,7 @@ export OPENAI_API_KEY=<litellm-key>
 - Produces `antigravity-cli-facts.json` with structured findings and source URLs
 - Check validates schema presence and citation, not truth
 
-**Output**: `/tmp/ringer-phase1/research-antigravity-cli/antigravity-cli-facts.json`
+**Output**: `/tmp/laufgitter-phase1/research-antigravity-cli/antigravity-cli-facts.json`
 
 **Expected keys** (set to null if not found in official sources):
 - `headless_flag`: flag for non-interactive execution
@@ -79,19 +79,19 @@ export OPENAI_API_KEY=<litellm-key>
 - Generates `antigravity-engine-block.toml` with commented lines justifying each value
 - Validates schema (all required keys, placeholders present)
 
-**Output**: `/tmp/ringer-phase2/write-antigravity-engine-config/antigravity-engine-block.toml`
+**Output**: `/tmp/laufgitter-phase2/write-antigravity-engine-config/antigravity-engine-block.toml`
 
 **Manual gate**: Read the generated TOML and verify:
 1. Every line comment references a fact from Phase 1
 2. No CLI flags or env vars are invented outside Phase 1's facts
 3. All placeholders (`{spec}`, `{model}`, `{taskdir}`, `{access_args}`, `{sandbox_args}`, `{engine_args}`) are present
 
-**Next step**: Manually merge this block into `~/.config/ringer/config.toml`:
+**Next step**: Manually merge this block into `~/.config/laufgitter/config.toml`:
 ```bash
-cat /tmp/ringer-phase2/.../antigravity-engine-block.toml >> ~/.config/ringer/config.toml
+cat /tmp/laufgitter-phase2/.../antigravity-engine-block.toml >> ~/.config/laufgitter/config.toml
 ```
 
-Ringer does not self-modify its config (by design) — hand-merge like any engine block in `config.sample.toml`.
+Laufgitter does not self-modify its config (by design) — hand-merge like any engine block in `config.sample.toml`.
 
 ### Phase 3: Contract-Driven Execution
 
@@ -102,7 +102,7 @@ Ringer does not self-modify its config (by design) — hand-merge like any engin
 2. **execute-screenshot**: antigravity uses available MCP tools to produce `screenshot.png` matching the contract
 3. **Check**: Python script reads contract.json, opens screenshot.png, verifies dimensions without calling a model
 
-**Output**: `/tmp/ringer-phase3/artifacts-out/screenshot.png`
+**Output**: `/tmp/laufgitter-phase3/artifacts-out/screenshot.png`
 
 **Verification**:
 - `contract.json` validates to schema
@@ -114,19 +114,19 @@ Ringer does not self-modify its config (by design) — hand-merge like any engin
 Before running each phase, lint it:
 
 ```bash
-./ringer.py lint phases/phase0-litellm-probe.json
-./ringer.py lint phases/phase1-research-antigravity.json
-./ringer.py lint phases/phase2-author-antigravity-engine.json
-./ringer.py lint phases/phase3-antigravity-screenshot.json
+./laufgitter.py lint phases/phase0-litellm-probe.json
+./laufgitter.py lint phases/phase1-research-antigravity.json
+./laufgitter.py lint phases/phase2-author-antigravity-engine.json
+./laufgitter.py lint phases/phase3-antigravity-screenshot.json
 ```
 
 Optionally, run baseline (no workers, just checks against empty state) to prove checks fail correctly:
 
 ```bash
-./ringer.py run phases/phase0-litellm-probe.json --baseline
+./laufgitter.py run phases/phase0-litellm-probe.json --baseline
 # Expected: FAIL (no worker output to grep)
 
-./ringer.py run phases/phase1-research-antigravity.json --baseline
+./laufgitter.py run phases/phase1-research-antigravity.json --baseline
 # Expected: FAIL (no antigravity-cli-facts.json in scratch dir)
 
 # etc.
@@ -135,32 +135,32 @@ Optionally, run baseline (no workers, just checks against empty state) to prove 
 ### Full Verification Workflow
 
 1. **Phase 0**:
-   - [ ] `./ringer.py run phases/phase0-litellm-probe.json` exits PASS
-   - [ ] Manually inspect `/tmp/ringer-phase0/.../worker.log` and confirm model identity is Azure-routed gpt-5.4
+   - [ ] `./laufgitter.py run phases/phase0-litellm-probe.json` exits PASS
+   - [ ] Manually inspect `/tmp/laufgitter-phase0/.../worker.log` and confirm model identity is Azure-routed gpt-5.4
 
 2. **Phase 1**:
-   - [ ] `./ringer.py run phases/phase1-research-antigravity.json` exits PASS
-   - [ ] Read `/tmp/ringer-phase1/research-antigravity-cli/antigravity-cli-facts.json`
+   - [ ] `./laufgitter.py run phases/phase1-research-antigravity.json` exits PASS
+   - [ ] Read `/tmp/laufgitter-phase1/research-antigravity-cli/antigravity-cli-facts.json`
    - [ ] Cross-check each source URL against official Antigravity docs
    - [ ] Decision: proceed (Phase 2) or re-scope (Phase 1 again with refined search)
 
 3. **Phase 2**:
-   - [ ] `./ringer.py run phases/phase2-author-antigravity-engine.json` exits PASS
-   - [ ] Read `/tmp/ringer-phase2/write-antigravity-engine-config/antigravity-engine-block.toml`
+   - [ ] `./laufgitter.py run phases/phase2-author-antigravity-engine.json` exits PASS
+   - [ ] Read `/tmp/laufgitter-phase2/write-antigravity-engine-config/antigravity-engine-block.toml`
    - [ ] Verify each line's comment justifies a Phase 1 fact
-   - [ ] Manually merge into `~/.config/ringer/config.toml`
+   - [ ] Manually merge into `~/.config/laufgitter/config.toml`
    - [ ] Set env vars per Phase 1 findings (e.g., `GOOGLE_GEMINI_BASE_URL`)
 
 4. **Phase 3**:
-   - [ ] `./ringer.py run phases/phase3-antigravity-screenshot.json` exits PASS
-   - [ ] Check `/tmp/ringer-phase3/artifacts-out/screenshot.png` exists and opens in an image viewer
+   - [ ] `./laufgitter.py run phases/phase3-antigravity-screenshot.json` exits PASS
+   - [ ] Check `/tmp/laufgitter-phase3/artifacts-out/screenshot.png` exists and opens in an image viewer
    - [ ] Verify dimensions match or exceed contract minimums
 
 ## Design Notes
 
 ### Why Four Separate Manifests?
 
-Ringer has no cross-manifest dependency mechanism. Tasks within one manifest run in parallel; ordering across phases requires running separate manifests sequentially. This design:
+Laufgitter has no cross-manifest dependency mechanism. Tasks within one manifest run in parallel; ordering across phases requires running separate manifests sequentially. This design:
 
 1. **Forces human gates**: Between each phase, a human reads output and decides whether to proceed. This catches hallucinated facts before they propagate.
 2. **Isolates concerns**: Phase 0 tests the model routing layer; Phase 1 tests research capability; Phase 2 tests code generation from sourced data; Phase 3 tests end-to-end execution and deterministic validation.
@@ -168,11 +168,11 @@ Ringer has no cross-manifest dependency mechanism. Tasks within one manifest run
 
 ### Why max_parallel: 1 in Phase 3?
 
-Phase 3's second task (`execute-screenshot`) depends on the first task's output (`contract.json`). Setting `max_parallel: 1` ensures write-contract completes before antigravity starts. (Ringer does not otherwise express cross-task dependencies.)
+Phase 3's second task (`execute-screenshot`) depends on the first task's output (`contract.json`). Setting `max_parallel: 1` ensures write-contract completes before antigravity starts. (Laufgitter does not otherwise express cross-task dependencies.)
 
 ### Why worktrees: false in Phase 3's execute-screenshot?
 
-The task spec references an absolute path outside its worktree: `/tmp/ringer-phase3/write-contract/contract.json`. With worktrees enabled, that directory would be deleted after write-contract passes. `worktrees: false` keeps it available. The downside: parallel workers in this manifest could theoretically collide, but `max_parallel: 1` makes that moot here.
+The task spec references an absolute path outside its worktree: `/tmp/laufgitter-phase3/write-contract/contract.json`. With worktrees enabled, that directory would be deleted after write-contract passes. `worktrees: false` keeps it available. The downside: parallel workers in this manifest could theoretically collide, but `max_parallel: 1` makes that moot here.
 
 ### Why no full_access in Phase 3?
 
@@ -189,8 +189,8 @@ curl -fsSL https://opencode.ai/install | bash
 # 2. Auth to OpenCode with litellm proxy
 OPENAI_BASE_URL=https://<litellm-host>:8000/v1OPENAI_API_KEY=<key> opencode auth login
 
-# 3. Uncomment and configure [engines.opencode] in ~/.config/ringer/config.toml
-# Set bin = /absolute/path/to/ringer/engines/opencode-sandboxed.sh
+# 3. Uncomment and configure [engines.opencode] in ~/.config/laufgitter/config.toml
+# Set bin = /absolute/path/to/laufgitter/engines/opencode-sandboxed.sh
 
 # 4. Before running phases, export litellm proxy env vars
 export OPENAI_BASE_URL=https://<litellm-host>:8000/v1
@@ -211,7 +211,7 @@ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json  # if Vertex
 
 - Check litellm proxy is running and accessible
 - Verify `OPENAI_BASE_URL` and `OPENAI_API_KEY` are exported
-- Inspect `/tmp/ringer-phase0/.../worker.log` for OpenCode errors
+- Inspect `/tmp/laufgitter-phase0/.../worker.log` for OpenCode errors
 
 ### Phase 1 produces empty or null facts
 
@@ -223,15 +223,15 @@ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json  # if Vertex
 
 - Likely Phase 1 facts are malformed or incomplete
 - Re-run Phase 1 with refined search or manual correction
-- Inspect `/tmp/ringer-phase2/.../antigravity-engine-block.toml` for syntax errors
+- Inspect `/tmp/laufgitter-phase2/.../antigravity-engine-block.toml` for syntax errors
 
 ### Phase 3 execute-screenshot fails to read contract
 
 - Confirm Phase 3 is run with `max_parallel: 1` so write-contract completes first
-- Check file path `/tmp/ringer-phase3/write-contract/contract.json` matches task key
+- Check file path `/tmp/laufgitter-phase3/write-contract/contract.json` matches task key
 
 ## References
 
-- [Ringer README](../README.md) — full documentation
+- [Laufgitter README](../README.md) — full documentation
 - [config.sample.toml](../config.sample.toml) — engine block examples
-- Phase manifests above: each JSON file documents its fields per Ringer spec
+- Phase manifests above: each JSON file documents its fields per Laufgitter spec

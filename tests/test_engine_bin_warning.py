@@ -14,7 +14,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-import ringer  # noqa: E402
+import laufgitter  # noqa: E402
 
 
 LONG_SPEC = (
@@ -22,7 +22,7 @@ LONG_SPEC = (
     "and make any failure easy to diagnose from the check output."
 )
 GOOD_CHECK = "test -s result.txt || { echo 'missing result.txt'; exit 1; }"
-MISSING_BIN = "ringer-definitely-missing-engine-bin"
+MISSING_BIN = "laufgitter-definitely-missing-engine-bin"
 
 
 def toml_string(value: object) -> str:
@@ -31,7 +31,7 @@ def toml_string(value: object) -> str:
 
 class EngineBinWarningTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.tmp = tempfile.TemporaryDirectory(prefix="ringer-engine-bin-")
+        self.tmp = tempfile.TemporaryDirectory(prefix="laufgitter-engine-bin-")
         self.root = Path(self.tmp.name)
         self.config_path = self.root / "config.toml"
         self.manifest_path = self.root / "manifest.json"
@@ -41,8 +41,8 @@ class EngineBinWarningTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.tmp.cleanup()
 
-    def engine(self, name: str, bin_value: str) -> ringer.EngineConfig:
-        return ringer.EngineConfig(
+    def engine(self, name: str, bin_value: str) -> laufgitter.EngineConfig:
+        return laufgitter.EngineConfig(
             name=name,
             bin=bin_value,
             args_template=("{spec}",),
@@ -96,15 +96,15 @@ class EngineBinWarningTests(unittest.TestCase):
         stderr = io.StringIO()
         with mock.patch.dict(
             os.environ,
-            {"RINGER_NO_SELF_UPDATE": "1", "PATH": str(self.path_dir)},
+            {"LAUFGITTER_NO_SELF_UPDATE": "1", "PATH": str(self.path_dir)},
             clear=False,
         ):
             with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
-                rc = ringer.main(argv)
+                rc = laufgitter.main(argv)
         return rc, stdout.getvalue(), stderr.getvalue()
 
     def test_pure_diagnostics_are_immutable_and_name_key_value_and_path(self) -> None:
-        diagnostics = ringer.collect_engine_bin_diagnostics(
+        diagnostics = laufgitter.collect_engine_bin_diagnostics(
             {"missing": self.engine("missing", MISSING_BIN)},
             path_value=str(self.path_dir),
             path_was_set=True,
@@ -121,7 +121,7 @@ class EngineBinWarningTests(unittest.TestCase):
             diagnostic.value = "changed"  # type: ignore[misc]
 
     def test_explicit_path_is_quiet_even_when_missing(self) -> None:
-        diagnostics = ringer.collect_engine_bin_diagnostics(
+        diagnostics = laufgitter.collect_engine_bin_diagnostics(
             {"explicit": self.engine("explicit", str(self.root / "missing-tool"))},
             path_value=str(self.path_dir),
             path_was_set=True,
@@ -135,7 +135,7 @@ class EngineBinWarningTests(unittest.TestCase):
         executable.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
         executable.chmod(0o700)
 
-        diagnostics = ringer.collect_engine_bin_diagnostics(
+        diagnostics = laufgitter.collect_engine_bin_diagnostics(
             {"ok": self.engine("ok", executable.name)},
             path_value=str(self.path_dir),
             path_was_set=True,
@@ -144,7 +144,7 @@ class EngineBinWarningTests(unittest.TestCase):
         self.assertEqual((), diagnostics)
 
     def test_unset_path_diagnostic_distinguishes_unset_from_empty(self) -> None:
-        diagnostics = ringer.collect_engine_bin_diagnostics(
+        diagnostics = laufgitter.collect_engine_bin_diagnostics(
             {"missing": self.engine("missing", MISSING_BIN)},
             path_was_set=False,
         )
@@ -164,7 +164,7 @@ class EngineBinWarningTests(unittest.TestCase):
 
         self.assertEqual(0, rc)
         self.assertIn("lint: clean", stdout)
-        self.assertIn("ringer.py: warning:", stderr)
+        self.assertIn("laufgitter.py: warning:", stderr)
         self.assertIn("engines.missing.bin", stderr)
         self.assertIn(MISSING_BIN, stderr)
 
@@ -197,8 +197,8 @@ class EngineBinWarningTests(unittest.TestCase):
         )
 
         self.assertEqual(2, rc)
-        warning_index = stderr.index("ringer.py: warning:")
-        fatal_index = stderr.index("ringer.py: error: engine 'missing' binary not found")
+        warning_index = stderr.index("laufgitter.py: warning:")
+        fatal_index = stderr.index("laufgitter.py: error: engine 'missing' binary not found")
         self.assertLess(warning_index, fatal_index)
 
     def test_unused_missing_engine_warns_without_fatal_preflight(self) -> None:

@@ -14,8 +14,8 @@ from urllib.request import urlopen
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-import ringer  # noqa: E402
-from ringer import PersistentHudServer, WORKER_LOG_TAIL_BYTES  # noqa: E402
+import laufgitter  # noqa: E402
+from laufgitter import PersistentHudServer, WORKER_LOG_TAIL_BYTES  # noqa: E402
 
 
 class PersistentHudServerTests(unittest.TestCase):
@@ -26,18 +26,18 @@ class PersistentHudServerTests(unittest.TestCase):
         self.addCleanup(self.restore_env)
         self.root = Path(self.tmp.name)
         os.environ["HOME"] = str(self.root / "home")
-        os.environ["RINGER_HOME"] = str(self.root / "ringer-home")
+        os.environ["LAUFGITTER_HOME"] = str(self.root / "laufgitter-home")
         self.state_dir = self.root / "state"
-        self.ringer_home = Path(os.environ["RINGER_HOME"])
+        self.laufgitter_home = Path(os.environ["LAUFGITTER_HOME"])
         self.runs_dir = self.state_dir / "runs"
         self.artifacts_dir = self.state_dir / "artifacts"
         self.workdir = self.root / "work"
         self.runs_dir.mkdir(parents=True)
         self.artifacts_dir.mkdir(parents=True)
         self.workdir.mkdir(parents=True)
-        self.ringside_stub = self.root / "ringside.html"
-        self.ringside_stub.write_text("<!doctype html><main>stub ringside page</main>\n", encoding="utf-8")
-        patcher = mock.patch.object(ringer, "RINGSIDE_HTML_PATH", self.ringside_stub)
+        self.zentrale_stub = self.root / "zentrale.html"
+        self.zentrale_stub.write_text("<!doctype html><main>stub zentrale page</main>\n", encoding="utf-8")
+        patcher = mock.patch.object(laufgitter, "ZENTRALE_HTML_PATH", self.zentrale_stub)
         patcher.start()
         self.addCleanup(patcher.stop)
         self.seed_state()
@@ -93,8 +93,8 @@ class PersistentHudServerTests(unittest.TestCase):
                 "started_at": "2026-07-05T12:00:00+00:00",
             }
         }
-        self.ringer_home.mkdir(parents=True)
-        (self.ringer_home / "active-runs.json").write_text(
+        self.laufgitter_home.mkdir(parents=True)
+        (self.laufgitter_home / "active-runs.json").write_text(
             json.dumps(active, indent=2, sort_keys=True),
             encoding="utf-8",
         )
@@ -120,14 +120,14 @@ class PersistentHudServerTests(unittest.TestCase):
         self.addCleanup(server.stop)
         return server, port
 
-    def test_hud_serves_runs_library_artifacts_logs_and_ringside_page(self) -> None:
+    def test_hud_serves_runs_library_artifacts_logs_and_zentrale_page(self) -> None:
         _server, port = self.start_server()
         base = f"http://127.0.0.1:{port}"
 
         with urlopen(f"{base}/", timeout=5) as response:
             self.assertEqual(200, response.status)
             self.assertEqual("text/html; charset=utf-8", response.headers["Content-Type"])
-            self.assertIn("stub ringside page", response.read().decode("utf-8"))
+            self.assertIn("stub zentrale page", response.read().decode("utf-8"))
 
         with urlopen(f"{base}/api/runs", timeout=5) as response:
             self.assertEqual(200, response.status)

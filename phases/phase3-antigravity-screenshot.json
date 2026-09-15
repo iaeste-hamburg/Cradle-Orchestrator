@@ -1,6 +1,6 @@
 {
   "run_name": "phase3-antigravity-screenshot",
-  "workdir": "/tmp/ringer-phase3",
+  "workdir": "/tmp/laufgitter-phase3",
   "max_parallel": 1,
   "tasks": [
     {
@@ -20,8 +20,8 @@
       "model": "gemini-3.8-medium",
       "task_type": "code-feature",
       "engine_args": ["--dangerously-skip-permissions", "--sandbox"],
-      "spec": "Read /tmp/ringer-phase3/write-contract/contract.json for the exact artifact requirements, then use your available MCP tools to capture the screenshot it describes. Save the result to screenshot.png in this task directory, matching or exceeding the min_width/min_height from the contract.",
-      "check": "python3 -c \"import json; from PIL import Image; c=json.load(open('/tmp/ringer-phase3/write-contract/contract.json')); img=Image.open('screenshot.png'); w,h=img.size; assert w>=c['min_width'] and h>=c['min_height'], f'FAIL: {w}x{h} smaller than contract minimum {c[\\\"min_width\\\"]}x{c[\\\"min_height\\\"]}'; print('OK')\"; cp screenshot.png /tmp/ringer-phase3/artifacts-out/ 2>/dev/null || true",
+      "spec": "Read /tmp/laufgitter-phase3/write-contract/contract.json for the exact artifact requirements, then use your available MCP tools to capture the screenshot it describes. Save the result to screenshot.png in this task directory, matching or exceeding the min_width/min_height from the contract.",
+      "check": "python3 -c \"import json; from PIL import Image; c=json.load(open('/tmp/laufgitter-phase3/write-contract/contract.json')); img=Image.open('screenshot.png'); w,h=img.size; assert w>=c['min_width'] and h>=c['min_height'], f'FAIL: {w}x{h} smaller than contract minimum {c[\\\"min_width\\\"]}x{c[\\\"min_height\\\"]}'; print('OK')\"; cp screenshot.png /tmp/laufgitter-phase3/artifacts-out/ 2>/dev/null || true",
       "expect_files": ["screenshot.png"],
       "worktrees": false,
       "verified": "Confirms screenshot.png exists, is a valid image, and meets the minimum dimensions gpt-5.4's contract declared — not just that a file exists.",

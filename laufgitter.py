@@ -24,7 +24,7 @@ except Exception:  # pragma: no cover - exercised by monkeypatch in tests.
 
 if sys.version_info < (3, 12):
     raise SystemExit(
-        f"ringer requires Python 3.12+; found {sys.version.split()[0]} at {sys.executable}"
+        f"laufgitter requires Python 3.12+; found {sys.version.split()[0]} at {sys.executable}"
     )
 
 import tempfile
@@ -44,9 +44,9 @@ from pathlib import Path
 from typing import Any, Iterable
 
 
-TOOL_NAME = "ringer"
-STATE_DIR_NAME = ".ringer"
-ENV_VAR_PREFIX = "RINGER"
+TOOL_NAME = "laufgitter"
+STATE_DIR_NAME = ".laufgitter"
+ENV_VAR_PREFIX = "LAUFGITTER"
 
 CONFIG_DIR_NAME = TOOL_NAME
 CONFIG_FILE_NAME = "config.toml"
@@ -93,10 +93,10 @@ CSP_META_TAG = (
     'content="default-src \'none\'; style-src \'unsafe-inline\'; img-src data:">'
 )
 DASHBOARD_HTML_PATH = Path(__file__).resolve().parent / "dashboard" / "dashboard.html"
-RINGSIDE_HTML_PATH = Path(__file__).resolve().parent / "dashboard" / "ringside.html"
+ZENTRALE_HTML_PATH = Path(__file__).resolve().parent / "dashboard" / "zentrale.html"
 MINIMAL_DASHBOARD_HTML = """<!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>ringer dashboard</title></head>
+<head><meta charset="utf-8"><title>laufgitter dashboard</title></head>
 <body style="font-family: system-ui, sans-serif; background:#080a0f; color:#eef4ff;">
 <main id="app">dashboard/dashboard.html is missing</main>
 <script>
@@ -111,7 +111,7 @@ function update(states) {
 
 # ---------------------------------------------------------------------------
 # One-request context packet selection
-# Inlined to preserve Ringer's single-file, standard-library-only design.
+# Inlined to preserve Laufgitter's single-file, standard-library-only design.
 # ---------------------------------------------------------------------------
 
 SUPPORTED_SUFFIXES = {
@@ -766,7 +766,7 @@ class EngineBinDiagnostic:
 
     def warning(self) -> str:
         return (
-            f"ringer.py: warning: {self.config_key} = {self.value!r} is not resolvable; "
+            f"laufgitter.py: warning: {self.config_key} = {self.value!r} is not resolvable; "
             f"searched PATH: {self.searched_path_display}"
         )
 
@@ -787,7 +787,7 @@ class EvalConfig:
 class ArtifactConfig:
     """Tier 0 zero-LLM HTML artifacts: live status page + final report + multi-run index.
 
-    See ringer-live-artifacts-plan.md. Templates support {run_id}, {run_name} substitutions.
+    See laufgitter-live-artifacts-plan.md. Templates support {run_id}, {run_name} substitutions.
     """
 
     enabled: bool
@@ -1020,7 +1020,7 @@ def inject_steering_spec(
         if not rules:
             return spec, ()
         lines = [
-            f"[Steering profile {profile.model} v{profile.profile_version} — auto-injected by ringer.py]"
+            f"[Steering profile {profile.model} v{profile.profile_version} — auto-injected by laufgitter.py]"
         ]
         for rule in rules:
             prefix = ""
@@ -1367,7 +1367,7 @@ def perform_self_update(
             )
             if warn_blocked:
                 print(
-                    f"[ringer] self-update: {known_behind} commit(s) behind; {reason}",
+                    f"[laufgitter] self-update: {known_behind} commit(s) behind; {reason}",
                     file=sys.stderr,
                     flush=True,
                 )
@@ -1404,13 +1404,13 @@ def perform_self_update(
         )
         if allow_reexec:
             print(
-                f"[ringer] self-update: applied {known_behind} commit(s) "
+                f"[laufgitter] self-update: applied {known_behind} commit(s) "
                 f"{old_head}..{new_head}; restarting",
                 file=sys.stderr,
                 flush=True,
             )
             next_env = dict(environ if environ is not None else os.environ)
-            next_env["RINGER_SELF_UPDATED"] = "1"
+            next_env["LAUFGITTER_SELF_UPDATED"] = "1"
             execve(
                 sys.executable,
                 [sys.executable, str(script), *argv[1:]],
@@ -1463,9 +1463,9 @@ def maybe_self_update(
 ) -> SelfUpdateResult:
     """Run the fail-open startup update check before command dispatch."""
     env = environ if environ is not None else os.environ
-    if env.get("RINGER_SELF_UPDATED") == "1":
+    if env.get("LAUFGITTER_SELF_UPDATED") == "1":
         return SelfUpdateResult("skipped", reason="already restarted")
-    if env.get("RINGER_NO_SELF_UPDATE") == "1":
+    if env.get("LAUFGITTER_NO_SELF_UPDATE") == "1":
         return SelfUpdateResult("skipped", reason="disabled by environment")
     if "--no-self-update" in argv:
         return SelfUpdateResult("skipped", reason="disabled for this invocation")
@@ -1931,7 +1931,7 @@ def lint_manifest(
             )
         if spec_is_file_pointer(task.spec):
             findings.append(
-                f"{task.key}: spec is a pointer to an instruction file; anyone watching Ringside "
+                f"{task.key}: spec is a pointer to an instruction file; anyone watching Zentrale "
                 "sees no real brief and the retry prompt loses context — put the instructions in the spec itself."
             )
         if not task.expect_files and not manifest.worktrees:
@@ -1947,7 +1947,7 @@ def lint_manifest(
         if include_model_log_nudges and not task.task_type:
             findings.append(
                 f"{task.key}: no task_type; the model log buckets this as (untyped) — "
-                "name one (e.g. code-feature, research, image-gen) so './ringer.py models' can guide routing."
+                "name one (e.g. code-feature, research, image-gen) so './laufgitter.py models' can guide routing."
             )
 
     if len(manifest.tasks) >= 3 and manifest.max_parallel == 1:
@@ -2323,7 +2323,7 @@ class StateWriter:
         if self.artifact.enabled:
             self._reconcile_library_safe()
         self.flush()
-        self._thread = threading.Thread(target=self._loop, name="ringer-state-writer", daemon=True)
+        self._thread = threading.Thread(target=self._loop, name="laufgitter-state-writer", daemon=True)
         self._thread.start()
 
     def set_port(self, port: int | None) -> None:
@@ -2501,7 +2501,7 @@ class StateWriter:
             self.report_written = True
             self._append_library_version_safe(state)
             # Re-flush the plain state JSON so report_ready/report_path are accurate for
-            # anything (Ringside) polling the state file right after the run ends.
+            # anything (Zentrale) polling the state file right after the run ends.
             state = dict(state)
             state["report_ready"] = True
             atomic_write_json(self.path, state)
@@ -2602,7 +2602,7 @@ def atomic_write_json(path: Path, data: dict[str, Any]) -> None:
     atomic_write_text(path, json.dumps(data, indent=2, sort_keys=True) + "\n")
 
 
-def ringer_home() -> Path:
+def laufgitter_home() -> Path:
     value = os.environ.get(f"{ENV_VAR_PREFIX}_HOME")
     if value and value.strip():
         return Path(value).expanduser().resolve()
@@ -2614,7 +2614,7 @@ def utc_now_iso() -> str:
 
 
 def default_catalog_path() -> Path:
-    return ringer_home() / "openrouter-catalog.json"
+    return laufgitter_home() / "openrouter-catalog.json"
 
 
 def catalog_changes_path(snapshot_path: Path) -> Path:
@@ -2730,7 +2730,7 @@ def catalog_sort_key(model: dict[str, Any]) -> tuple[bool, float, str]:
 def fetch_catalog_payload(source: str, *, timeout: float = CATALOG_FETCH_TIMEOUT_S) -> dict[str, Any]:
     parsed = urllib.parse.urlparse(source)
     if parsed.scheme in {"http", "https"}:
-        request = urllib.request.Request(source, headers={"User-Agent": "ringer.py"})
+        request = urllib.request.Request(source, headers={"User-Agent": "laufgitter.py"})
         with urllib.request.urlopen(request, timeout=timeout) as response:
             payload = json.loads(response.read().decode("utf-8"))
     else:
@@ -3051,7 +3051,7 @@ def run_catalog_command(args: argparse.Namespace) -> int:
         return 0
 
     if not models:
-        print(f"No catalog snapshot at {snapshot_path}. Run './ringer.py catalog --refresh'.", file=sys.stderr)
+        print(f"No catalog snapshot at {snapshot_path}. Run './laufgitter.py catalog --refresh'.", file=sys.stderr)
         return 1
     print_catalog_table(models)
     return 0
@@ -3077,7 +3077,7 @@ def start_catalog_auto_refresh(
     print_notice: bool = True,
 ) -> threading.Thread | None:
     try:
-        if os.environ.get("RINGER_NO_CATALOG_REFRESH") == "1":
+        if os.environ.get("LAUFGITTER_NO_CATALOG_REFRESH") == "1":
             return None
         path = (snapshot_path or default_catalog_path()).expanduser().resolve()
         if catalog_snapshot_is_fresh(path):
@@ -3097,7 +3097,7 @@ def start_catalog_auto_refresh(
             pass
 
     try:
-        thread = threading.Thread(target=worker, name="ringer-catalog-refresh", daemon=True)
+        thread = threading.Thread(target=worker, name="laufgitter-catalog-refresh", daemon=True)
         thread.start()
         return thread
     except Exception:
@@ -3200,7 +3200,7 @@ def print_model_explore(
 
 
 def active_runs_path() -> Path:
-    return ringer_home() / "active-runs.json"
+    return laufgitter_home() / "active-runs.json"
 
 
 def pid_is_alive(pid: int) -> bool:
@@ -3515,7 +3515,7 @@ def scan_run_states(state_dir: Path) -> list[dict[str, Any]]:
         entries.append(
             {
                 "run_id": data.get("run_id", path.stem),
-                "run_name": data.get("run_name", "ringer"),
+                "run_name": data.get("run_name", "laufgitter"),
                 "identity": data.get("identity", "unknown"),
                 "state": data.get("state", "finished" if data.get("finished") else "live"),
                 "pass": data.get("pass", 0),
@@ -4195,9 +4195,9 @@ class ArtifactRenderer:
         run_state = str(state.get("state", "live"))
         if self._last_run_state is None:
             if run_state == "live":
-                self._append_transition(("run", "live"), "Ringer started")
+                self._append_transition(("run", "live"), "Laufgitter started")
         elif self._last_run_state != run_state and run_state == "finished":
-            self._append_transition(("run", "finished"), "Ringer finished")
+            self._append_transition(("run", "finished"), "Laufgitter finished")
         self._last_run_state = run_state
 
         current_status: dict[str, str] = {}
@@ -4249,7 +4249,7 @@ class ArtifactRenderer:
         self.write_wrapper(
             source_path,
             wrapper_path,
-            run_name=str(run_name or (state or {}).get("run_name") or "ringer"),
+            run_name=str(run_name or (state or {}).get("run_name") or "laufgitter"),
             task_key=task_key,
             force=force,
         )
@@ -4323,7 +4323,7 @@ def render_file_wrapper_html(
 <div class="page">
   <header class="corner">
     <span class="live-dot waiting" aria-hidden="true"></span>
-    <span class="eyebrow">Ringer &nbsp;·&nbsp; <b>{safe_run_name}</b> &nbsp;·&nbsp; {safe_task_key}</span>
+    <span class="eyebrow">Laufgitter &nbsp;·&nbsp; <b>{safe_run_name}</b> &nbsp;·&nbsp; {safe_task_key}</span>
     <span class="clock mono">artifact</span>
   </header>
   <section class="timeline" aria-label="{title}">
@@ -4434,7 +4434,7 @@ def live_briefing_html(state: dict[str, Any]) -> str:
     elapsed = fmt_plain_ago(state.get("elapsed_s"))
     total = counts["total"]
     if total == 0:
-        return f"Ringer has no tasks. Started {html_escape(elapsed)} ago."
+        return f"Laufgitter has no tasks. Started {html_escape(elapsed)} ago."
     parts = []
     if counts["pass"]:
         parts.append(f'<span class="n-pass">{html_escape(passed_phrase(counts["pass"]))}</span>')
@@ -4448,7 +4448,7 @@ def live_briefing_html(state: dict[str, Any]) -> str:
         parts.append(f'<span class="n-fail">{html_escape(failed_phrase(counts["fail"]))}</span>')
     status_sentence = join_plain_html_parts(parts)
     return (
-        f"Ringer is working on {total} {task_word(total)} — "
+        f"Laufgitter is working on {total} {task_word(total)} — "
         f"{status_sentence}, started {html_escape(elapsed)} ago."
     )
 
@@ -4463,7 +4463,7 @@ def final_briefing_html(state: dict[str, Any]) -> str:
     pass_n = counts["pass"]
     fail_n = counts["fail"]
     elapsed = fmt_compact_duration(state.get("elapsed_s"))
-    first = f"Ringer finished {total} {task_word(total)} in {elapsed}."
+    first = f"Laufgitter finished {total} {task_word(total)} in {elapsed}."
     if fail_n == 0:
         return f"{html_escape(first)} <span class=\"n-pass\">All {total} finished and checked.</span>"
     return (
@@ -4617,7 +4617,7 @@ def render_work_section(
     # One section carries the whole story: each worker, what it delivered,
     # how the delivery was checked, and where the raw log lives. The old
     # separate "The workers" strip and "What's happening" timeline repeated
-    # this information; per-worker live detail belongs to Ringside's agent
+    # this information; per-worker live detail belongs to Zentrale's agent
     # accordion, not the artifact.
     tasks = state_tasks(state)
     if finished_only:
@@ -4793,7 +4793,7 @@ def work_item_href(
         renderer.write_wrapper(
             source_path,
             wrapper_path,
-            run_name=str(state.get("run_name") or "ringer"),
+            run_name=str(state.get("run_name") or "laufgitter"),
             task_key=task_key,
             force=force_wrappers,
         )
@@ -4854,14 +4854,14 @@ def image_data_uri(path: Path) -> str:
 
 
 def render_corner_header(state: dict[str, Any], *, live: bool) -> str:
-    run_name = html_escape(str(state.get("run_name", "ringer")))
+    run_name = html_escape(str(state.get("run_name", "laufgitter")))
     identity = html_escape(str(state.get("identity", "unknown")))
     elapsed = html_escape(fmt_compact_duration(state.get("elapsed_s")))
     dot_class = "live-dot is-live" if live else f"live-dot {final_dot_bucket(state)}"
     clock_label = f"{elapsed} elapsed" if live else f"{elapsed} total"
     return f"""<header class="corner">
     <span class="{dot_class}" aria-hidden="true"></span>
-    <span class="eyebrow">Ringer &nbsp;·&nbsp; <b>{run_name}</b> &nbsp;·&nbsp; {identity}</span>
+    <span class="eyebrow">Laufgitter &nbsp;·&nbsp; <b>{run_name}</b> &nbsp;·&nbsp; {identity}</span>
     <span class="clock mono">{clock_label}</span>
   </header>"""
 
@@ -4883,7 +4883,7 @@ def render_status_html(
     page_path: Path | None = None,
 ) -> str:
     """Tier 0 zero-LLM live status artifact. Rendered on every state flush (~1s)."""
-    run_name = html_escape(str(state.get("run_name", "ringer")))
+    run_name = html_escape(str(state.get("run_name", "laufgitter")))
     tasks = state_tasks(state)
     counts = task_status_counts(state)
     briefing = live_briefing_html(state)
@@ -4892,7 +4892,7 @@ def render_status_html(
 <head>
 <meta charset="utf-8">
 {CSP_META_TAG}
-<title>ringer &middot; {run_name}</title>
+<title>laufgitter &middot; {run_name}</title>
 <meta http-equiv="refresh" content="2">
 <style>{ARTIFACT_BASE_CSS}</style>
 </head>
@@ -4921,7 +4921,7 @@ def render_final_report_html(
     page_path: Path | None = None,
 ) -> str:
     """Feature 4: self-contained final report, rendered once when a run finishes."""
-    run_name = html_escape(str(state.get("run_name", "ringer")))
+    run_name = html_escape(str(state.get("run_name", "laufgitter")))
     tasks = state_tasks(state)
     counts = task_status_counts(state)
     briefing = final_briefing_html(state)
@@ -4931,7 +4931,7 @@ def render_final_report_html(
 <head>
 <meta charset="utf-8">
 {CSP_META_TAG}
-<title>ringer report &middot; {run_name}</title>
+<title>laufgitter report &middot; {run_name}</title>
 <style>{ARTIFACT_BASE_CSS}</style>
 </head>
 <body>
@@ -5028,7 +5028,7 @@ def render_artifact_index_html(
         state_label = str(entry.get("state", "live"))
         fail_n = entry.get("fail", 0) or 0
         color = status_color(state_label if state_label in STATUS_COLORS else ("fail" if fail_n else "pass"))
-        run_name = html_escape(str(entry.get("run_name", "ringer")))
+        run_name = html_escape(str(entry.get("run_name", "laufgitter")))
         identity = html_escape(str(entry.get("identity", "unknown")))
         elapsed = fmt_duration(entry.get("elapsed_s"))
         pass_n = entry.get("pass", 0)
@@ -5042,7 +5042,7 @@ def render_artifact_index_html(
                 renderer.link_for_source(
                     report_path,
                     run_id=str(entry.get("run_id") or "run"),
-                    run_name=str(entry.get("run_name") or "ringer"),
+                    run_name=str(entry.get("run_name") or "laufgitter"),
                     task_key="run",
                     force=force_wrappers,
                 )
@@ -5067,13 +5067,13 @@ def render_artifact_index_html(
 <head>
 <meta charset="utf-8">
 {CSP_META_TAG}
-<title>ringer &middot; all runs</title>
+<title>laufgitter &middot; all runs</title>
 <meta http-equiv="refresh" content="5">
 <style>{ARTIFACT_BASE_CSS}</style>
 </head>
 <body>
 <div class="wrap">
-  <h1>ringer &mdash; all runs</h1>
+  <h1>laufgitter &mdash; all runs</h1>
   <p class="meta">One pane of glass across every run with state under this state_dir.</p>
   <table>
     <thead><tr><th>State</th><th>Run</th><th>Identity</th><th>Result</th><th>Elapsed</th><th>Artifacts</th></tr></thead>
@@ -5099,11 +5099,11 @@ def artifact_content_type(path: Path) -> str:
     return "application/octet-stream"
 
 
-def inject_models_tab_into_ringside_html(html: str) -> str:
+def inject_models_tab_into_zentrale_html(html: str) -> str:
     if 'id="models-panel"' in html or 'id="artifacts-panel"' not in html:
         return html
     tabs = """
-    <nav class="tabs" id="ringside-tabs" aria-label="Ringside views">
+    <nav class="tabs" id="zentrale-tabs" aria-label="Zentrale views">
       <button type="button" class="tab" id="runs-tab" aria-selected="true">Runs</button>
       <button type="button" class="tab" id="models-tab" aria-selected="false">Models</button>
     </nav>
@@ -5112,7 +5112,7 @@ def inject_models_tab_into_ringside_html(html: str) -> str:
       <section id="models-panel" class="panel models-panel" hidden>
         <div id="models-status" class="models-status mono">models not loaded</div>
         <div id="models-table-wrap" class="models-table-wrap">
-          <div class="empty">No model results yet. Run './ringer.py models' for the local scoreboard docs.</div>
+          <div class="empty">No model results yet. Run './laufgitter.py models' for the local scoreboard docs.</div>
         </div>
       </section>
 """
@@ -5219,7 +5219,7 @@ def inject_models_tab_into_ringside_html(html: str) -> str:
     script = r"""
     function installModelsView() {
       const MODELS_REFRESH_MS = 30000;
-      const VIEW_KEY = "ringside-view";
+      const VIEW_KEY = "zentrale-view";
       const runsPanel = document.getElementById("artifacts-panel");
       const modelsPanel = document.getElementById("models-panel");
       const runsTab = document.getElementById("runs-tab");
@@ -5316,7 +5316,7 @@ def inject_models_tab_into_ringside_html(html: str) -> str:
         status.classList.toggle("error", Boolean(error));
         status.textContent = error ? `models unavailable: ${error}` : `updated ${modelDate(payload?.generated_at)}`;
         if (!rows.length) {
-          wrap.innerHTML = '<div class="empty">No model results yet. Run \'./ringer.py models\' for the local scoreboard docs.</div>';
+          wrap.innerHTML = '<div class="empty">No model results yet. Run \'./laufgitter.py models\' for the local scoreboard docs.</div>';
           return;
         }
         const body = [];
@@ -5419,14 +5419,14 @@ def inject_models_tab_into_ringside_html(html: str) -> str:
     return html
 
 
-def read_ringside_html() -> str:
+def read_zentrale_html() -> str:
     try:
-        return inject_models_tab_into_ringside_html(RINGSIDE_HTML_PATH.read_text(encoding="utf-8"))
+        return inject_models_tab_into_zentrale_html(ZENTRALE_HTML_PATH.read_text(encoding="utf-8"))
     except OSError:
         return """<!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Ringside</title></head>
-<body><main id="app">dashboard/ringside.html is missing</main></body>
+<head><meta charset="utf-8"><title>Zentrale</title></head>
+<body><main id="app">dashboard/zentrale.html is missing</main></body>
 </html>
 """
 
@@ -5612,7 +5612,7 @@ class PersistentHudServer:
             def do_GET(self) -> None:  # noqa: N802
                 path = urllib.parse.urlparse(self.path).path
                 if path == "/":
-                    body = read_ringside_html().encode("utf-8")
+                    body = read_zentrale_html().encode("utf-8")
                     send_response_body(
                         self,
                         HTTPStatus.OK,
@@ -5717,17 +5717,17 @@ class PersistentHudServer:
             self.httpd = ReusableThreadingHTTPServer(("127.0.0.1", preferred_port), Handler)
         except OSError as exc:
             raise RuntimeError(
-                f"could not start Ringside on 127.0.0.1:{preferred_port}; "
+                f"could not start Zentrale on 127.0.0.1:{preferred_port}; "
                 "that port is already in use. Use --port to choose another port."
             ) from exc
         self.port = int(self.httpd.server_address[1])
-        self.thread = threading.Thread(target=self.httpd.serve_forever, name="ringer-hud", daemon=True)
+        self.thread = threading.Thread(target=self.httpd.serve_forever, name="laufgitter-hud", daemon=True)
         self.thread.start()
         url = f"http://127.0.0.1:{self.port}"
         if self.open_viewer:
             with contextlib.suppress(Exception):
                 webbrowser.open(url)
-        print(f"Ringside: {url}", flush=True)
+        print(f"Zentrale: {url}", flush=True)
         return self.port
 
     def start_background(self) -> int:
@@ -5779,7 +5779,7 @@ class Dashboard:
                     try:
                         body = state_path.read_bytes()
                     except FileNotFoundError:
-                        body = b'{"run_name":"ringer","identity":"unknown","started_at":"","port":null,"dashboard_port":null,"tasks":[],"totals":{"running":0,"done":0,"pass":0,"fail":0,"tokens":0}}'
+                        body = b'{"run_name":"laufgitter","identity":"unknown","started_at":"","port":null,"dashboard_port":null,"tasks":[],"totals":{"running":0,"done":0,"pass":0,"fail":0,"tokens":0}}'
                     send_response_body(
                         self,
                         HTTPStatus.OK,
@@ -5821,7 +5821,7 @@ class Dashboard:
             break
         if self.httpd is None or self.port is None:
             raise RuntimeError(f"could not start dashboard: {last_error}")
-        self.thread = threading.Thread(target=self.httpd.serve_forever, name="ringer-dashboard", daemon=True)
+        self.thread = threading.Thread(target=self.httpd.serve_forever, name="laufgitter-dashboard", daemon=True)
         self.thread.start()
         url = f"http://localhost:{self.port}"
         # Browser-first: the persistent hud (ensure_hud_running, called from the
@@ -6229,7 +6229,7 @@ def aggregate_model_log_rows(
 
 
 MODEL_SCOREBOARD_RUN_NAME = "model-scoreboard"
-MODEL_SCOREBOARD_IDENTITY = "ringer-models"
+MODEL_SCOREBOARD_IDENTITY = "laufgitter-models"
 MODEL_SCOREBOARD_COLUMNS = (
     "Model",
     "Lab",
@@ -6255,7 +6255,7 @@ def default_model_registry_path() -> Path:
 
 
 def default_read_model_db_path() -> Path:
-    return ringer_home() / "ringer.db"
+    return laufgitter_home() / "laufgitter.db"
 
 
 def should_use_read_model_db(
@@ -8372,7 +8372,7 @@ def render_model_scoreboard_html(
 <head>
 <meta charset="utf-8">
 {CSP_META_TAG}
-<title>ringer model scoreboard</title>
+<title>laufgitter model scoreboard</title>
 <style>{ARTIFACT_BASE_CSS}
 {MODEL_SCOREBOARD_CSS}</style>
 </head>
@@ -8709,13 +8709,13 @@ class Verifier:
         )
         ok = not missing_files and not check_timed_out and check_returncode == 0
         if missing_files:
-            missing_message = f"[ringer] missing expected files: {', '.join(missing_files)}"
+            missing_message = f"[laufgitter] missing expected files: {', '.join(missing_files)}"
             output = f"{missing_message}\n{output}" if output.strip() else missing_message
         elif not check_timed_out and check_returncode != 0 and not output.strip():
             # A silent failing check wastes the retry (no failure context to
             # inject) and blinds the eval row. Say so, in both places.
             output = (
-                f"[ringer] check failed silently (exit {check_returncode}, no output). "
+                f"[laufgitter] check failed silently (exit {check_returncode}, no output). "
                 "Prefer checks that print WHY they fail — the retry prompt and the "
                 "eval log both depend on it."
             )
@@ -8763,11 +8763,11 @@ class Verifier:
                 stdout, _ = await proc.communicate()
         output = stdout.decode("utf-8", errors="replace") if stdout else ""
         if timed_out:
-            output += f"\n[ringer.py] check timed out after {CHECK_TIMEOUT_S}s\n"
+            output += f"\n[laufgitter.py] check timed out after {CHECK_TIMEOUT_S}s\n"
         return proc.returncode, timed_out, output
 
 
-class RingerRunner:
+class LaufgitterRunner:
     def __init__(
         self,
         manifest: Manifest,
@@ -8841,13 +8841,13 @@ class RingerRunner:
                 self.dashboard.stop()
             self.logger.close()
             print_summary(self.run_id, self.runtimes)
-            print("Model log updated; run './ringer.py models' for the per-model scoreboard.")
+            print("Model log updated; run './laufgitter.py models' for the per-model scoreboard.")
             # The post-run journey: tell a human exactly where the results live.
             with contextlib.suppress(Exception):
                 if self.state_writer.artifact is not None and self.state_writer.artifact.enabled:
                     results_page = artifact_live_path(self.state_writer.state_dir, self.manifest.run_name)
                     print(f"\nYour results: {results_page}")
-                    print("Open it in a browser, or run './ringer.py hud' for the full Ringside view (http://127.0.0.1:8700).")
+                    print("Open it in a browser, or run './laufgitter.py hud' for the full Zentrale view (http://127.0.0.1:8700).")
 
     async def kill_all_workers(self) -> None:
         procs = list(self.active_processes.values())
@@ -8964,7 +8964,7 @@ class RingerRunner:
             except OSError as exc:
                 append_text(
                     runtime.log_path,
-                    f"[ringer.py] deliverable copy failed for {source.name}: {exc}\n",
+                    f"[laufgitter.py] deliverable copy failed for {source.name}: {exc}\n",
                 )
                 continue
             harvested.append({"name": source.name, "path": str(target), "bytes": copied_size})
@@ -9014,7 +9014,7 @@ class RingerRunner:
             stdout, _ = await proc.communicate()
             if proc.returncode != 0:
                 message = stdout.decode("utf-8", errors="replace")
-                append_text(runtime.log_path, f"[ringer.py] git worktree add failed:\n{message}\n")
+                append_text(runtime.log_path, f"[laufgitter.py] git worktree add failed:\n{message}\n")
                 return False, message.strip() or "git worktree add failed"
             return True, None
         taskdir.mkdir(parents=True, exist_ok=True)
@@ -9039,7 +9039,7 @@ class RingerRunner:
         stdout, _ = await proc.communicate()
         if proc.returncode != 0:
             message = stdout.decode("utf-8", errors="replace")
-            append_text(runtime.log_path, f"[ringer.py] git worktree remove failed:\n{message}\n")
+            append_text(runtime.log_path, f"[laufgitter.py] git worktree remove failed:\n{message}\n")
 
     def _snapshot_worktree_reports(self, runtime: TaskRuntime) -> None:
         copied: dict[str, Path] = {}
@@ -9055,7 +9055,7 @@ class RingerRunner:
             except OSError as exc:
                 append_text(
                     runtime.log_path,
-                    f"[ringer.py] report snapshot failed for {report_name}: {exc}\n",
+                    f"[laufgitter.py] report snapshot failed for {report_name}: {exc}\n",
                 )
                 continue
             copied[report_name] = target
@@ -9075,7 +9075,7 @@ class RingerRunner:
         with contextlib.suppress(Exception):
             append_text(
                 runtime.log_path,
-                f"[ringer.py] task setup failed before any worker could "
+                f"[laufgitter.py] task setup failed before any worker could "
                 f"spawn: {error}\n",
             )
         verify = VerifyResult(
@@ -9123,7 +9123,7 @@ class RingerRunner:
                 "version": None,
                 "rule_ids": [],
             }
-            steering_line = "[ringer.py] steering: no profile matched\n"
+            steering_line = "[laufgitter.py] steering: no profile matched\n"
             try:
                 resolved_model = resolved_task_model(runtime.task, engine, cmd)
                 profile = resolve_steering_profile(self.config.steering.dir, resolved_model)
@@ -9140,7 +9140,7 @@ class RingerRunner:
                     }
                     shown_rules = ", ".join(rule_ids) if rule_ids else "(none)"
                     steering_line = (
-                        f"[ringer.py] steering: profile={profile.slug} "
+                        f"[laufgitter.py] steering: profile={profile.slug} "
                         f"version={profile.profile_version} rule_ids={shown_rules}\n"
                     )
                 if injected_spec != spec:
@@ -9157,7 +9157,7 @@ class RingerRunner:
                 cmd = original_cmd
                 command_spec = spec
                 steering_state = {"profile": None, "version": None, "rule_ids": []}
-                steering_line = "[ringer.py] steering: no profile matched\n"
+                steering_line = "[laufgitter.py] steering: no profile matched\n"
             with self.lock:
                 runtime.steering = steering_state
             with contextlib.suppress(Exception):
@@ -9175,9 +9175,9 @@ class RingerRunner:
         append_text(
             log_path,
             "\n"
-            f"[ringer.py] attempt {attempt} started {datetime.now(timezone.utc).isoformat()}\n"
-            f"[ringer.py] engine: {runtime.task.engine}\n"
-            f"[ringer.py] command: {shell_command_for_display(display_cmd)} < /dev/null\n",
+            f"[laufgitter.py] attempt {attempt} started {datetime.now(timezone.utc).isoformat()}\n"
+            f"[laufgitter.py] engine: {runtime.task.engine}\n"
+            f"[laufgitter.py] command: {shell_command_for_display(display_cmd)} < /dev/null\n",
         )
         capture = RollingBytes(max_bytes=1_000_000)
         try:
@@ -9195,7 +9195,7 @@ class RingerRunner:
                     start_new_session=True,
                 )
             except Exception as exc:
-                message = f"[ringer.py] worker spawn failed: {exc}\n"
+                message = f"[laufgitter.py] worker spawn failed: {exc}\n"
                 log_fh.write(message.encode("utf-8", errors="replace"))
                 log_fh.flush()
                 return WorkerResult(returncode=None, timed_out=False, tokens=None, error=str(exc))
@@ -9225,8 +9225,8 @@ class RingerRunner:
         tokens = parse_token_count(output_tail, engine.token_regex)
         reported_model = parse_reported_model(output_tail, engine.model_report_regex)
         if timed_out:
-            append_text(log_path, f"\n[ringer.py] worker timed out after {runtime.task.timeout_s}s\n")
-        append_text(log_path, f"[ringer.py] attempt {attempt} exited rc={proc.returncode}\n")
+            append_text(log_path, f"\n[laufgitter.py] worker timed out after {runtime.task.timeout_s}s\n")
+        append_text(log_path, f"[laufgitter.py] attempt {attempt} exited rc={proc.returncode}\n")
         return WorkerResult(
             returncode=proc.returncode,
             timed_out=timed_out,
@@ -9279,7 +9279,7 @@ class RingerRunner:
             with contextlib.suppress(Exception):
                 append_text(
                     runtime.log_path,
-                    f"[ringer.py] identity: harness reported {reported_model} "
+                    f"[laufgitter.py] identity: harness reported {reported_model} "
                     f"but manifest/config expected {resolved_model}\n",
                 )
         reasoning_effort = effective_reasoning_effort_from_command(
@@ -9310,7 +9310,7 @@ class RingerRunner:
         self.logger.log_attempt(
             {
                 "run_id": self.run_id,
-                "pattern": "ringer-py",
+                "pattern": "laufgitter-py",
                 "task_key": runtime.task.key,
                 "spec": (
                     "[redacted request packet]"
@@ -9362,7 +9362,7 @@ class RingerRunner:
             now = datetime.now(timezone.utc)
             row = {
                 "ts": now.isoformat(),
-                "source": "ringer.py",
+                "source": "laufgitter.py",
                 "run_id": self.run_id,
                 "run_name": self.manifest.run_name,
                 "task_key": runtime.task.key,
@@ -9382,7 +9382,7 @@ class RingerRunner:
             path = (
                 steering_dir
                 / "observations"
-                / "ringer"
+                / "laufgitter"
                 / f"{now.strftime('%Y-%m-%d')}.jsonl"
             )
             append_text(path, json.dumps(row, sort_keys=True) + "\n")
@@ -9390,7 +9390,7 @@ class RingerRunner:
             with contextlib.suppress(Exception):
                 append_text(
                     runtime.log_path,
-                    f"[ringer.py] steering: observation write failed {exc}\n",
+                    f"[laufgitter.py] steering: observation write failed {exc}\n",
                 )
 
     def _task_runtime(self, task: TaskSpec) -> TaskRuntime:
@@ -9463,8 +9463,8 @@ def build_run_id(run_name: str) -> str:
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     safe_name = re.sub(r"[^A-Za-z0-9_.-]+", "-", run_name.strip()).strip("-")
     # pid suffix: same-second launches of the same run_name must not collide
-    # (concurrent ringer runs would otherwise share a state file and eval run_id).
-    return f"{safe_name or 'ringer'}-{stamp}-p{os.getpid()}"
+    # (concurrent laufgitter runs would otherwise share a state file and eval run_id).
+    return f"{safe_name or 'laufgitter'}-{stamp}-p{os.getpid()}"
 
 
 def find_repo_identity(start: Path | None = None) -> str | None:
@@ -9472,7 +9472,7 @@ def find_repo_identity(start: Path | None = None) -> str | None:
 
     Jon's fleet convention (2026-07-02): each repo has its own agent name
     (projects.agent_name in the fleet DB); a .fleet-agent file in the repo
-    root mirrors it so stdlib-only tools like ringer resolve it without a
+    root mirrors it so stdlib-only tools like laufgitter resolve it without a
     database connection.
     """
     current = (start or Path.cwd()).resolve()
@@ -9867,7 +9867,7 @@ def clean_log_text(value: str) -> str:
 
 
 def extract_shell_command(line: str) -> str:
-    if line.startswith("[ringer.py]"):
+    if line.startswith("[laufgitter.py]"):
         return ""
     for pattern in (CMD_JSON_DOUBLE_RE, CMD_JSON_SINGLE_RE, CMD_LABEL_RE, CMD_RAN_RE, CMD_PROMPT_RE):
         match = pattern.search(line)
@@ -9905,7 +9905,7 @@ def looks_like_shell_command(command: str) -> bool:
 
 
 def extract_written_file(line: str) -> str:
-    if line.startswith("[ringer.py]"):
+    if line.startswith("[laufgitter.py]"):
         return ""
     for pattern in (PATCH_FILE_RE, WRITE_QUOTED_FILE_RE, WRITE_FILE_RE):
         match = pattern.search(line)
@@ -9974,7 +9974,7 @@ async def run_baseline(manifest: Manifest, *, config: AppConfig) -> int:
     del config  # engines are irrelevant: baseline spawns no workers
     verifier = Verifier()
     worktrees = manifest.worktrees and manifest.repo is not None
-    baseline_root = Path(tempfile.mkdtemp(prefix="ringer-baseline-"))
+    baseline_root = Path(tempfile.mkdtemp(prefix="laufgitter-baseline-"))
     total = len(manifest.tasks)
     print(f"Baseline: executing {total} check(s) with no workers spawned.")
     failures = 0
@@ -10193,10 +10193,10 @@ def print_summary(run_id: str, runtimes: list[TaskRuntime]) -> None:
 
 
 def create_demo_manifest() -> Path:
-    root = Path(tempfile.mkdtemp(prefix="ringer-demo-"))
+    root = Path(tempfile.mkdtemp(prefix="laufgitter-demo-"))
     workdir = root / "work"
     manifest = {
-        "run_name": "ringer-demo",
+        "run_name": "laufgitter-demo",
         "workdir": str(workdir),
         "max_parallel": 3,
         "worktrees": False,
@@ -10228,7 +10228,7 @@ def create_demo_manifest() -> Path:
             },
         ],
     }
-    path = root / "ringer.json"
+    path = root / "laufgitter.json"
     path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     return path
 
@@ -10452,12 +10452,12 @@ def claude_root(project: bool) -> Path:
     return (Path.cwd() if project else Path.home()) / ".claude"
 
 
-def ringer_skill_source() -> Path:
-    return repo_root() / ".claude" / "skills" / "ringer" / "SKILL.md"
+def laufgitter_skill_source() -> Path:
+    return repo_root() / ".claude" / "skills" / "laufgitter" / "SKILL.md"
 
 
-def ringer_hook_command(action: str) -> str:
-    hook_path = repo_root() / "hooks" / "ringer_nudge.py"
+def laufgitter_hook_command(action: str) -> str:
+    hook_path = repo_root() / "hooks" / "laufgitter_nudge.py"
     return f"python3 {shlex.quote(str(hook_path))} {action}"
 
 
@@ -10490,11 +10490,11 @@ def write_settings(path: Path, settings: dict[str, Any]) -> None:
     os.replace(tmp, path)
 
 
-def hook_command_contains(value: Any, needle: str = "ringer_nudge.py") -> bool:
+def hook_command_contains(value: Any, needle: str = "laufgitter_nudge.py") -> bool:
     return isinstance(value, dict) and needle in str(value.get("command", ""))
 
 
-def event_has_ringer_hook(groups: Any) -> bool:
+def event_has_laufgitter_hook(groups: Any) -> bool:
     if not isinstance(groups, list):
         return False
     for group in groups:
@@ -10506,14 +10506,14 @@ def event_has_ringer_hook(groups: Any) -> bool:
     return False
 
 
-def merge_ringer_hook(settings: dict[str, Any], event: str, matcher: str, command: str) -> bool:
+def merge_laufgitter_hook(settings: dict[str, Any], event: str, matcher: str, command: str) -> bool:
     hooks = settings.setdefault("hooks", {})
     if not isinstance(hooks, dict):
         raise ValueError("settings hooks field must be a JSON object")
     groups = hooks.setdefault(event, [])
     if not isinstance(groups, list):
         raise ValueError(f"settings hooks.{event} field must be a JSON array")
-    if event_has_ringer_hook(groups):
+    if event_has_laufgitter_hook(groups):
         return False
     groups.append(
         {
@@ -10529,7 +10529,7 @@ def merge_ringer_hook(settings: dict[str, Any], event: str, matcher: str, comman
     return True
 
 
-def remove_ringer_hooks(settings: dict[str, Any]) -> int:
+def remove_laufgitter_hooks(settings: dict[str, Any]) -> int:
     hooks = settings.get("hooks")
     if not isinstance(hooks, dict):
         return 0
@@ -10568,33 +10568,33 @@ def remove_ringer_hooks(settings: dict[str, Any]) -> int:
 
 def install_agent(project: bool = False) -> int:
     root = claude_root(project)
-    skill_source = ringer_skill_source()
-    skill_target = root / "skills" / "ringer" / "SKILL.md"
+    skill_source = laufgitter_skill_source()
+    skill_target = root / "skills" / "laufgitter" / "SKILL.md"
     if not skill_source.exists():
-        raise ValueError(f"ringer skill source not found: {skill_source}")
+        raise ValueError(f"laufgitter skill source not found: {skill_source}")
     skill_target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(skill_source, skill_target)
 
     settings_path = root / "settings.json"
     settings = load_settings(settings_path)
     changed = False
-    changed |= merge_ringer_hook(
+    changed |= merge_laufgitter_hook(
         settings,
         "PreToolUse",
         "Bash",
-        ringer_hook_command("pre-bash"),
+        laufgitter_hook_command("pre-bash"),
     )
-    changed |= merge_ringer_hook(
+    changed |= merge_laufgitter_hook(
         settings,
         "PostToolUse",
         "Edit|Write",
-        ringer_hook_command("post-edit"),
+        laufgitter_hook_command("post-edit"),
     )
     if changed or not settings_path.exists():
         write_settings(settings_path, settings)
 
     scope = "project" if project else "user"
-    print(f"Installed ringer agent for {scope} scope.")
+    print(f"Installed laufgitter agent for {scope} scope.")
     print(f"Skill: {skill_target}")
     if changed:
         print(f"Hooks: added PreToolUse Bash and PostToolUse Edit|Write in {settings_path}")
@@ -10609,18 +10609,18 @@ def uninstall_agent(project: bool = False) -> int:
     removed_hooks = 0
     if settings_path.exists():
         settings = load_settings(settings_path)
-        removed_hooks = remove_ringer_hooks(settings)
+        removed_hooks = remove_laufgitter_hooks(settings)
         if removed_hooks:
             write_settings(settings_path, settings)
 
-    skill_dir = root / "skills" / "ringer"
+    skill_dir = root / "skills" / "laufgitter"
     removed_skill = False
     if skill_dir.exists():
         shutil.rmtree(skill_dir)
         removed_skill = True
 
     scope = "project" if project else "user"
-    print(f"Uninstalled ringer agent for {scope} scope.")
+    print(f"Uninstalled laufgitter agent for {scope} scope.")
     print(f"Hooks removed: {removed_hooks}")
     print(f"Skill removed: {'yes' if removed_skill else 'no'}")
     return 0
@@ -10633,7 +10633,7 @@ async def run_manifest(
     dashboard_enabled: bool,
     force_browser: bool,
 ) -> int:
-    runner = RingerRunner(
+    runner = LaufgitterRunner(
         manifest,
         config=config,
         identity=identity,
@@ -10658,7 +10658,7 @@ async def run_manifest(
         nonlocal shutdown_started
         if shutdown_started:
             print(
-                "ringer.py: shutdown already in progress; waiting on worker cleanup",
+                "laufgitter.py: shutdown already in progress; waiting on worker cleanup",
                 file=sys.stderr,
             )
             return
@@ -10750,8 +10750,8 @@ def start_hud_update_maintenance(
                 result: SelfUpdateResult | None = None
                 if (
                     config.update.auto
-                    and env.get("RINGER_NO_SELF_UPDATE") != "1"
-                    and env.get("RINGER_SELF_UPDATED") != "1"
+                    and env.get("LAUFGITTER_NO_SELF_UPDATE") != "1"
+                    and env.get("LAUFGITTER_SELF_UPDATED") != "1"
                 ):
                     result = perform_self_update(
                         config=config,
@@ -10775,7 +10775,7 @@ def start_hud_update_maintenance(
                     continue
                 server.stop()
                 next_env = dict(env)
-                next_env["RINGER_SELF_UPDATED"] = "1"
+                next_env["LAUFGITTER_SELF_UPDATED"] = "1"
                 execve(
                     sys.executable,
                     [sys.executable, str(script), *invocation[1:]],
@@ -10788,7 +10788,7 @@ def start_hud_update_maintenance(
     try:
         thread = threading.Thread(
             target=worker,
-            name="ringer-hud-self-update",
+            name="laufgitter-hud-self-update",
             daemon=True,
         )
         thread.start()
@@ -10798,7 +10798,7 @@ def start_hud_update_maintenance(
 
 
 def ensure_hud_running(config: AppConfig, *, open_browser: bool) -> None:
-    """Make sure the persistent Ringside page is up before a run starts.
+    """Make sure the persistent Zentrale page is up before a run starts.
 
     The human should never have to remember a second command to watch the
     fight: if no hud answers on the configured port, spawn one detached.
@@ -10824,14 +10824,14 @@ def ensure_hud_running(config: AppConfig, *, open_browser: bool) -> None:
             time.sleep(0.15)
     if open_browser and not already_alive and hud_is_alive(port):
         open_in_browser(url)
-    print(f"Ringside: {url}", flush=True)
+    print(f"Zentrale: {url}", flush=True)
 
 
 def run_persistent_hud(config: AppConfig, *, port: int | None, open_viewer: bool) -> int:
     chosen_port = port if port is not None else config.hud_port
     if hud_is_alive(chosen_port):
         url = f"http://127.0.0.1:{chosen_port}"
-        print(f"Ringside is already running: {url}")
+        print(f"Zentrale is already running: {url}")
         if open_viewer:
             open_in_browser(url)
         return 0
@@ -10856,7 +10856,7 @@ def run_persistent_hud(config: AppConfig, *, port: int | None, open_viewer: bool
         while True:
             time.sleep(3600)
     except KeyboardInterrupt:
-        print("\nRingside stopped.")
+        print("\nZentrale stopped.")
         return 0
     finally:
         server.stop()
@@ -10865,9 +10865,9 @@ def run_persistent_hud(config: AppConfig, *, port: int | None, open_viewer: bool
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="ringer.py",
+        prog="laufgitter.py",
         description=(
-            "Ringer: deterministic parallel AI-agent orchestrator. Runs manifest tasks in parallel, "
+            "Laufgitter: deterministic parallel AI-agent orchestrator. Runs manifest tasks in parallel, "
             "verifies artifacts with executed checks, retries failures once, logs eval rows, "
             "and serves a live dashboard."
         ),
@@ -10887,14 +10887,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--config", type=Path, default=argparse.SUPPRESS, help=argparse.SUPPRESS
     )
 
-    run_parser = subparsers.add_parser("run", help="run a ringer manifest")
-    run_parser.add_argument("manifest", type=Path, help="path to ringer.json")
+    run_parser = subparsers.add_parser("run", help="run a laufgitter manifest")
+    run_parser.add_argument("manifest", type=Path, help="path to laufgitter.json")
     run_parser.add_argument("--config", type=Path, default=argparse.SUPPRESS, help=argparse.SUPPRESS)
     run_parser.add_argument("--max-parallel", type=int, help="override manifest max_parallel")
     run_parser.add_argument("--identity", help="orchestrator identity for HUD state and eval rows")
     run_parser.add_argument("--no-dashboard", action="store_true", help="disable live dashboard")
-    run_parser.add_argument("--browser", action="store_true", help="open the dashboard in the browser instead of Ringside")
-    run_parser.epilog = "Set RINGER_NO_CATALOG_REFRESH=1 to skip the non-blocking OpenRouter catalog auto-refresh."
+    run_parser.add_argument("--browser", action="store_true", help="open the dashboard in the browser instead of Zentrale")
+    run_parser.epilog = "Set LAUFGITTER_NO_CATALOG_REFRESH=1 to skip the non-blocking OpenRouter catalog auto-refresh."
     run_parser.add_argument(
         "--no-artifact",
         action="store_true",
@@ -11019,15 +11019,15 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
 
-    lint_parser = subparsers.add_parser("lint", help="lint a ringer manifest")
-    lint_parser.add_argument("manifest", type=Path, help="path to ringer.json")
+    lint_parser = subparsers.add_parser("lint", help="lint a laufgitter manifest")
+    lint_parser.add_argument("manifest", type=Path, help="path to laufgitter.json")
     lint_parser.add_argument(
         "--allow-noncanonical-route",
         action="store_true",
         help="allow a registry-marked noncanonical model route for a deliberate bakeoff",
     )
 
-    hud_parser = subparsers.add_parser("hud", help="start the persistent Ringside page in your browser")
+    hud_parser = subparsers.add_parser("hud", help="start the persistent Zentrale page in your browser")
     hud_parser.add_argument("--config", type=Path, default=argparse.SUPPRESS, help=argparse.SUPPRESS)
     hud_parser.add_argument("--port", type=int, help=f"port to bind on 127.0.0.1 (default: {DEFAULT_HUD_PORT})")
     hud_parser.add_argument("--no-open", action="store_true", help="start the server without opening a browser")
@@ -11037,7 +11037,7 @@ def build_parser() -> argparse.ArgumentParser:
     db_subparsers = db_parser.add_subparsers(dest="db_command", required=True)
     for name in ("rebuild", "sync"):
         sub = db_subparsers.add_parser(name, help=f"{name} the derived SQLite read model")
-        sub.add_argument("--db", type=Path, help="path to SQLite read model (default: ~/.ringer/ringer.db)")
+        sub.add_argument("--db", type=Path, help="path to SQLite read model (default: ~/.laufgitter/laufgitter.db)")
         sub.add_argument("--log", type=Path, help="path to local eval JSONL log")
         sub.add_argument("--catalog-file", type=Path, help="path to local OpenRouter catalog snapshot")
         sub.add_argument("--registry", type=Path, help="path to model identity registry")
@@ -11045,7 +11045,7 @@ def build_parser() -> argparse.ArgumentParser:
     models_parser = subparsers.add_parser("models", help="show the local per-model performance scoreboard")
     models_parser.add_argument("--config", type=Path, default=argparse.SUPPRESS, help=argparse.SUPPRESS)
     models_parser.add_argument("--log", type=Path, help="path to local eval JSONL log")
-    models_parser.add_argument("--db", type=Path, help="path to SQLite read model (default: ~/.ringer/ringer.db)")
+    models_parser.add_argument("--db", type=Path, help="path to SQLite read model (default: ~/.laufgitter/laufgitter.db)")
     models_parser.add_argument("--task-type", help="only include one task_type bucket")
     models_parser.add_argument("--model", help="only include one resolved model bucket")
     models_parser.add_argument("--engine", help="only include rows from one worker engine")
@@ -11061,7 +11061,7 @@ def build_parser() -> argparse.ArgumentParser:
     catalog_parser = subparsers.add_parser("catalog", help="show or refresh the local OpenRouter model catalog")
     catalog_parser.add_argument("--refresh", action="store_true", help="fetch source and rewrite the local snapshot")
     catalog_parser.add_argument("--source", help=f"OpenRouter models URL or fixture file (default: {DEFAULT_CATALOG_SOURCE})")
-    catalog_parser.add_argument("--file", type=Path, help="catalog snapshot path (default: ~/.ringer/openrouter-catalog.json)")
+    catalog_parser.add_argument("--file", type=Path, help="catalog snapshot path (default: ~/.laufgitter/openrouter-catalog.json)")
     catalog_parser.add_argument("--free", action="store_true", help="show free models only")
     catalog_parser.add_argument("--changes", action="store_true", help="show recent catalog changes newest first")
     catalog_parser.add_argument("--json", action="store_true", help="print the model list as JSON and nothing else")
@@ -11071,7 +11071,7 @@ def build_parser() -> argparse.ArgumentParser:
     demo_parser.add_argument("--max-parallel", type=int, help="override demo max_parallel")
     demo_parser.add_argument("--identity", help="orchestrator identity for HUD state and eval rows")
     demo_parser.add_argument("--no-dashboard", action="store_true", help="disable live dashboard")
-    demo_parser.add_argument("--browser", action="store_true", help="open the dashboard in the browser instead of Ringside")
+    demo_parser.add_argument("--browser", action="store_true", help="open the dashboard in the browser instead of Zentrale")
     demo_parser.add_argument(
         "--no-artifact",
         action="store_true",
@@ -11079,10 +11079,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     demo_parser.add_argument("--dry-run", action="store_true", help="print the demo plan without spawning codex")
 
-    install_parser = subparsers.add_parser("install-agent", help="install the ringer Claude Code skill and hooks")
+    install_parser = subparsers.add_parser("install-agent", help="install the laufgitter Claude Code skill and hooks")
     install_parser.add_argument("--project", action="store_true", help="install into ./.claude instead of ~/.claude")
 
-    uninstall_parser = subparsers.add_parser("uninstall-agent", help="remove the ringer Claude Code skill and hooks")
+    uninstall_parser = subparsers.add_parser("uninstall-agent", help="remove the laufgitter Claude Code skill and hooks")
     uninstall_parser.add_argument("--project", action="store_true", help="remove from ./.claude instead of ~/.claude")
     return parser
 
@@ -11092,7 +11092,7 @@ def main(argv: list[str] | None = None) -> int:
     maybe_self_update(invocation_argv)
     # The guard is only for this process start. Clearing it lets a restarted,
     # long-running HUD discover a later update during its lifetime.
-    os.environ.pop("RINGER_SELF_UPDATED", None)
+    os.environ.pop("LAUFGITTER_SELF_UPDATED", None)
     # Keep progress lines live when stdout is a pipe (tee, orchestrators).
     with contextlib.suppress(Exception):
         sys.stdout.reconfigure(line_buffering=True)
@@ -11109,7 +11109,7 @@ def main(argv: list[str] | None = None) -> int:
                 allow_reexec=False,
             )
             if result.status == "up_to_date":
-                print("Ringer is up to date.")
+                print("Laufgitter is up to date.")
                 return 0
             if result.applied:
                 print(
@@ -11119,7 +11119,7 @@ def main(argv: list[str] | None = None) -> int:
                 return 0
             if result.blocked:
                 print(
-                    f"Ringer is {result.behind} commit(s) behind but blocked because "
+                    f"Laufgitter is {result.behind} commit(s) behind but blocked because "
                     f"{result.reason}."
                 )
                 return 1
@@ -11224,7 +11224,7 @@ def main(argv: list[str] | None = None) -> int:
         print("\nInterrupted.", file=sys.stderr)
         return 130
     except Exception as exc:
-        print(f"ringer.py: error: {exc}", file=sys.stderr)
+        print(f"laufgitter.py: error: {exc}", file=sys.stderr)
         return 2
 
 

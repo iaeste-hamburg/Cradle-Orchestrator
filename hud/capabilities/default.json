@@ -1,6 +1,6 @@
 {
   "identifier": "default",
-  "description": "Ringside main window: drag anywhere on the chrome, tray-driven show/hide.",
+  "description": "Zentrale main window: drag anywhere on the chrome, tray-driven show/hide.",
   "windows": ["main"],
   "permissions": [
     "core:default",

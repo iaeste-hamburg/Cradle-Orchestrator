@@ -18,7 +18,7 @@ Use it when plausible prose is not enough. The proof does not replace judgment, 
 | Placeholder | What goes there |
 |---|---|
 | `{{TOPIC}}` | Short topic slug for the run name and research check. |
-| `{{WORKDIR}}` | Absolute scratch directory where Ringer creates research and proof task directories. |
+| `{{WORKDIR}}` | Absolute scratch directory where Laufgitter creates research and proof task directories. |
 | `{{RESEARCH_KEY}}` | Stable task key for the research report. |
 | `{{RESEARCH_QUESTION}}` | The exact question the research report must answer. |
 | `{{DELIVERABLE — e.g. a technical guide, buying memo, implementation plan, or product decision}}` | The downstream artifact or decision this research supports. |
