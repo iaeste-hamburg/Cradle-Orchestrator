@@ -12,8 +12,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-import ringer
-from ringer import TaskSpec
+import laufgitter
+from laufgitter import TaskSpec
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,8 +25,8 @@ def toml_string(value: object) -> str:
 
 def cli_env(home: Path | None = None) -> dict[str, str]:
     env = os.environ.copy()
-    env["RINGER_NO_SELF_UPDATE"] = "1"
-    env["RINGER_NO_CATALOG_REFRESH"] = "1"
+    env["LAUFGITTER_NO_SELF_UPDATE"] = "1"
+    env["LAUFGITTER_NO_CATALOG_REFRESH"] = "1"
     if home is not None:
         env["HOME"] = str(home)
     return env
@@ -76,7 +76,7 @@ class AskCommandTests(unittest.TestCase):
         timeout: int = 30,
     ) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            [sys.executable, "ringer.py", *args],
+            [sys.executable, "laufgitter.py", *args],
             cwd=ROOT,
             env=cli_env(home),
             text=True,
@@ -96,11 +96,11 @@ class AskCommandTests(unittest.TestCase):
         stderr = io.StringIO()
         with (
             mock.patch.dict(os.environ, cli_env(home), clear=True),
-            mock.patch.object(ringer.Dashboard, "start", return_value=8787),
+            mock.patch.object(laufgitter.Dashboard, "start", return_value=8787),
             contextlib.redirect_stdout(stdout),
             contextlib.redirect_stderr(stderr),
         ):
-            returncode = ringer.main(args)
+            returncode = laufgitter.main(args)
         return subprocess.CompletedProcess(
             args,
             returncode,
@@ -201,9 +201,9 @@ class AskCommandTests(unittest.TestCase):
             )
             self.assertEqual(
                 1,
-                worker_log.count("[ringer.py] attempt 1 started"),
+                worker_log.count("[laufgitter.py] attempt 1 started"),
             )
-            self.assertNotIn("[ringer.py] attempt 2 started", worker_log)
+            self.assertNotIn("[laufgitter.py] attempt 2 started", worker_log)
             self.assertIn(request, worker_log)
             self.assertIn("RAW WORKER OUTPUT: mock answer complete", worker_log)
             state_files = list((root / "state" / "runs").glob("*.json"))

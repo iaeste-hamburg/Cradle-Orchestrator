@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any
 
 
-COMMAND_PREFIX = "[ringer.py] command: "
+COMMAND_PREFIX = "[laufgitter.py] command: "
 BACKFILL_NOTE = "\nmodel_backfill=command_log"
 
 
@@ -55,7 +55,7 @@ def _model_from_tokens(tokens: list[str]) -> str | None:
 
 
 def model_from_command_log(log_path: Path) -> tuple[str | None, str | None]:
-    """Return the model from the last Ringer command line in the log."""
+    """Return the model from the last Laufgitter command line in the log."""
     try:
         lines = log_path.read_text(encoding="utf-8", errors="replace").splitlines()
     except OSError as exc:
@@ -83,7 +83,7 @@ def model_from_command_log(log_path: Path) -> tuple[str | None, str | None]:
     if model is not None:
         return model, None
     if command_lines == 0:
-        return None, "log has no [ringer.py] command line"
+        return None, "log has no [laufgitter.py] command line"
     if not last_command_parsed:
         return None, "last command line could not be parsed with shlex"
     if malformed_commands == command_lines:
@@ -216,8 +216,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--state-dir",
         type=Path,
-        default=Path("~/.ringer"),
-        help="Ringer state directory (default: ~/.ringer)",
+        default=Path("~/.laufgitter"),
+        help="Laufgitter state directory (default: ~/.laufgitter)",
     )
     parser.add_argument(
         "--dry-run",
@@ -256,7 +256,7 @@ def main(argv: list[str] | None = None) -> int:
     if not args.dry_run:
         print(
             "refresh the derived read model: "
-            f"python3 ringer.py db rebuild --log {shlex.quote(str(log_path))}"
+            f"python3 laufgitter.py db rebuild --log {shlex.quote(str(log_path))}"
         )
     return 0
 

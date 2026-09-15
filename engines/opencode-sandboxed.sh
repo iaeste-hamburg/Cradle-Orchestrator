@@ -1,5 +1,5 @@
 #!/bin/bash
-# Ringer engine wrapper: run OpenCode under a macOS Seatbelt sandbox.
+# Laufgitter engine wrapper: run OpenCode under a macOS Seatbelt sandbox.
 #
 # OpenCode has no OS-level sandbox of its own — its --dangerously-skip-permissions
 # flag (required for headless runs) disables ALL of its interactive approval
@@ -7,12 +7,12 @@
 # writes confined to the task dir, a per-run scratch/cache dir, and OpenCode's
 # own state dirs.
 #
-# Usage (as a ringer engine bin):
+# Usage (as a laufgitter engine bin):
 #   opencode-sandboxed.sh <taskdir> [--no-sandbox] <opencode args...>
 #
 # The first argument is the task directory (pass "{taskdir}" first in
 # args_template). "--no-sandbox" as the second argument skips Seatbelt entirely
-# — wire it as the engine's full_access_args so ringer's allow_full_access gate
+# — wire it as the engine's full_access_args so laufgitter's allow_full_access gate
 # still applies. macOS only (sandbox-exec); on other platforms only
 # --no-sandbox mode works.
 set -euo pipefail
@@ -43,8 +43,8 @@ TASKDIR_REAL="$(cd "$TASKDIR" && pwd -P)"
 # we never have to open all of /private/tmp or ~/.cache to the sandboxed agent.
 # Resolve to the real path (/var/folders symlinks to /private/var/folders);
 # Seatbelt subpath matching needs the canonical path or writes EPERM-crash.
-SCRATCH="$(cd "$(mktemp -d -t ringer-opencode-scratch)" && pwd -P)"
-PROFILE="$(mktemp -t ringer-opencode-prof)"
+SCRATCH="$(cd "$(mktemp -d -t laufgitter-opencode-scratch)" && pwd -P)"
+PROFILE="$(mktemp -t laufgitter-opencode-prof)"
 cleanup() { rm -rf "$SCRATCH" "$PROFILE"; }
 trap cleanup EXIT
 

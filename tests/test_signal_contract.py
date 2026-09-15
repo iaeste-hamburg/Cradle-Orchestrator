@@ -15,15 +15,15 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-import ringer  # noqa: E402
-from ringer import (  # noqa: E402
+import laufgitter  # noqa: E402
+from laufgitter import (  # noqa: E402
     AppConfig,
     ArtifactConfig,
     EvalConfig,
     Manifest,
     MODEL_SCOREBOARD_COLUMNS,
     build_models_api_payload,
-    inject_models_tab_into_ringside_html,
+    inject_models_tab_into_zentrale_html,
     lint_manifest,
     load_model_identity_registry,
     run_models_command,
@@ -62,7 +62,7 @@ class SignalContractTests(unittest.TestCase):
         self.old_env = os.environ.copy()
         self.addCleanup(self.restore_env)
         os.environ["HOME"] = str(self.root / "home")
-        os.environ["RINGER_HOME"] = str(self.root / "ringer-home")
+        os.environ["LAUFGITTER_HOME"] = str(self.root / "laufgitter-home")
         self.log_path = self.root / "runs.jsonl"
         self.registry_path = self.root / "model-identity.toml"
         self.notes_path = self.root / "MODEL-NOTES.md"
@@ -186,10 +186,10 @@ source = "fixture"
         positions = [header.index(f">{column}<") for column in MODEL_SCOREBOARD_COLUMNS]
         self.assertEqual(sorted(positions), positions)
 
-        ringside = ringer.read_ringside_html()
-        ringside_header = ringside[ringside.index("'<th>Model") :]
-        ringside_header = ringside_header[: ringside_header.index("</tr></thead>")]
-        positions = [ringside_header.index(f">{column}<") for column in MODEL_SCOREBOARD_COLUMNS]
+        zentrale = laufgitter.read_zentrale_html()
+        zentrale_header = zentrale[zentrale.index("'<th>Model") :]
+        zentrale_header = zentrale_header[: zentrale_header.index("</tr></thead>")]
+        positions = [zentrale_header.index(f">{column}<") for column in MODEL_SCOREBOARD_COLUMNS]
         self.assertEqual(sorted(positions), positions)
         self.assertEqual(list(MODEL_SCOREBOARD_COLUMNS), self.payload()["columns"])
 
@@ -280,7 +280,7 @@ source = "fixture"
         self.assertNotIn("openrouter/x-ai/grok-4.5", chart)
 
     def test_lint_command_reports_error_and_escape_flag_passes(self) -> None:
-        manifest_path = self.root / "ringer.json"
+        manifest_path = self.root / "laufgitter.json"
         manifest_path.write_text(
             json.dumps(
                 {
@@ -302,18 +302,18 @@ source = "fixture"
             encoding="utf-8",
         )
         real_registry = ROOT / "registry" / "model-identity.toml"
-        with mock.patch.object(ringer, "default_model_registry_path", return_value=real_registry), mock.patch.object(
-            ringer, "maybe_self_update"
+        with mock.patch.object(laufgitter, "default_model_registry_path", return_value=real_registry), mock.patch.object(
+            laufgitter, "maybe_self_update"
         ):
             output = io.StringIO()
             with contextlib.redirect_stdout(output):
-                self.assertEqual(1, ringer.main(["lint", str(manifest_path)]))
+                self.assertEqual(1, laufgitter.main(["lint", str(manifest_path)]))
             self.assertIn("lint: ERROR: grok-task", output.getvalue())
             output = io.StringIO()
             with contextlib.redirect_stdout(output):
                 self.assertEqual(
                     1,
-                    ringer.main(
+                    laufgitter.main(
                         ["run", str(manifest_path), "--dry-run", "--no-dashboard"]
                     ),
                 )
@@ -323,7 +323,7 @@ source = "fixture"
             with contextlib.redirect_stdout(output):
                 self.assertEqual(
                     0,
-                    ringer.main(
+                    laufgitter.main(
                         ["lint", str(manifest_path), "--allow-noncanonical-route"]
                     ),
                 )

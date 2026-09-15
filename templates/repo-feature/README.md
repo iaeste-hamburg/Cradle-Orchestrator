@@ -28,7 +28,7 @@ Use this for narrowly scoped app pages, route additions, component changes, scri
 | `{{REQUIRED_TEXT_CSV}}` | Text snippets that must appear somewhere in owned files, comma-separated. |
 | `{{RUN_SLUG}}` | Stable run slug for this repo feature. |
 | `{{TASK_KEY}}` | Unique task key, such as `demo-page` or `settings-route`. |
-| `{{WORKDIR}}` | Scratch Ringer workdir outside the repository. |
+| `{{WORKDIR}}` | Scratch Laufgitter workdir outside the repository. |
 
 ## Checks
 
@@ -44,7 +44,7 @@ Use `launch-kit` before this when a standalone launch page needs to be installed
 
 Validate against the current upstream head before merging. A worker can pass against yesterday's checkout and still be wrong after upstream moves.
 
-Never run `git add -A` in a checkout with untracked scratch files. Stage specific paths after human review; the Ringer check only proves the worker's current diff is confined.
+Never run `git add -A` in a checkout with untracked scratch files. Stage specific paths after human review; the Laufgitter check only proves the worker's current diff is confined.
 
 `engine_args` must include the repo in `sandbox_workspace_write.writable_roots`, or the worker will only be able to write its task directory.
 

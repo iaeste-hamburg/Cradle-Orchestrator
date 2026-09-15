@@ -19,18 +19,18 @@ def toml_string(value: object) -> str:
 
 
 class MockEngineEndToEndTests(unittest.TestCase):
-    def test_mock_engine_runs_real_ringer_loop_offline(self) -> None:
+    def test_mock_engine_runs_real_laufgitter_loop_offline(self) -> None:
         with tempfile.TemporaryDirectory() as temp_root:
             root = Path(temp_root)
             home = root / "home"
-            ringer_home = root / "ringer-home"
+            laufgitter_home = root / "laufgitter-home"
             state_dir = root / "state"
             workdir = root / "work"
             config_path = root / "config.toml"
             manifest_path = root / "manifest.json"
 
             home.mkdir()
-            ringer_home.mkdir()
+            laufgitter_home.mkdir()
 
             config_path.write_text(
                 "\n".join(
@@ -106,13 +106,13 @@ class MockEngineEndToEndTests(unittest.TestCase):
 
             env = os.environ.copy()
             env["HOME"] = str(home)
-            env["RINGER_HOME"] = str(ringer_home)
+            env["LAUFGITTER_HOME"] = str(laufgitter_home)
             env["XDG_CONFIG_HOME"] = str(root / "xdg-config")
 
             proc = subprocess.run(
                 [
                     sys.executable,
-                    "ringer.py",
+                    "laufgitter.py",
                     "run",
                     str(manifest_path),
                     "--config",
@@ -150,7 +150,7 @@ class MockEngineEndToEndTests(unittest.TestCase):
             fail_log = (workdir / "fail-task" / "worker.log").read_text(encoding="utf-8")
             self.assertIn("mock-worker: simulated failure", fail_log)
             attempt_starts = re.findall(
-                r"^\[ringer\.py\] attempt ([12]) started \d{4}-",
+                r"^\[laufgitter\.py\] attempt ([12]) started \d{4}-",
                 fail_log,
                 flags=re.MULTILINE,
             )

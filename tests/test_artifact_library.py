@@ -15,8 +15,8 @@ from urllib.request import urlopen
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-import ringer  # noqa: E402
-from ringer import (  # noqa: E402
+import laufgitter  # noqa: E402
+from laufgitter import (  # noqa: E402
     CSP_META_TAG,
     ArtifactConfig,
     Dashboard,
@@ -41,7 +41,7 @@ class ArtifactLibraryTests(unittest.TestCase):
         self.addCleanup(self.restore_env)
         self.root = Path(self.tmp.name)
         os.environ["HOME"] = str(self.root / "home")
-        os.environ["RINGER_HOME"] = str(self.root / "ringer-home")
+        os.environ["LAUFGITTER_HOME"] = str(self.root / "laufgitter-home")
         self.state_dir = self.root / "state"
         self.workdir = self.root / "work"
         self.engine = EngineConfig(
@@ -100,7 +100,7 @@ class ArtifactLibraryTests(unittest.TestCase):
             {"mock": self.engine},
             datetime(2026, 7, 5, tzinfo=timezone.utc),
             runtimes if runtimes is not None else [self.runtime()],
-            ringer.threading.RLock(),
+            laufgitter.threading.RLock(),
             artifact=self.artifact,
         )
 
@@ -193,7 +193,7 @@ class ArtifactLibraryTests(unittest.TestCase):
         before_text = path.read_text(encoding="utf-8")
         before_data = json.loads(before_text)
 
-        with mock.patch("ringer.os.replace", side_effect=OSError("simulated crash")):
+        with mock.patch("laufgitter.os.replace", side_effect=OSError("simulated crash")):
             with self.assertRaises(OSError):
                 update_artifact_library_live(
                     self.state_dir,

@@ -26,7 +26,7 @@ quirks = [
   "Use provider.require_parameters=true when a harness depends on tools, tool_choice, response_format, structured_outputs, parallel_tool_calls, reasoning, or reasoning_effort; otherwise OpenRouter may route to a provider that ignores unsupported parameters.",
   "Current OpenRouter GLM-5.2 providers do not all expose the same tool-related parameters; only some advertise structured_outputs, and only Inceptron currently advertises parallel_tool_calls in endpoint metadata.",
   "Native Z.ai structured output documentation describes JSON mode plus client-side JSON Schema validation examples, not a confirmed strict server-side schema guarantee for tool arguments.",
-  "Local OpenCode/Ringer observation from long structured tasks: GLM-5.2 can occasionally emit malformed or retry-needed tool JSON under long context; keep parse validation and retry behavior enabled instead of treating the first malformed tool call as a model-failure verdict."
+  "Local OpenCode/Laufgitter observation from long structured tasks: GLM-5.2 can occasionally emit malformed or retry-needed tool JSON under long context; keep parse validation and retry behavior enabled instead of treating the first malformed tool call as a model-failure verdict."
 ]
 
 [reasoning]

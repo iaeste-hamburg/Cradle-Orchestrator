@@ -19,7 +19,7 @@ Use it after the orchestrator has already decided what should be fixed. It is a 
 |---|---|
 | `{{PROJECT}}` | Short project or repo name for the run name and worker brief. |
 | `{{WORKDIR}}` | Absolute scratch directory outside the repo; exported patches and summaries land here. |
-| `{{REPO_PATH}}` | Absolute path to the repo Ringer will clone into per-task worktrees. |
+| `{{REPO_PATH}}` | Absolute path to the repo Laufgitter will clone into per-task worktrees. |
 | `{{FIX_KEY}}` | Stable task key for one fix, used in the exported patch filename. |
 | `{{OWNED_FILES — every file or directory this task may modify, comma or newline separated}}` | Exact file or directory ownership list. It must be disjoint from every other worker and concurrent run. |
 | `{{FINDING — the confirmed bug or issue, with file:line evidence and the desired behavior}}` | The specific issue to fix, including evidence and what correct behavior looks like. |

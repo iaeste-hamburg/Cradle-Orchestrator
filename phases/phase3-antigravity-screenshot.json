@@ -1,0 +1,31 @@
+{
+  "run_name": "phase3-antigravity-screenshot",
+  "workdir": "/tmp/laufgitter-phase3",
+  "max_parallel": 1,
+  "tasks": [
+    {
+      "key": "write-contract",
+      "engine": "opencode",
+      "model": "gpt-5.4",
+      "task_type": "code-review",
+      "spec": "Write contract.json describing the artifact the next worker must produce for task: 'Take a screenshot of <TARGET_URL/UI_STATE>'. Required keys: expect_files (array), min_width, min_height, description. File name must be 'screenshot.png'.",
+      "check": "python3 -c \"import json; d=json.load(open('contract.json')); assert 'expect_files' in d and 'screenshot.png' in d['expect_files']; assert 'min_width' in d and 'min_height' in d; print('OK')\"",
+      "expect_files": ["contract.json"],
+      "verified": "Confirms contract.json declares the required artifact and minimum acceptance dimensions.",
+      "max_attempts": 1
+    },
+    {
+      "key": "execute-screenshot",
+      "engine": "antigravity",
+      "model": "gemini-3.8-medium",
+      "task_type": "code-feature",
+      "engine_args": ["--dangerously-skip-permissions", "--sandbox"],
+      "spec": "Read /tmp/laufgitter-phase3/write-contract/contract.json for the exact artifact requirements, then use your available MCP tools to capture the screenshot it describes. Save the result to screenshot.png in this task directory, matching or exceeding the min_width/min_height from the contract.",
+      "check": "python3 -c \"import json; from PIL import Image; c=json.load(open('/tmp/laufgitter-phase3/write-contract/contract.json')); img=Image.open('screenshot.png'); w,h=img.size; assert w>=c['min_width'] and h>=c['min_height'], f'FAIL: {w}x{h} smaller than contract minimum {c[\\\"min_width\\\"]}x{c[\\\"min_height\\\"]}'; print('OK')\"; cp screenshot.png /tmp/laufgitter-phase3/artifacts-out/ 2>/dev/null || true",
+      "expect_files": ["screenshot.png"],
+      "worktrees": false,
+      "verified": "Confirms screenshot.png exists, is a valid image, and meets the minimum dimensions gpt-5.4's contract declared — not just that a file exists.",
+      "max_attempts": 2
+    }
+  ]
+}

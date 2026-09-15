@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ringside</title>
+  <title>Zentrale</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%2335d0ff'/%3E%3C/svg%3E">
   <style>
     :root {
@@ -593,7 +593,7 @@
     <header class="corner topbar">
       <span id="top-dot" class="live-dot" aria-hidden="true"></span>
       <div class="topbar-main">
-        <span class="eyebrow wordmark"><b>Ringside</b></span>
+        <span class="eyebrow wordmark"><b>Zentrale</b></span>
         <span id="reconnect" class="reconnect mono" hidden>reconnecting…</span>
       </div>
       <div id="running-now" class="running-now" role="group" aria-label="Running now"></div>
@@ -624,8 +624,8 @@
 
   <script>
   (() => {
-    const TAB_KEY = "ringside-tab";
-    const ARTIFACT_KEY = "ringside-artifact-selection";
+    const TAB_KEY = "zentrale-tab";
+    const ARTIFACT_KEY = "zentrale-artifact-selection";
     const state = {
       runs: [],
       active: {},
@@ -675,17 +675,17 @@
       const behind = Number(state.update?.behind) || 0;
       const reason = String(state.update?.reason || "").trim();
       const key = updateKey(state.update);
-      const dismissed = sessionStorage.getItem("ringside-dismissed-update") === key;
+      const dismissed = sessionStorage.getItem("zentrale-dismissed-update") === key;
       if (behind <= 0 || !reason || dismissed) {
         els.updateBanner.hidden = true;
         return;
       }
-      els.updateMessage.textContent = `Ringer update available: ${behind} commit(s) behind — ${reason}`;
+      els.updateMessage.textContent = `Laufgitter update available: ${behind} commit(s) behind — ${reason}`;
       els.updateBanner.hidden = false;
     }
 
     els.dismissUpdate.addEventListener("click", () => {
-      sessionStorage.setItem("ringside-dismissed-update", updateKey(state.update));
+      sessionStorage.setItem("zentrale-dismissed-update", updateKey(state.update));
       renderUpdateBanner();
     });
 
@@ -741,7 +741,7 @@
     }
 
     function runId(run, index = 0) {
-      return String(run.run_id || run.id || `${run.identity || "run"}-${run.run_name || "ringer"}-${run.started_at || index}`);
+      return String(run.run_id || run.id || `${run.identity || "run"}-${run.run_name || "laufgitter"}-${run.started_at || index}`);
     }
 
     function taskKey(task, index = 0) {
@@ -772,7 +772,7 @@
           __index: index,
           __id: runId(run, index),
           state: stateName,
-          run_name: String(run.run_name || "ringer"),
+          run_name: String(run.run_name || "laufgitter"),
           identity: String(run.identity || "unknown"),
           started_at: String(run.started_at || ""),
           elapsed_s: elapsedForRun({...run, state: stateName}),
@@ -1013,7 +1013,7 @@
       if (!state.runs.length) {
         const empty = document.createElement("div");
         empty.className = "empty";
-        empty.textContent = "Nothing has run yet. Start something with: ./ringer.py run manifest.json";
+        empty.textContent = "Nothing has run yet. Start something with: ./laufgitter.py run manifest.json";
         staging.appendChild(empty);
         state.rendering = true;
         preserveScroll(() => { morphChildren(els.runs, staging); });
@@ -1522,7 +1522,7 @@
       syncArtifactSelection();
       let options;
       if (!state.artifacts.length) {
-        options = [{value: "", text: state.libraryError ? "Ringside reconnecting…" : "No artifacts yet"}];
+        options = [{value: "", text: state.libraryError ? "Zentrale reconnecting…" : "No artifacts yet"}];
       } else {
         options = state.artifacts.map(artifact => {
           const marker = artifact.state === "live" ? "● " : "";

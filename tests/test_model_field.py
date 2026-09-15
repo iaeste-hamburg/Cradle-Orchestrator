@@ -11,13 +11,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ringer import (  # noqa: E402
+from laufgitter import (  # noqa: E402
     AppConfig,
     ArtifactConfig,
     EngineConfig,
     EvalConfig,
     Manifest,
-    RingerRunner,
+    LaufgitterRunner,
     TaskSpec,
     VerifyResult,
     WorkerResult,
@@ -246,7 +246,7 @@ class ModelValidationTests(unittest.TestCase):
     def test_eval_row_falls_back_to_model_in_last_worker_command(self) -> None:
         config = self.config({"codex": codex_like_engine()})
         manifest = self.manifest(self.base_task(engine="codex"))
-        runner = RingerRunner(
+        runner = LaufgitterRunner(
             manifest,
             config=config,
             identity="tester",

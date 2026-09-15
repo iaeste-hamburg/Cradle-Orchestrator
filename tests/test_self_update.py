@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ringer import (  # noqa: E402
+from laufgitter import (  # noqa: E402
     AppConfig,
     ArtifactConfig,
     EvalConfig,
@@ -35,8 +35,8 @@ class SelfUpdateTests(unittest.TestCase):
         self._git("init", "--bare", "--initial-branch=main", str(self.origin))
         self._git("init", "--initial-branch=main", str(self.upstream))
         self._configure_identity(self.upstream)
-        (self.upstream / "ringer.py").write_text("print('v1')\n", encoding="utf-8")
-        self._git("-C", str(self.upstream), "add", "ringer.py")
+        (self.upstream / "laufgitter.py").write_text("print('v1')\n", encoding="utf-8")
+        self._git("-C", str(self.upstream), "add", "laufgitter.py")
         self._git("-C", str(self.upstream), "commit", "-m", "initial")
         self._git("-C", str(self.upstream), "remote", "add", "origin", str(self.origin))
         self._git("-C", str(self.upstream), "push", "-u", "origin", "main")
@@ -60,7 +60,7 @@ class SelfUpdateTests(unittest.TestCase):
             ),
             update=UpdateConfig(auto=True, check_interval_s=3600),
         )
-        self.argv = [str(self.checkout / "ringer.py"), "lint", "manifest.json"]
+        self.argv = [str(self.checkout / "laufgitter.py"), "lint", "manifest.json"]
 
     def _git(self, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
@@ -72,13 +72,13 @@ class SelfUpdateTests(unittest.TestCase):
         )
 
     def _configure_identity(self, repo: Path) -> None:
-        self._git("-C", str(repo), "config", "user.name", "Ringer Test")
-        self._git("-C", str(repo), "config", "user.email", "ringer@example.test")
+        self._git("-C", str(repo), "config", "user.name", "Laufgitter Test")
+        self._git("-C", str(repo), "config", "user.email", "laufgitter@example.test")
 
     def _add_upstream_commit(self, text: str = "print('v2')\n") -> str:
-        target = self.upstream / "ringer.py"
+        target = self.upstream / "laufgitter.py"
         target.write_text(text, encoding="utf-8")
-        self._git("-C", str(self.upstream), "add", "ringer.py")
+        self._git("-C", str(self.upstream), "add", "laufgitter.py")
         self._git("-C", str(self.upstream), "commit", "-m", "update")
         self._git("-C", str(self.upstream), "push", "origin", "main")
         return self._git("-C", str(self.upstream), "rev-parse", "HEAD").stdout.strip()
@@ -88,7 +88,7 @@ class SelfUpdateTests(unittest.TestCase):
             "config": self.config,
             "argv": self.argv,
             "repo_dir": self.checkout,
-            "script_path": self.checkout / "ringer.py",
+            "script_path": self.checkout / "laufgitter.py",
             "force": True,
             "allow_reexec": False,
         }
@@ -119,12 +119,12 @@ class SelfUpdateTests(unittest.TestCase):
         self.assertEqual("applied", result.status)
         self.assertEqual(expected, actual)
         self.assertEqual(1, len(calls))
-        self.assertEqual("1", calls[0][2]["RINGER_SELF_UPDATED"])
+        self.assertEqual("1", calls[0][2]["LAUFGITTER_SELF_UPDATED"])
         self.assertEqual(self.argv[1:], calls[0][1][2:])
 
     def test_dirty_tracked_file_blocks_and_records_reason(self) -> None:
         self._add_upstream_commit()
-        (self.checkout / "ringer.py").write_text("local edit\n", encoding="utf-8")
+        (self.checkout / "laufgitter.py").write_text("local edit\n", encoding="utf-8")
         result = self._run()
         self.assertEqual("blocked", result.status)
         self.assertEqual("tracked files are modified", result.reason)
@@ -175,7 +175,7 @@ class SelfUpdateTests(unittest.TestCase):
             self.argv,
             config=self.config,
             repo_dir=self.checkout,
-            script_path=self.checkout / "ringer.py",
+            script_path=self.checkout / "laufgitter.py",
             runner=counting_runner,
             execve=lambda *_args: None,
             environ={},
@@ -186,7 +186,7 @@ class SelfUpdateTests(unittest.TestCase):
             self.argv,
             config=self.config,
             repo_dir=self.checkout,
-            script_path=self.checkout / "ringer.py",
+            script_path=self.checkout / "laufgitter.py",
             runner=counting_runner,
             execve=lambda *_args: None,
             environ={},
@@ -211,11 +211,11 @@ class SelfUpdateTests(unittest.TestCase):
         self.assertGreater(len(calls), 0)
 
     def test_self_updated_guard_short_circuits(self) -> None:
-        result = maybe_self_update(self.argv, config=self.config, runner=self.fail_runner, environ={"RINGER_SELF_UPDATED": "1"})
+        result = maybe_self_update(self.argv, config=self.config, runner=self.fail_runner, environ={"LAUFGITTER_SELF_UPDATED": "1"})
         self.assertEqual("already restarted", result.reason)
 
     def test_no_self_update_environment_short_circuits(self) -> None:
-        result = maybe_self_update(self.argv, config=self.config, runner=self.fail_runner, environ={"RINGER_NO_SELF_UPDATE": "1"})
+        result = maybe_self_update(self.argv, config=self.config, runner=self.fail_runner, environ={"LAUFGITTER_NO_SELF_UPDATE": "1"})
         self.assertEqual("disabled by environment", result.reason)
 
     def test_no_self_update_argument_short_circuits(self) -> None:

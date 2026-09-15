@@ -18,7 +18,7 @@ Use it to learn how a product, prompt, onboarding flow, or generated deliverable
 | Placeholder | What goes there |
 |---|---|
 | `{{PRODUCT}}` | Product, prompt, or workflow name. |
-| `{{WORKDIR}}` | Absolute scratch directory where Ringer creates persona session directories. |
+| `{{WORKDIR}}` | Absolute scratch directory where Laufgitter creates persona session directories. |
 | `{{PERSONA_KEY}}` | Stable key for one persona, such as `skeptic-founder` or `busy-parent`. |
 | `{{ONE_LINE_DESCRIPTION}}` | One sentence describing what the product is supposed to do. |
 | `{{PERSONA — name, age, job, tech comfort, awareness level, pains they reveal only when asked, typing style, skepticism, and buying context}}` | The persona card. Include enough behavioral detail that the worker can stay consistent. |

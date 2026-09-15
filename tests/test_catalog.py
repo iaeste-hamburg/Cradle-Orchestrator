@@ -17,7 +17,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ringer import (  # noqa: E402
+from laufgitter import (  # noqa: E402
     AppConfig,
     ArtifactConfig,
     CatalogRefreshResult,
@@ -63,9 +63,9 @@ class CatalogTests(unittest.TestCase):
         self.addCleanup(self.restore_env)
         # Isolate ALL default state paths: without this, tests that hit
         # default_read_model_db_path() sync fixture rows into the REAL
-        # ~/.ringer/ringer.db (this exact leak put 'proven-model' on the
+        # ~/.laufgitter/laufgitter.db (this exact leak put 'proven-model' on the
         # live public scoreboard, 2026-07-10).
-        os.environ["RINGER_HOME"] = str(self.root / "ringer-home")
+        os.environ["LAUFGITTER_HOME"] = str(self.root / "laufgitter-home")
 
     def restore_env(self) -> None:
         os.environ.clear()
@@ -423,7 +423,7 @@ class CatalogTests(unittest.TestCase):
         refresh_openrouter_catalog(snapshot, source=str(old_source))
         before = snapshot.read_text(encoding="utf-8")
 
-        with mock.patch("ringer.atomic_write_json", side_effect=RuntimeError("write stopped")):
+        with mock.patch("laufgitter.atomic_write_json", side_effect=RuntimeError("write stopped")):
             with self.assertRaisesRegex(RuntimeError, "write stopped"):
                 refresh_openrouter_catalog(snapshot, source=str(new_source))
 
@@ -438,13 +438,13 @@ class CatalogTests(unittest.TestCase):
     def test_auto_refresh_throttling_env_and_exception_swallowing(self) -> None:
         snapshot = self.root / "catalog.json"
         snapshot.write_text('{"models":[]}', encoding="utf-8")
-        with mock.patch("ringer.refresh_openrouter_catalog") as refresh:
+        with mock.patch("laufgitter.refresh_openrouter_catalog") as refresh:
             self.assertIsNone(start_catalog_auto_refresh(snapshot_path=snapshot, print_notice=False))
             refresh.assert_not_called()
 
         stale = time.time() - (25 * 60 * 60)
         os.utime(snapshot, (stale, stale))
-        with mock.patch("ringer.refresh_openrouter_catalog") as refresh:
+        with mock.patch("laufgitter.refresh_openrouter_catalog") as refresh:
             refresh.return_value = CatalogRefreshResult(
                 path=snapshot,
                 changes_path=catalog_changes_path(snapshot),
@@ -457,13 +457,13 @@ class CatalogTests(unittest.TestCase):
             thread.join(timeout=2)
             refresh.assert_called_once()
 
-        os.environ["RINGER_NO_CATALOG_REFRESH"] = "1"
-        with mock.patch("ringer.refresh_openrouter_catalog") as refresh:
+        os.environ["LAUFGITTER_NO_CATALOG_REFRESH"] = "1"
+        with mock.patch("laufgitter.refresh_openrouter_catalog") as refresh:
             self.assertIsNone(start_catalog_auto_refresh(snapshot_path=snapshot, print_notice=False))
             refresh.assert_not_called()
-        os.environ.pop("RINGER_NO_CATALOG_REFRESH")
+        os.environ.pop("LAUFGITTER_NO_CATALOG_REFRESH")
 
-        with mock.patch("ringer.refresh_openrouter_catalog", side_effect=RuntimeError("boom")):
+        with mock.patch("laufgitter.refresh_openrouter_catalog", side_effect=RuntimeError("boom")):
             thread = start_catalog_auto_refresh(snapshot_path=snapshot, print_notice=False)
             self.assertIsNotNone(thread)
             assert thread is not None
@@ -483,7 +483,7 @@ class CatalogTests(unittest.TestCase):
         )
         stdout = io.StringIO()
         stderr = io.StringIO()
-        with mock.patch("ringer.refresh_openrouter_catalog", return_value=result):
+        with mock.patch("laufgitter.refresh_openrouter_catalog", return_value=result):
             with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
                 thread = start_catalog_auto_refresh(snapshot_path=snapshot, print_notice=True)
                 self.assertIsNotNone(thread)

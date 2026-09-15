@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Backfill ``model`` and ``task_type`` into a legacy Ringer eval log.
+"""Backfill ``model`` and ``task_type`` into a legacy Laufgitter eval log.
 
-Older Ringer versions wrote eval-log rows without the ``model`` and
-``task_type`` keys that the new ``./ringer.py models`` scoreboard depends on.
+Older Laufgitter versions wrote eval-log rows without the ``model`` and
+``task_type`` keys that the new ``./laufgitter.py models`` scoreboard depends on.
 This tool enriches an existing JSONL log in place by:
 
-  * looking up each row's ``model`` from the Ringer run-state file
+  * looking up each row's ``model`` from the Laufgitter run-state file
     ``<runs-dir>/<run_id>.json`` (matching ``task_key`` against the run-state's
     ``tasks[].key``), and
   * looking up each row's ``task_type`` from a flat mapping JSON using the
@@ -196,7 +196,7 @@ def print_summary(summary: dict) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Backfill `model` and `task_type` into a Ringer eval log.",
+        description="Backfill `model` and `task_type` into a Laufgitter eval log.",
     )
     parser.add_argument("--log", required=True, help="path to the JSONL eval log")
     parser.add_argument(

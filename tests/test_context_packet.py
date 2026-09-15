@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ringer import build_context_packet
+from laufgitter import build_context_packet
 
 
 class ContextPacketTests(unittest.TestCase):

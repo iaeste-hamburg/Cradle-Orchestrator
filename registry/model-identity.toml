@@ -1,6 +1,6 @@
 # Model identity registry — resolves (engine, manifest model field) into the
 # display taxonomy: Model / Lab / Harness / Access. This is what the scoreboard and
-# Ringside show, and what keeps engine names (codex) from masquerading as
+# Zentrale show, and what keeps engine names (codex) from masquerading as
 # model names.
 #
 # confidence: "verified" requires a cited source (see source field);

@@ -4,7 +4,7 @@ Blueprint — adapt with care
 
 ## What it is
 
-This kit is a blueprint for a three-stage data pipeline run: fetch, transform, validate. Each stage is a separate Ringer task with explicit file handoffs through `{{DATA_DIR}}`, which must live outside task directories so deliverables survive cleanup and are easy to inspect.
+This kit is a blueprint for a three-stage data pipeline run: fetch, transform, validate. Each stage is a separate Laufgitter task with explicit file handoffs through `{{DATA_DIR}}`, which must live outside task directories so deliverables survive cleanup and are easy to inspect.
 
 The pattern is not proven in a recorded run yet. Keep it small at first: one source, one schema, one validator contract.
 
@@ -19,7 +19,7 @@ Do not use it for an exploratory notebook where the schema is still unknown. Fir
 | Placeholder | What goes there |
 |---|---|
 | `{{DATASET_KEY}}` | Stable slug for the dataset and output filenames. |
-| `{{WORKDIR}}` | Scratch run directory for Ringer task folders. |
+| `{{WORKDIR}}` | Scratch run directory for Laufgitter task folders. |
 | `{{DATA_DIR}}` | Absolute path outside task dirs where raw, transformed, and validated outputs survive. |
 | `{{SOURCE_URL}}` | Fetchable source URL. |
 | `{{SOURCE_NAME}}` | Human-readable source name for logs. |
@@ -51,8 +51,8 @@ Use `fix-swarm.json` after this kit only when the pipeline revealed separate cod
 
 ## Gotchas
 
-`{{DATA_DIR}}` should be absolute and outside the Ringer task directories. If it points inside a task directory, handoffs can disappear or become hard to inspect after the run.
+`{{DATA_DIR}}` should be absolute and outside the Laufgitter task directories. If it points inside a task directory, handoffs can disappear or become hard to inspect after the run.
 
 Do not let the transform stage silently fix bad source data. Exclusions, malformed rows, dedupes, and type coercion failures go to the rejects file with reasons, and the check counts that file.
 
-Ringer does not have dependency fields. This blueprint uses parallel tasks whose downstream specs wait for upstream files. For the first real run, keep `{{STAGE_WAIT_SECONDS}}` generous and inspect retries; repeated waiting failures mean the pipeline should be split into separate stage runs.
+Laufgitter does not have dependency fields. This blueprint uses parallel tasks whose downstream specs wait for upstream files. For the first real run, keep `{{STAGE_WAIT_SECONDS}}` generous and inspect retries; repeated waiting failures mean the pipeline should be split into separate stage runs.

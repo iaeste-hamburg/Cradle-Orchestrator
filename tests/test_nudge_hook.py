@@ -12,10 +12,10 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-HOOK = ROOT / "hooks" / "ringer_nudge.py"
+HOOK = ROOT / "hooks" / "laufgitter_nudge.py"
 NUDGE_TEXT = (
-    "Ringer routing check: this looks like swarm-shaped work happening inline "
-    "(model call/harness/edit loop outside a live Ringer run). Load the ringer "
+    "Laufgitter routing check: this looks like swarm-shaped work happening inline "
+    "(model call/harness/edit loop outside a live Laufgitter run). Load the laufgitter "
     "skill and route it as a manifest — a single task is a one-task manifest. "
     "If the user explicitly asked for inline work, proceed."
 )
@@ -26,14 +26,14 @@ class NudgeHookTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.home = Path(self.temp.name) / "home"
-        self.ringer_home = Path(self.temp.name) / "ringer"
+        self.laufgitter_home = Path(self.temp.name) / "laufgitter"
         self.home.mkdir()
-        self.ringer_home.mkdir()
+        self.laufgitter_home.mkdir()
 
     def run_hook(self, mode: str, payload: object | str) -> subprocess.CompletedProcess[str]:
         env = os.environ.copy()
         env["HOME"] = str(self.home)
-        env["RINGER_HOME"] = str(self.ringer_home)
+        env["LAUFGITTER_HOME"] = str(self.laufgitter_home)
         stdin = payload if isinstance(payload, str) else json.dumps(payload)
         return subprocess.run(
             [sys.executable, str(HOOK), mode],
@@ -82,8 +82,8 @@ class NudgeHookTests(unittest.TestCase):
         self.assertEqual("", proc.stdout)
         self.assertEqual("", proc.stderr)
 
-    def write_active_run(self, pid: int, workdir: str = "/tmp/live-ringer-work") -> None:
-        path = self.ringer_home / "active-runs.json"
+    def write_active_run(self, pid: int, workdir: str = "/tmp/live-laufgitter-work") -> None:
+        path = self.laufgitter_home / "active-runs.json"
         payload = {
             "run-live": {
                 "pid": pid,
@@ -108,8 +108,8 @@ class NudgeHookTests(unittest.TestCase):
         proc = self.run_hook("pre-bash", self.pre_bash_payload("ls -la"))
         self.assertSilent(proc)
 
-    def test_pre_bash_stays_silent_when_command_contains_ringer_py(self) -> None:
-        proc = self.run_hook("pre-bash", self.pre_bash_payload("python3 ringer.py run manifest.json"))
+    def test_pre_bash_stays_silent_when_command_contains_laufgitter_py(self) -> None:
+        proc = self.run_hook("pre-bash", self.pre_bash_payload("python3 laufgitter.py run manifest.json"))
         self.assertSilent(proc)
 
     def test_pre_bash_stays_silent_when_active_run_has_live_pid(self) -> None:

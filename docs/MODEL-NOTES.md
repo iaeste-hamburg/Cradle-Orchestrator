@@ -1,14 +1,14 @@
 # Model notes — how workers actually perform
 
-A running log of how models perform on real Ringer tasks, so engine and
+A running log of how models perform on real Laufgitter tasks, so engine and
 model choices are made on evidence instead of vibes. The raw numbers now
-live in the local eval log (`~/.ringer/runs.jsonl`); run `./ringer.py models`
+live in the local eval log (`~/.laufgitter/runs.jsonl`); run `./laufgitter.py models`
 to print the per-model, per-task_type scoreboard (tasks, attempts,
 pass_rate, first_try_pass_rate, median duration/tokens, last_seen). This
 file remains the judgment layer on top of those numbers.
 
 **How to add a row:** after reviewing a run (post-run ritual step 5 in the
-ringer skill), append one dated line under the model. Say the task type,
+laufgitter skill), append one dated line under the model. Say the task type,
 what happened, and what you'd do differently. Only write what the executed
 checks and raw logs support — no vibes, no worker self-reports.
 
@@ -21,8 +21,8 @@ checks and raw logs support — no vibes, no worker self-reports.
   (market read with source allowlist, site build) with clean first-attempt
   passes.
 - 2026-07-10 — gpt-5.6-sol, code-feature (steering-profiles feature in
-  ringer.py itself, ~470-line change + 18 tests + docs, run
-  ringer-steering-profiles): shipped as PR #25. 2 attempts, 379k tokens,
+  laufgitter.py itself, ~470-line change + 18 tests + docs, run
+  laufgitter-steering-profiles): shipped as PR #25. 2 attempts, 379k tokens,
   but the attempt-1 FAIL was the CHECK's fault, not the model's — the check
   gated on the ENTIRE pre-existing suite being green inside the worker
   sandbox (localhost binds blocked, fixture missing). The feature work
@@ -40,7 +40,7 @@ checks and raw logs support — no vibes, no worker self-reports.
   316s/~175k tok; final brand+market-test reskin 622s/~184k tok), both passed
   14-assertion content checks on attempt 1, including base64-embedding photos
   and honoring honesty-marker requirements. Codex remains the site-build lane.
-- 2026-07-06 — ringer.py feature batch (task_type field + enriched eval rows
+- 2026-07-06 — laufgitter.py feature batch (task_type field + enriched eval rows
   + `models` scoreboard + hud single-tab fix; ~640-line diff incl. two new
   test suites): substance passed on attempt 1 — its check printed PASS
   (compile, all 16 suites, exact CLI aggregation contract) — but the run
@@ -77,8 +77,8 @@ checks and raw logs support — no vibes, no worker self-reports.
   ranked cards, and the check compared raw first-occurrence). Six review
   findings fixed in one batch, PASS attempt 1, 141s.
 - 2026-07-06 — model-db stack (SQLite read model 516s, page redesign 536s,
-  Ringside tab 527s, plus three fix batches all attempt-1): five substantial
-  ringer.py features in one day, every one against an executed contract
+  Zentrale tab 527s, plus three fix batches all attempt-1): five substantial
+  laufgitter.py features in one day, every one against an executed contract
   check. Review lane found the HIGH that mattered (sync cursor skipping a
   half-written trailing line). Codex is the proven lane for both sides of
   the review->fix loop on this codebase.
@@ -246,7 +246,7 @@ checks and raw logs support — no vibes, no worker self-reports.
   reading seeded scoreboard numbers, remember 2026-07-06 first-try rates
   are depressed by this.
 - 2026-07-06 — the model log is now automatic: every attempt row carries
-  model/task_type/retry; `./ringer.py models` prints the scoreboard; 81
+  model/task_type/retry; `./laufgitter.py models` prints the scoreboard; 81
   historical rows were seeded via scripts/backfill_model_log.py with a
   hand-authored task-type mapping. Give every manifest task a task_type or
   its evidence buckets as (untyped).
@@ -259,7 +259,7 @@ checks and raw logs support — no vibes, no worker self-reports.
   with the `model` column in the run state, not the task key.
 - 2026-07-06 — spawning 5-6 opencode workers simultaneously hit opencode's
   local "database is locked" (sqlite) — several instant attempt-1 failures,
-  all absorbed by Ringer's retry. Cosmetic in Ringside ("sent back" at 0s) but
+  all absorbed by Laufgitter's retry. Cosmetic in Zentrale ("sent back" at 0s) but
   wastes an attempt; consider staggering opencode spawns.
 - 2026-07-06 — opencode's bash tool kills foreground commands around the
   ~2-minute mark: a 2min+ image-generation API call can never finish inline.
@@ -286,8 +286,8 @@ checks and raw logs support — no vibes, no worker self-reports.
 - Lesson (check design, not model): all 3 post-integration bugs were invisible to the checks — a test that passed only because the worker's worktree lacked .env, a `--help`-only assertion missing a runtime importlib/sys.modules bug (py3.12 dataclasses), and bare console-script names failing outside activated venvs. Checks should exercise one real invocation from a cold shell, not just --help.
 
 ## gpt-5.6-sol (codex)
-- 2026-07-15 ringer-self-update run (3 serial tasks, direct-repo-edit mode): code-fix baseline-test repair 1/1 first-try (61k tokens, 1.6m); code-feature self-update mechanism (git fetch/ff-pull/re-exec + HUD staleness restart + 20-test suite) 1/1 first-try at high effort (153k, 8.1m); code-feature signal-contract (all 3 scoreboard surfaces + canonical-route lint enforcement) passed on retry (358k, 13.7m) — attempt 1 died on stale old-column assertions in pre-existing tests it hadn't finished updating; the retry prompt's injected FAIL list was enough to close it out. Lesson: when a task rewrites a display contract, name every test file asserting the old contract in the spec's ownership list AND tell it to update them FIRST.
-- 2026-07-09 code-feature/code-fix (ringside-overhaul): 4/4 first-try — a ringer.py logging change with tests, a 265-line stdlib backfill CLI (atomic rewrite, dry-run, idempotence all check-verified), a ~1500-line single-file HTML redesign (running-now pills + worker-card grid + multi-expansion refactor, 30KB patch, node --check + contract greps + unittest), and a render-gating change where it correctly UPDATED tests asserting the old behavior instead of gaming the check. Medium/high reasoning, 65–120k tokens/task.
+- 2026-07-15 laufgitter-self-update run (3 serial tasks, direct-repo-edit mode): code-fix baseline-test repair 1/1 first-try (61k tokens, 1.6m); code-feature self-update mechanism (git fetch/ff-pull/re-exec + HUD staleness restart + 20-test suite) 1/1 first-try at high effort (153k, 8.1m); code-feature signal-contract (all 3 scoreboard surfaces + canonical-route lint enforcement) passed on retry (358k, 13.7m) — attempt 1 died on stale old-column assertions in pre-existing tests it hadn't finished updating; the retry prompt's injected FAIL list was enough to close it out. Lesson: when a task rewrites a display contract, name every test file asserting the old contract in the spec's ownership list AND tell it to update them FIRST.
+- 2026-07-09 code-feature/code-fix (zentrale-overhaul): 4/4 first-try — a laufgitter.py logging change with tests, a 265-line stdlib backfill CLI (atomic rewrite, dry-run, idempotence all check-verified), a ~1500-line single-file HTML redesign (running-now pills + worker-card grid + multi-expansion refactor, 30KB patch, node --check + contract greps + unittest), and a render-gating change where it correctly UPDATED tests asserting the old behavior instead of gaming the check. Medium/high reasoning, 65–120k tokens/task.
 - Same day, different session (bench-harness-patches, code-fix): 0.29 first-try over 7 tasks on a Next.js/Turbopack harness. Spec and check quality dominate model choice — see the scoreboard before generalizing either number.
 
 ## GPT-5.5 (codex) — attribution caveat

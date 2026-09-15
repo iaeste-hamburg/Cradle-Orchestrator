@@ -19,7 +19,7 @@ Do not use this when docs require one worker to make cross-module product judgme
 | Placeholder | What goes there |
 |---|---|
 | `{{PROJECT}}` | Short project name used in the run name. |
-| `{{WORKDIR}}` | Scratch run directory for Ringer. |
+| `{{WORKDIR}}` | Scratch run directory for Laufgitter. |
 | `{{DOC_KEY}}` | Stable task key for one module or surface. |
 | `{{REPO_PATH}}` | Absolute path to the source tree workers may read. |
 | `{{DOCS_DIR}}` | Absolute shared docs directory workers may write into. |
@@ -34,7 +34,7 @@ Do not use this when docs require one worker to make cross-module product judgme
 | `{{EXAMPLE_CWD}}` | Directory where runnable examples execute. Usually the repo root or a fixture directory. |
 | `{{EXAMPLE_RUNNER_COMMAND}}` | Command template used to execute each runnable fence. Include `{file}` where the temp example file goes, for example `python3 {file}` or `node {file}`. |
 | `{{PYTHON}}` | Python executable for the check script. |
-| `{{KIT_DIR}}` | Absolute path to `templates/doc-swarm` in this Ringer checkout or copied kit location. |
+| `{{KIT_DIR}}` | Absolute path to `templates/doc-swarm` in this Laufgitter checkout or copied kit location. |
 | `{{REQUIRED_SECTIONS}}` | Semicolon-separated required Markdown headings, without `#`, for example `Overview;Documented Symbols;Examples;Assumptions`. |
 | `{{MIN_WORDS}}` | Minimum total word count for the doc. |
 | `{{MIN_SECTION_WORDS}}` | Minimum word count for each required section. |

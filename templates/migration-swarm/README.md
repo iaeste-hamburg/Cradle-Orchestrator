@@ -4,7 +4,7 @@
 
 ## What it is
 
-A migration swarm is for one mechanical transform applied across many disjoint file sets. Each worker edits only its owned files in an isolated git worktree, leaves changes uncommitted, and the check exports the patch before Ringer deletes a passing worktree.
+A migration swarm is for one mechanical transform applied across many disjoint file sets. Each worker edits only its owned files in an isolated git worktree, leaves changes uncommitted, and the check exports the patch before Laufgitter deletes a passing worktree.
 
 This is a blueprint, not a recorded proven kit. Use it when the transform is simple enough to specify with before/after examples and strict exclusions.
 
@@ -20,7 +20,7 @@ Do not use this for judgment-heavy refactors, cross-file architecture changes, o
 |---|---|
 | `{{PROJECT}}` | Short project name used in the run name. |
 | `{{WORKDIR}}` | Scratch run directory outside the repo. |
-| `{{REPO_PATH}}` | Absolute path to the repo that Ringer should create task worktrees from. |
+| `{{REPO_PATH}}` | Absolute path to the repo that Laufgitter should create task worktrees from. |
 | `{{MIGRATION_KEY}}` | Stable task key; also becomes the exported patch filename. |
 | `{{OWNED_FILES — semicolon-separated repo-relative files or directory prefixes this worker may modify}}` | The exact repo-relative files or directory prefixes this worker may change, separated with semicolons. Directory prefixes should end with `/`. |
 | `{{TRANSFORM_RULE — exact before/after rule, API rename, framework upgrade step, exclusions, and one concrete example}}` | The mechanical rule, including before/after examples and exclusions. |
@@ -28,7 +28,7 @@ Do not use this for judgment-heavy refactors, cross-file architecture changes, o
 | `{{EXPORT_DIR}}` | Absolute directory outside all task worktrees where checks write `<task-key>.patch` and ignored-file copies. Create it before the run. |
 | `{{GITIGNORED_EXPORTS}}` | `NONE` for normal tracked-file migrations, `AUTO` to copy every ignored path found under the owned paths, or a semicolon-separated list of ignored owned paths to copy. |
 | `{{PYTHON}}` | Python executable for the check script, for example `python3`. |
-| `{{KIT_DIR}}` | Absolute path to `templates/migration-swarm` in this Ringer checkout or copied kit location. |
+| `{{KIT_DIR}}` | Absolute path to `templates/migration-swarm` in this Laufgitter checkout or copied kit location. |
 
 ## Checks
 
@@ -38,7 +38,7 @@ The script fails loudly if the patch is empty, if any staged file is outside the
 
 This cannot be gamed by a worker saying "done" because the deliverable is the staged git diff, not the worker summary. It does not prove semantic correctness; the orchestrator still applies exported patches serially and runs the full build after each patch.
 
-`expect_files` is empty on purpose. In worktrees mode, the patch is produced by the check outside the task worktree; Ringer's normal task-file harvest would otherwise point at files that are deleted after PASS.
+`expect_files` is empty on purpose. In worktrees mode, the patch is produced by the check outside the task worktree; Laufgitter's normal task-file harvest would otherwise point at files that are deleted after PASS.
 
 ## Mix with
 

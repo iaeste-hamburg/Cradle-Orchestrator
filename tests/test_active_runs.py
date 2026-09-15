@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ringer import (  # noqa: E402
+from laufgitter import (  # noqa: E402
     active_runs_path,
     read_active_runs,
     register_active_run,
@@ -25,13 +25,13 @@ class ActiveRunsTests(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.old_env = os.environ.copy()
         self.addCleanup(self.restore_env)
-        os.environ["RINGER_HOME"] = str(Path(self.tmp.name) / "ringer-home")
+        os.environ["LAUFGITTER_HOME"] = str(Path(self.tmp.name) / "laufgitter-home")
 
     def restore_env(self) -> None:
         os.environ.clear()
         os.environ.update(self.old_env)
 
-    def test_register_read_unregister_round_trip_with_ringer_home_override(self) -> None:
+    def test_register_read_unregister_round_trip_with_laufgitter_home_override(self) -> None:
         workdir = Path(self.tmp.name) / "work"
         register_active_run("run-1", "agent-a", "Test Run", workdir)
 
@@ -43,7 +43,7 @@ class ActiveRunsTests(unittest.TestCase):
         self.assertEqual(str(workdir), runs["run-1"]["workdir"])
         self.assertTrue(runs["run-1"]["started_at"])
         self.assertEqual(
-            (Path(os.environ["RINGER_HOME"]) / "active-runs.json").resolve(),
+            (Path(os.environ["LAUFGITTER_HOME"]) / "active-runs.json").resolve(),
             active_runs_path(),
         )
 

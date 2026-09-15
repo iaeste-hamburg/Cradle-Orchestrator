@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ringer import ArtifactRenderer, render_final_report_html, render_status_html  # noqa: E402
+from laufgitter import ArtifactRenderer, render_final_report_html, render_status_html  # noqa: E402
 
 
 class PlainEnglishArtifactTests(unittest.TestCase):
@@ -76,7 +76,7 @@ class PlainEnglishArtifactTests(unittest.TestCase):
             renderer=self.renderer,
         )
 
-        self.assertIn("Ringer is working on 4 tasks —", html)
+        self.assertIn("Laufgitter is working on 4 tasks —", html)
         self.assertIn(
             '1 finished and checked</span>, 1 working, 1 is waiting, and <span class="n-fail">1 failed</span>',
             html,
@@ -91,7 +91,7 @@ class PlainEnglishArtifactTests(unittest.TestCase):
         self.assertRegex(
             html,
             r'(?s)<div class="page">\s*<header class="corner">.*?'
-            r'<span class="eyebrow">Ringer &nbsp;·&nbsp; <b>Plain English Run</b>.*?'
+            r'<span class="eyebrow">Laufgitter &nbsp;·&nbsp; <b>Plain English Run</b>.*?'
             r'<h1 id="right-now-heading" class="briefing">',
         )
 
@@ -259,7 +259,7 @@ class PlainEnglishArtifactTests(unittest.TestCase):
         )
 
         self.assertIn(
-            'Ringer finished 4 tasks in 5m 30s. <span class="n-pass">All 4 finished and checked.</span>',
+            'Laufgitter finished 4 tasks in 5m 30s. <span class="n-pass">All 4 finished and checked.</span>',
             html,
         )
         self.assertIn("Finished ", html)

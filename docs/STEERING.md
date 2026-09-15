@@ -1,6 +1,6 @@
 # Steering profiles
 
-Steering profiles let a Ringer install keep model-specific operating knowledge beside the orchestrator. Ringer injects qualifying worker rules at the code path that builds each worker prompt, so attempt 1 and the retry use the same deterministic contract. It surfaces driver rules to the orchestrator before a run and appends one observation row after every attempt as a side effect.
+Steering profiles let a Laufgitter install keep model-specific operating knowledge beside the orchestrator. Laufgitter injects qualifying worker rules at the code path that builds each worker prompt, so attempt 1 and the retry use the same deterministic contract. It surfaces driver rules to the orchestrator before a run and appends one observation row after every attempt as a side effect.
 
 Steering is optional and local. It does not replace the manifest, the executed check, or the normal eval log.
 
@@ -10,39 +10,39 @@ Create a steering directory with a `profiles/` subdirectory, then set it in `con
 
 ```toml
 [steering]
-dir = "~/.ringer/steering"
+dir = "~/.laufgitter/steering"
 inject_candidates = true
 ```
 
-`RINGER_STEERING_DIR` overrides `steering.dir` when set. Paths expand `~`. `inject_candidates` defaults to `true`; set it to `false` to omit candidate rules from worker prompts while still injecting confirmed and stale-pending-reverify worker rules.
+`LAUFGITTER_STEERING_DIR` overrides `steering.dir` when set. Paths expand `~`. `inject_candidates` defaults to `true`; set it to `false` to omit candidate rules from worker prompts while still injecting confirmed and stale-pending-reverify worker rules.
 
 The configured directory has this shape:
 
 ```text
-~/.ringer/steering/
+~/.laufgitter/steering/
 ├── profiles/
 │   ├── gpt-5.6-sol.md
 │   └── openrouter-z-ai-glm-5.2.md
 └── observations/
-    └── ringer/
+    └── laufgitter/
         └── 2026-07-10.jsonl
 ```
 
-Ringer creates `observations/ringer/` when it has an observation to write.
+Laufgitter creates `observations/laufgitter/` when it has an observation to write.
 
 ## Install and upgrade
 
-Every agent or Ringer install must create and own its own steering directory. Do not point one install at another person's directory or at a shared mutable profile tree. A sane default is:
+Every agent or Laufgitter install must create and own its own steering directory. Do not point one install at another person's directory or at a shared mutable profile tree. A sane default is:
 
 ```bash
-mkdir -p ~/.ringer/steering/profiles
+mkdir -p ~/.laufgitter/steering/profiles
 ```
 
-Then copy or author the profiles that this install should use and configure `dir = "~/.ringer/steering"`. On upgrade, keep that directory in place; it is install data, not part of the Ringer clone. Review profile format changes before replacing local profiles, and preserve the local observations unless you intentionally want a new evidence history.
+Then copy or author the profiles that this install should use and configure `dir = "~/.laufgitter/steering"`. On upgrade, keep that directory in place; it is install data, not part of the Laufgitter clone. Review profile format changes before replacing local profiles, and preserve the local observations unless you intentionally want a new evidence history.
 
 ## Profile resolution
 
-Ringer resolves a task's model in the same order used by its attempt log:
+Laufgitter resolves a task's model in the same order used by its attempt log:
 
 1. The task's `model` field.
 2. The engine's `model_default`.
@@ -65,7 +65,7 @@ A profile contains:
 2. One `## R<n> · <rule-id>` section per rule.
 3. Optional `## Environment notes` and `## Changelog` sections.
 
-Ringer uses a tolerant stdlib-only line parser, not a general YAML parser. It reads `model` and `profile_version` from frontmatter. From each rule's first fenced `yaml` block it reads the simple top-level `id`, `status`, and `audience` values. It reads the paragraph beginning with `**Inject:**` through the first blank line. A rule it cannot parse is skipped.
+Laufgitter uses a tolerant stdlib-only line parser, not a general YAML parser. It reads `model` and `profile_version` from frontmatter. From each rule's first fenced `yaml` block it reads the simple top-level `id`, `status`, and `audience` values. It reads the paragraph beginning with `**Inject:**` through the first blank line. A rule it cannot parse is skipped.
 
 ### Frontmatter
 
@@ -125,8 +125,8 @@ evidence:
 
 Every rule targets one audience:
 
-- `driver`: guidance for the orchestrator steering the model—how to structure a spec, present references, or phrase feedback. Ringer prints these before running tasks, including during `--dry-run`. Driver rules are never pasted into a worker prompt. If `audience` is absent, Ringer defaults it to `driver`.
-- `worker`: text written for the model itself. Ringer may prepend it to the worker spec according to the rule status.
+- `driver`: guidance for the orchestrator steering the model—how to structure a spec, present references, or phrase feedback. Laufgitter prints these before running tasks, including during `--dry-run`. Driver rules are never pasted into a worker prompt. If `audience` is absent, Laufgitter defaults it to `driver`.
+- `worker`: text written for the model itself. Laufgitter may prepend it to the worker spec according to the rule status.
 
 The distinction keeps "how to prompt this model" separate from "what to tell this model."
 
@@ -147,7 +147,7 @@ Only the validation gate—the steering-foundry or a manually run ablation—cha
 
 ### Environment notes and changelog
 
-An optional `## Environment notes` section records stamped, verifiable tooling or surface facts that steering agents need but that are not steering hypotheses. Examples include CLI flags, sandbox behavior, or version-specific limitations. Each bullet ends with `— <surface>, <date>`. These facts do not graduate through rule statuses; they are simply current or outdated. Renderers may append them when the target surface matches, but Ringer's worker injector does not currently emit them.
+An optional `## Environment notes` section records stamped, verifiable tooling or surface facts that steering agents need but that are not steering hypotheses. Examples include CLI flags, sandbox behavior, or version-specific limitations. Each bullet ends with `— <surface>, <date>`. These facts do not graduate through rule statuses; they are simply current or outdated. Renderers may append them when the target surface matches, but Laufgitter's worker injector does not currently emit them.
 
 An optional `## Changelog` records profile-version changes. Keep status changes, additions, staleness updates, and wording/evidence edits aligned with the semantic-version rules above.
 
@@ -163,7 +163,7 @@ Worker rules are emitted in profile order:
 The complete worker block is:
 
 ```text
-[Steering profile <model> v<profile_version> — auto-injected by ringer.py]
+[Steering profile <model> v<profile_version> — auto-injected by laufgitter.py]
 - <confirmed inject text>
 - (candidate) <candidate inject text>
 - (unverified on current model version) <stale inject text>
@@ -172,7 +172,7 @@ The complete worker block is:
 <original task spec>
 ```
 
-If no worker rules qualify, Ringer does not add an empty block.
+If no worker rules qualify, Laufgitter does not add an empty block.
 
 Driver rules with status `confirmed`, `candidate`, or `stale-pending-reverify` are printed once per distinct resolved model:
 
@@ -183,10 +183,10 @@ Steering notes for <model> (v<profile_version>) — apply when writing specs/fee
 
 ## Observation JSONL
 
-After each attempt's verdict is known, Ringer appends one JSON object to:
+After each attempt's verdict is known, Laufgitter appends one JSON object to:
 
 ```text
-<steering-dir>/observations/ringer/<YYYY-MM-DD>.jsonl
+<steering-dir>/observations/laufgitter/<YYYY-MM-DD>.jsonl
 ```
 
 The filename uses the UTC date. Each row contains:
@@ -194,8 +194,8 @@ The filename uses the UTC date. Each row contains:
 | Field | Type | Meaning |
 |---|---|---|
 | `ts` | string | UTC ISO timestamp |
-| `source` | string | Always `ringer.py` |
-| `run_id` | string | Ringer run ID |
+| `source` | string | Always `laufgitter.py` |
+| `run_id` | string | Laufgitter run ID |
 | `run_name` | string | Manifest run name |
 | `task_key` | string | Manifest task key |
 | `task_type` | string | Optional task classification |
@@ -215,7 +215,7 @@ Observation rows are evidence inputs only. Writing one never changes a profile.
 
 ## Fail-open guarantee
 
-The entire steering feature is fail-open. With steering unconfigured, Ringer follows its original prompt, log, and state paths without a steering branch. A missing directory, missing profile, unreadable file, malformed or empty profile, rule parse error, directory-creation failure, observation write failure, or any other steering exception never fails, blocks, delays, retries, or otherwise changes the run. The only allowed effect is that no steering is injected or no observation is recorded. Observation-write failures are noted in the task worker log with the `[ringer.py] steering:` prefix when that log remains writable.
+The entire steering feature is fail-open. With steering unconfigured, Laufgitter follows its original prompt, log, and state paths without a steering branch. A missing directory, missing profile, unreadable file, malformed or empty profile, rule parse error, directory-creation failure, observation write failure, or any other steering exception never fails, blocks, delays, retries, or otherwise changes the run. The only allowed effect is that no steering is injected or no observation is recorded. Observation-write failures are noted in the task worker log with the `[laufgitter.py] steering:` prefix when that log remains writable.
 
 The worker's stdin remains closed, sandbox selection remains explicit, verification still executes the artifact, and raw worker output remains in the worker log.
 
@@ -225,12 +225,12 @@ Status: tested by the repo steering test suite.
 
 Safe actions: all tests use temporary homes, configs, profiles, work directories, and the offline mock engine. They do not call a model API.
 
-Run from the Ringer repository root:
+Run from the Laufgitter repository root:
 
 ```bash
 python3 -m unittest tests.test_steering -v
 python3 -m unittest discover -s tests
-python3 -c "import ast; ast.parse(open('ringer.py').read())"
+python3 -c "import ast; ast.parse(open('laufgitter.py').read())"
 ```
 
 No cleanup is required; temporary test directories are removed by `unittest`.

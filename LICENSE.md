@@ -1,4 +1,4 @@
-Required Notice: Copyright Nate Jones Media LLC — Ringer and Ringside (https://github.com/NateBJones-Projects/ringer)
+Required Notice: Copyright Nate Jones Media LLC — Laufgitter and Zentrale (https://github.com/iaeste-hamburg/Laufgitter)
 
 
 # PolyForm Shield License 1.0.0

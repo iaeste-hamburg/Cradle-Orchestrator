@@ -18,8 +18,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-import ringer  # noqa: E402
-from ringer import (  # noqa: E402
+import laufgitter  # noqa: E402
+from laufgitter import (  # noqa: E402
     AppConfig,
     ArtifactConfig,
     ArtifactRenderer,
@@ -27,7 +27,7 @@ from ringer import (  # noqa: E402
     EngineConfig,
     EvalConfig,
     Manifest,
-    RingerRunner,
+    LaufgitterRunner,
     StateWriter,
     TaskRuntime,
     TaskSpec,
@@ -80,7 +80,7 @@ class DeliverableTests(unittest.TestCase):
         self.addCleanup(self.restore_env)
         self.root = Path(self.tmp.name)
         os.environ["HOME"] = str(self.root / "home")
-        os.environ["RINGER_HOME"] = str(self.root / "ringer-home")
+        os.environ["LAUFGITTER_HOME"] = str(self.root / "laufgitter-home")
         self.state_dir = self.root / "state"
         self.workdir = self.root / "work"
         self.artifacts_dir = self.state_dir / "artifacts"
@@ -136,15 +136,15 @@ class DeliverableTests(unittest.TestCase):
             obj["repo"] = str(repo)
         return Manifest.from_obj(obj)
 
-    def runner(self, task: TaskSpec, *, worktrees: bool = False) -> RingerRunner:
-        return RingerRunner(
+    def runner(self, task: TaskSpec, *, worktrees: bool = False) -> LaufgitterRunner:
+        return LaufgitterRunner(
             self.manifest(task, worktrees=worktrees),
             self.config,
             "test-agent",
             dashboard_enabled=False,
         )
 
-    def runtime_for(self, task: TaskSpec, *, worktrees: bool = False) -> tuple[RingerRunner, TaskRuntime]:
+    def runtime_for(self, task: TaskSpec, *, worktrees: bool = False) -> tuple[LaufgitterRunner, TaskRuntime]:
         runner = self.runner(task, worktrees=worktrees)
         runtime = runner.runtimes[0]
         runtime.taskdir.mkdir(parents=True, exist_ok=True)

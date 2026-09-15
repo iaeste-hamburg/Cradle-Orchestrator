@@ -1,6 +1,6 @@
 # Model identity taxonomy
 
-This document is Ringer's normative contract for model identity. Every scoreboard surface must be able to answer: **which lab's model, in which harness, on whose plan, at what effort?** These fields describe different things and must not be conflated.
+This document is Laufgitter's normative contract for model identity. Every scoreboard surface must be able to answer: **which lab's model, in which harness, on whose plan, at what effort?** These fields describe different things and must not be conflated.
 
 ## Model
 
@@ -26,7 +26,7 @@ Access/Plan describes billing and access, such as an OAuth plan or the OpenRoute
 
 ## Canonical access routes
 
-A model registry entry may declare `noncanonical_slugs = ["<engine>:<model-slug>", ...]` for known routes that reach the same trained artifact through a harness or access path that is not sanctioned for normal Ringer work. This declaration identifies the artifact; it does not register or approve the alternate route.
+A model registry entry may declare `noncanonical_slugs = ["<engine>:<model-slug>", ...]` for known routes that reach the same trained artifact through a harness or access path that is not sanctioned for normal Laufgitter work. This declaration identifies the artifact; it does not register or approve the alternate route.
 
 Lint must reject a manifest task that resolves to a declared noncanonical engine and slug. `run` must refuse to start it and name the task and canonical route. `--allow-noncanonical-route` is the explicit exception for a deliberate bakeoff. Historical and future log rows from an allowed or previously unguarded noncanonical route remain in the JSONL source of truth. Scoreboards resolve them to the canonical model and lab, retain the actual harness and API/Plan, mark them `misrouted`, and assign no tier or rank.
 
@@ -36,15 +36,15 @@ Every primary scoreboard table uses exactly these columns, in this order: **Mode
 
 ## Reasoning effort
 
-Reasoning effort is part of model identity when the effective harness invocation sets it. Ringer records only explicit values; it never guesses a harness-side default. If any run for a model records effort, that model's buckets display the recorded value or `(effort unrecorded)` so unlike configurations remain separate. Harnesses and models with no recorded effort remain unsuffixed.
+Reasoning effort is part of model identity when the effective harness invocation sets it. Laufgitter records only explicit values; it never guesses a harness-side default. If any run for a model records effort, that model's buckets display the recorded value or `(effort unrecorded)` so unlike configurations remain separate. Harnesses and models with no recorded effort remain unsuffixed.
 
 ## How to establish identity
 
-Run this procedure when a new slug appears, Ringer writes an identity mismatch warning, or a registry entry needs re-verification. Ringer's evidence precedence is **harness-reported model > manifest/config-resolved model > unattributed**. A line beginning `[ringer.py] identity:` and the scoreboard's `Unregistered model slug(s)` pointer are direct triggers to do this work.
+Run this procedure when a new slug appears, Laufgitter writes an identity mismatch warning, or a registry entry needs re-verification. Laufgitter's evidence precedence is **harness-reported model > manifest/config-resolved model > unattributed**. A line beginning `[laufgitter.py] identity:` and the scoreboard's `Unregistered model slug(s)` pointer are direct triggers to do this work.
 
 1. **Codex CLI:** Open any worker log from the run and read the self-reported `model:` and `provider:` lines in the Codex header. Record the model slug exactly, then cross-check it against <https://developers.openai.com/codex/models>. The self-report wins when it differs from the manifest or config; the attempt row retains the resolved slug as `expected_model` so the drift is visible.
 2. **Grok Build CLI:** Run `grok --help` and inspect any available models listing, then cross-check xAI's release notes at <https://docs.x.ai/developers/release-notes>. The CLI currently serves Grok 4.5 by xAI and Composer 2.5 by Cursor/Anysphere. Grok's JSON output does not self-report the model, so the explicit manifest/config slug is the evidence for the attempt.
-3. **OpenCode/OpenRouter:** Run `./ringer.py catalog` to use Ringer's local snapshot, or fetch `GET https://openrouter.ai/api/v1/models` when performing the identity research outside Ringer. Match the slug without its `openrouter/` prefix to the catalog `id`. Use the slug's organization segment and the catalog `name` field for the provisional lab and display name. Confirm the lab's own model page before changing the catalog-derived `?` lab to a verified registry identity.
+3. **OpenCode/OpenRouter:** Run `./laufgitter.py catalog` to use Laufgitter's local snapshot, or fetch `GET https://openrouter.ai/api/v1/models` when performing the identity research outside Laufgitter. Match the slug without its `openrouter/` prefix to the catalog `id`. Use the slug's organization segment and the catalog `name` field for the provisional lab and display name. Confirm the lab's own model page before changing the catalog-derived `?` lab to a verified registry identity.
 4. **Record the evidence:** Add or update the entry in `registry/model-identity.toml`. Set `display`, `lab`, `confidence`, `source`, and `last_verified` from the checks above, using today's ISO date. Then run the identity tests and inspect all scoreboard surfaces.
 
 Use this entry template verbatim, replacing only the bracketed values:
@@ -66,6 +66,6 @@ The names `proven-model`, `probation-model`, `mock-model`, and `test-model` are 
 
 ## Unattributed rows
 
-An unattributed row is a historical log row whose `model` field is empty or blank. It is not a run where the manifest omitted a model and Ringer resolved and stamped the engine default at write time.
+An unattributed row is a historical log row whose `model` field is empty or blank. It is not a run where the manifest omitted a model and Laufgitter resolved and stamped the engine default at write time.
 
 Unattributed rows are quarantined per engine under `(unattributed legacy rows)`. They remain visible at the bottom of the scoreboard for data transparency, but they are never credited to an engine default or any real model, never receive a proven/probation tier, and never receive a rank. Their results cannot establish a model's record because their actual model identity is unknown.

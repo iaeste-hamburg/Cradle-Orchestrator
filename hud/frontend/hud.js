@@ -3,13 +3,13 @@
   if (!tauri) return;
 
   const HUD_BUILD = "b4";
-  const EVENT_RUNS = "ringer-runs";
+  const EVENT_RUNS = "laufgitter-runs";
   const topbar = document.querySelector(".topbar");
   const closeButton = document.getElementById("hudClose");
   let latestRuns = [];
 
   document.documentElement.classList.add("tauri-hud");
-  document.title = `Ringside ${HUD_BUILD}`;
+  document.title = `Zentrale ${HUD_BUILD}`;
 
   const style = document.createElement("style");
   style.textContent = `
@@ -46,7 +46,7 @@
   document.head.appendChild(style);
 
   window.addEventListener("error", event => {
-    document.title = `Ringside ERR: ${event.message}`.slice(0, 120);
+    document.title = `Zentrale ERR: ${event.message}`.slice(0, 120);
   });
 
   if (topbar) topbar.setAttribute("data-tauri-drag-region", "");
@@ -78,19 +78,19 @@
     const liveRuns = runs.filter(run => run.state === "live");
     if (liveRuns.length > 0) {
       const agents = liveRuns.reduce((sum, run) => sum + (Array.isArray(run.tasks) ? run.tasks.length : 0), 0);
-      document.title = `Ringside ${liveRuns.length} ringer${liveRuns.length === 1 ? "" : "s"} · ${agents} agent${agents === 1 ? "" : "s"}`;
+      document.title = `Zentrale ${liveRuns.length} laufgitter${liveRuns.length === 1 ? "" : "s"} · ${agents} agent${agents === 1 ? "" : "s"}`;
       return;
     }
     if (runs.length > 0) {
       const newest = newestRun(runs);
-      document.title = `Ringside ${finalTickerText(newest)}`;
+      document.title = `Zentrale ${finalTickerText(newest)}`;
       return;
     }
-    document.title = `Ringside ${HUD_BUILD}`;
+    document.title = `Zentrale ${HUD_BUILD}`;
   }
 
   function finalTickerText(run) {
-    const name = run.run_name || "ringer";
+    const name = run.run_name || "laufgitter";
     if (run.state === "died") return `${name} · died`;
     const pass = numberOrZero(run.pass ?? run.summary?.pass ?? run.totals?.pass);
     const fail = numberOrZero(run.fail ?? run.summary?.fail ?? run.totals?.fail);

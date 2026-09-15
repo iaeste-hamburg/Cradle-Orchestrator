@@ -3,7 +3,7 @@ key = "gpt-5.5"
 display = "GPT-5.5"
 vendor = "OpenAI"
 release_date = "2026-04-23"
-identity_verification = "OpenAI's Codex model docs list gpt-5.5 as a recommended Codex CLI/SDK model, and the OpenAI model page lists GPT-5.5 as the default model with alias gpt-5.5 and snapshot gpt-5.5-2026-04-23. Jon's assumption that the current Codex CLI OAuth-plan default model key is gpt-5.5 is consistent with the fetched official docs and the local ringer identity registry."
+identity_verification = "OpenAI's Codex model docs list gpt-5.5 as a recommended Codex CLI/SDK model, and the OpenAI model page lists GPT-5.5 as the default model with alias gpt-5.5 and snapshot gpt-5.5-2026-04-23. Jon's assumption that the current Codex CLI OAuth-plan default model key is gpt-5.5 is consistent with the fetched official docs and the local laufgitter identity registry."
 
 [api]
 endpoint_families = ["responses", "chat-completions", "batch"]

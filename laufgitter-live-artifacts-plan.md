@@ -1,17 +1,17 @@
-# Ringer Live Artifacts — Design Plan
+# Laufgitter Live Artifacts — Design Plan
 
 **Author:** aicred (Claude, MBP) — 2026-07-04, written during the aicred baseline-repair double swarm
-**For:** Jon → Ringer repo (github.com/NateBJones-Projects/ringer, Lex maintains)
-**Goal:** live, shareable visual status/review pages from Ringer runs with ZERO Anthropic tokens.
+**For:** Jon → Laufgitter repo (github.com/iaeste-hamburg/Laufgitter, Lex maintains)
+**Goal:** live, shareable visual status/review pages from Laufgitter runs with ZERO Anthropic tokens.
 Reserve Fable/Claude for what it's uniquely good at (triage judgment, adversarial verification,
 boss-level integration) and stop spending it on dashboard upkeep.
 
 ## Why
 
 Tonight's data point: keeping a live status artifact updated through a swarm run cost a dedicated
-Claude subagent ~90k+ tokens for what is, structurally, a template render of state Ringer already
+Claude subagent ~90k+ tokens for what is, structurally, a template render of state Laufgitter already
 has on disk. Meanwhile the compiled 211-recommendation review HTML from yesterday cost one Codex
-writer worker ~284k OpenAI tokens. Both jobs are automatable inside Ringer at the right tier:
+writer worker ~284k OpenAI tokens. Both jobs are automatable inside Laufgitter at the right tier:
 
 | Tier | Job | Engine | Marginal cost |
 |------|-----|--------|---------------|
@@ -21,20 +21,20 @@ writer worker ~284k OpenAI tokens. Both jobs are automatable inside Ringer at th
 
 ## Tier 0 — zero-LLM live status artifact (the big win)
 
-Ringer is zero-LLM orchestration; the status page should be too. Every fact a progress dashboard
-shows already lives in the run state (`~/.ringer/runs/<run>.json`): task keys, status
+Laufgitter is zero-LLM orchestration; the status page should be too. Every fact a progress dashboard
+shows already lives in the run state (`~/.laufgitter/runs/<run>.json`): task keys, status
 (queued/running/pass/fail/retry), timings, check commands, retry counts, eval rows.
 
 **Change:** add a `render_status_html(state) -> str` function (stdlib only, one big template
-string) and call it at every point ringer.py flushes run state. Write the result next to the state
+string) and call it at every point laufgitter.py flushes run state. Write the result next to the state
 file AND to an optional configured path.
 
 ```toml
 # config.toml
 [artifact]
 enabled = true
-out = "~/.ringer/artifacts/{run_name}.html"   # {run_name}, {ts} substitutions
-open_on_start = false                          # Ringside already opens; this is for extra displays
+out = "~/.laufgitter/artifacts/{run_name}.html"   # {run_name}, {ts} substitutions
+open_on_start = false                          # Zentrale already opens; this is for extra displays
 ```
 
 Page requirements:
@@ -43,18 +43,18 @@ Page requirements:
 - `<meta http-equiv="refresh" content="5">` — live-enough over file://, no server, no JS needed.
 - Header: run name, identity, started, elapsed, N/M pass, parallel slots.
 - One row per task: key, status chip, attempt count, duration, last check exit code; failed tasks
-  expand to show the tail of the check output (Ringer already captures it for retry injection).
-- Multi-run index: also render `~/.ringer/artifacts/index.html` listing active + recent runs, so
+  expand to show the tail of the check output (Laufgitter already captures it for retry injection).
+- Multi-run index: also render `~/.laufgitter/artifacts/index.html` listing active + recent runs, so
   two concurrent swarms (like tonight) get one pane of glass.
 
-Acceptance: run `ringer.py demo`, open the artifact, watch it tick through pass/fail with zero
+Acceptance: run `laufgitter.py demo`, open the artifact, watch it tick through pass/fail with zero
 LLM calls (verify by network/token logs). Kill -9 the orchestrator mid-run; page must show last
 known state, not corrupt.
 
 ## Tier 1 — cheap-LLM report artifact (judgment content)
 
 Progress is deterministic; *synthesis* ("what did 23 scouts actually find, ranked") needs a model.
-Keep it off Anthropic by making it a first-class Ringer feature instead of a hand-rolled final
+Keep it off Anthropic by making it a first-class Laufgitter feature instead of a hand-rolled final
 task:
 
 ```json
@@ -66,7 +66,7 @@ task:
 ```
 
 **Changes:**
-1. Optional `reporter` block in the manifest. Ringer appends it as a synthetic final task whose
+1. Optional `reporter` block in the manifest. Laufgitter appends it as a synthetic final task whose
    taskdir can read all sibling taskdirs; check = `test -s report.html`.
 2. Per-task model override while you're in there: `"engine_args": ["-m", "gpt-5.1-codex-mini"]`
    (or a `model` key mapped to codex profiles). Scouts/writers rarely need xhigh; this is the
@@ -79,16 +79,16 @@ session, and $0 Anthropic either way.
 
 ## Tier 2 — publish hook (sharing)
 
-Local file covers Ringside + screen recording. For sharing (phone, another box, a teammate),
-don't build hosting into Ringer — add one hook:
+Local file covers Zentrale + screen recording. For sharing (phone, another box, a teammate),
+don't build hosting into Laufgitter — add one hook:
 
 ```toml
 [artifact]
-publish_cmd = "rsync -q {path} jon@fleetbox:/srv/ringer/"   # or scp, or a Convex upload script
+publish_cmd = "rsync -q {path} jon@fleetbox:/srv/laufgitter/"   # or scp, or a Convex upload script
 ```
 
 Run it (best-effort, non-blocking, log-don't-fail) after each artifact write. Jon's existing
-options slot in without Ringer knowing about them: LEJ/Convex hosting, the NAS, or nothing.
+options slot in without Laufgitter knowing about them: LEJ/Convex hosting, the NAS, or nothing.
 Claude-hosted Artifacts stay available for boss-narrated sessions, but are never *required*.
 
 ## What stays with Claude/Fable

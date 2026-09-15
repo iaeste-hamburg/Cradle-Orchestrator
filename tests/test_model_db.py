@@ -15,8 +15,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-import ringer  # noqa: E402
-from ringer import (  # noqa: E402
+import laufgitter  # noqa: E402
+from laufgitter import (  # noqa: E402
     AppConfig,
     ArtifactConfig,
     EvalConfig,
@@ -119,9 +119,9 @@ class ModelDbTests(unittest.TestCase):
         self.old_env = os.environ.copy()
         self.addCleanup(self.restore_env)
         os.environ["HOME"] = str(self.root / "home")
-        os.environ["RINGER_HOME"] = str(self.root / "ringer-home")
+        os.environ["LAUFGITTER_HOME"] = str(self.root / "laufgitter-home")
         self.log_path = self.root / "runs.jsonl"
-        self.db_path = self.root / "ringer.db"
+        self.db_path = self.root / "laufgitter.db"
         self.catalog_path = self.root / "catalog.json"
         self.registry_path = self.root / "model-identity.toml"
         write_catalog(self.catalog_path)
@@ -288,7 +288,7 @@ class ModelDbTests(unittest.TestCase):
         self.assertEqual(1, run_2_count)
 
     def test_catalog_sync_skips_unchanged_files_and_appends_new_events_only(self) -> None:
-        changes_path = ringer.catalog_changes_path(self.catalog_path)
+        changes_path = laufgitter.catalog_changes_path(self.catalog_path)
         event_1 = {
             "ts": "2026-07-06T10:00:00+00:00",
             "kind": "price_change",
@@ -381,7 +381,7 @@ class ModelDbTests(unittest.TestCase):
         missing_db = self.root / "missing.db"
 
         with self.assertRaises(RuntimeError):
-            ringer.db_catalog_models(missing_db)
+            laufgitter.db_catalog_models(missing_db)
 
         self.assertFalse(missing_db.exists())
         self.assertFalse(missing_db.with_name(missing_db.name + "-wal").exists())
@@ -390,10 +390,10 @@ class ModelDbTests(unittest.TestCase):
         write_jsonl(self.log_path, [attempt(run_id="run-1")])
         with contextlib.closing(sqlite3.connect(self.db_path)):
             pass
-        original_sync = ringer.sync_read_model_db
+        original_sync = laufgitter.sync_read_model_db
 
-        def no_op_sync(*_args: object, **_kwargs: object) -> ringer.ReadModelSyncResult:
-            return ringer.ReadModelSyncResult(
+        def no_op_sync(*_args: object, **_kwargs: object) -> laufgitter.ReadModelSyncResult:
+            return laufgitter.ReadModelSyncResult(
                 self.db_path,
                 self.log_path,
                 attempts_inserted=0,
@@ -402,14 +402,14 @@ class ModelDbTests(unittest.TestCase):
                 rebuilt=False,
             )
 
-        ringer.sync_read_model_db = no_op_sync
+        laufgitter.sync_read_model_db = no_op_sync
         out = io.StringIO()
         err = io.StringIO()
         try:
             with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
                 self.assertEqual(0, run_models_command(self.config(), self.model_args()))
         finally:
-            ringer.sync_read_model_db = original_sync
+            laufgitter.sync_read_model_db = original_sync
 
         payload = json.loads(out.getvalue())
         self.assertEqual(1, len(payload))
@@ -464,7 +464,7 @@ class ModelDbTests(unittest.TestCase):
     def test_models_override_log_without_db_does_not_touch_default_db(self) -> None:
         fixture_log = self.root / "fixture-runs.jsonl"
         write_jsonl(fixture_log, [attempt(run_id="fixture-run")])
-        default_db = Path(os.environ["RINGER_HOME"]) / "ringer.db"
+        default_db = Path(os.environ["LAUFGITTER_HOME"]) / "laufgitter.db"
         args = self.model_args()
         args.log = fixture_log
         args.db = None
@@ -494,7 +494,7 @@ class ModelDbTests(unittest.TestCase):
         err = io.StringIO()
 
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
-            self.assertEqual(0, run_models_command(self.config(), self.model_args(db_path=not_a_directory / "ringer.db")))
+            self.assertEqual(0, run_models_command(self.config(), self.model_args(db_path=not_a_directory / "laufgitter.db")))
 
         payload = json.loads(out.getvalue())
         self.assertEqual(1, len(payload))

@@ -59,7 +59,7 @@ class BaselineModeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_root:
             root = Path(temp_root)
             home = root / "home"
-            ringer_home = root / "ringer-home"
+            laufgitter_home = root / "laufgitter-home"
             state_dir = root / "state"
             workdir = root / "work"
             repo = root / "repo"
@@ -68,7 +68,7 @@ class BaselineModeTests(unittest.TestCase):
             model_log = root / "runs.jsonl"
 
             home.mkdir()
-            ringer_home.mkdir()
+            laufgitter_home.mkdir()
             init_git_repo(repo)
 
             # The engine binary does not exist. Baseline must neither spawn
@@ -138,13 +138,13 @@ class BaselineModeTests(unittest.TestCase):
 
             env = os.environ.copy()
             env["HOME"] = str(home)
-            env["RINGER_HOME"] = str(ringer_home)
+            env["LAUFGITTER_HOME"] = str(laufgitter_home)
             env["XDG_CONFIG_HOME"] = str(root / "xdg-config")
 
             proc = subprocess.run(
                 [
                     sys.executable,
-                    "ringer.py",
+                    "laufgitter.py",
                     "run",
                     str(manifest_path),
                     "--config",
@@ -211,15 +211,15 @@ class BaselineContainmentTests(unittest.TestCase):
         import importlib.util
         import io
 
-        spec = importlib.util.spec_from_file_location("ringer_baseline_test", ROOT / "ringer.py")
+        spec = importlib.util.spec_from_file_location("laufgitter_baseline_test", ROOT / "laufgitter.py")
         assert spec is not None and spec.loader is not None
-        ringer = importlib.util.module_from_spec(spec)
-        sys.modules[spec.name] = ringer
-        spec.loader.exec_module(ringer)
+        laufgitter = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = laufgitter
+        spec.loader.exec_module(laufgitter)
 
         with tempfile.TemporaryDirectory() as temp_root:
             root = Path(temp_root)
-            manifest = ringer.Manifest.from_obj(
+            manifest = laufgitter.Manifest.from_obj(
                 {
                     "run_name": "baseline-escape-test",
                     "workdir": str(root / "work"),
@@ -234,7 +234,7 @@ class BaselineContainmentTests(unittest.TestCase):
             )
             buffer = io.StringIO()
             with contextlib.redirect_stdout(buffer):
-                rc = asyncio.run(ringer.run_baseline(manifest, config=None))
+                rc = asyncio.run(laufgitter.run_baseline(manifest, config=None))
             output = buffer.getvalue()
             self.assertEqual(0, rc, output)
             self.assertIn("task key escapes the baseline scratch root", output)

@@ -15,17 +15,17 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RINGER_PATH = ROOT / "ringer.py"
-SPEC = importlib.util.spec_from_file_location("ringer_module", RINGER_PATH)
+LAUFGITTER_PATH = ROOT / "laufgitter.py"
+SPEC = importlib.util.spec_from_file_location("laufgitter_module", LAUFGITTER_PATH)
 assert SPEC is not None and SPEC.loader is not None
-ringer = importlib.util.module_from_spec(SPEC)
-sys.modules[SPEC.name] = ringer
-SPEC.loader.exec_module(ringer)
+laufgitter = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = laufgitter
+SPEC.loader.exec_module(laufgitter)
 
 
-class RingerCliTests(unittest.TestCase):
+class LaufgitterCliTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.tmp = tempfile.TemporaryDirectory(prefix="ringer-test-")
+        self.tmp = tempfile.TemporaryDirectory(prefix="laufgitter-test-")
         self.root = Path(self.tmp.name)
         self.config_path = self.root / "config.toml"
         self.jsonl_path = self.root / "runs.jsonl"
@@ -85,7 +85,7 @@ class RingerCliTests(unittest.TestCase):
         data.update(overrides)
         return data
 
-    def run_ringer(
+    def run_laufgitter(
         self,
         manifest: Path,
         *,
@@ -96,7 +96,7 @@ class RingerCliTests(unittest.TestCase):
         cmd = [
             sys.executable,
             "-B",
-            str(RINGER_PATH),
+            str(LAUFGITTER_PATH),
             "--config",
             str(config_path or self.config_path),
             "run",
@@ -108,7 +108,7 @@ class RingerCliTests(unittest.TestCase):
             cmd.append("--no-dashboard")
         env = os.environ.copy()
         env["PYTHONDONTWRITEBYTECODE"] = "1"
-        env["RINGER_NO_SELF_UPDATE"] = "1"
+        env["LAUFGITTER_NO_SELF_UPDATE"] = "1"
         return subprocess.run(
             cmd,
             cwd=ROOT,
@@ -146,7 +146,7 @@ class RingerCliTests(unittest.TestCase):
         return True
 
     def test_demo_alpha_check_requires_exactly_one_trailing_newline(self) -> None:
-        manifest_path = ringer.create_demo_manifest()
+        manifest_path = laufgitter.create_demo_manifest()
         self.addCleanup(shutil.rmtree, manifest_path.parent)
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         alpha_task = next(task for task in manifest["tasks"] if task["key"] == "alpha")
@@ -205,7 +205,7 @@ class RingerCliTests(unittest.TestCase):
             ),
         )
 
-        result = self.run_ringer(manifest)
+        result = self.run_laufgitter(manifest)
 
         self.assertEqual(result.returncode, 1, result.stdout)
         rows = self.read_rows()
@@ -229,13 +229,13 @@ class RingerCliTests(unittest.TestCase):
             ),
         )
 
-        result = self.run_ringer(manifest)
+        result = self.run_laufgitter(manifest)
 
         self.assertEqual(result.returncode, 1, result.stdout)
         rows = self.read_rows()
         self.assertEqual([row["verdict"] for row in rows], ["FAIL", "FAIL"])
         self.assertIn('missing_expect_files=["out.txt"]', rows[0]["notes"])
-        self.assertIn("[ringer] missing expected files: out.txt", rows[0]["notes"])
+        self.assertIn("[laufgitter] missing expected files: out.txt", rows[0]["notes"])
 
     def test_empty_expected_file_is_treated_as_missing(self) -> None:
         manifest = self.write_manifest(
@@ -252,7 +252,7 @@ class RingerCliTests(unittest.TestCase):
             ),
         )
 
-        result = self.run_ringer(manifest)
+        result = self.run_laufgitter(manifest)
 
         self.assertEqual(result.returncode, 1, result.stdout)
         rows = self.read_rows()
@@ -275,7 +275,7 @@ class RingerCliTests(unittest.TestCase):
             ),
         )
 
-        result = self.run_ringer(manifest, timeout=10)
+        result = self.run_laufgitter(manifest, timeout=10)
 
         self.assertEqual(result.returncode, 1, result.stdout)
         rows = self.read_rows()
@@ -301,7 +301,7 @@ class RingerCliTests(unittest.TestCase):
         cmd = [
             sys.executable,
             "-B",
-            str(RINGER_PATH),
+            str(LAUFGITTER_PATH),
             "--config",
             str(self.config_path),
             "run",
@@ -312,7 +312,7 @@ class RingerCliTests(unittest.TestCase):
         ]
         env = os.environ.copy()
         env["PYTHONDONTWRITEBYTECODE"] = "1"
-        env["RINGER_NO_SELF_UPDATE"] = "1"
+        env["LAUFGITTER_NO_SELF_UPDATE"] = "1"
         proc = subprocess.Popen(
             cmd,
             cwd=ROOT,
@@ -361,7 +361,7 @@ class RingerCliTests(unittest.TestCase):
         cmd = [
             sys.executable,
             "-B",
-            str(RINGER_PATH),
+            str(LAUFGITTER_PATH),
             "--config",
             str(self.config_path),
             "run",
@@ -372,7 +372,7 @@ class RingerCliTests(unittest.TestCase):
         ]
         env = os.environ.copy()
         env["PYTHONDONTWRITEBYTECODE"] = "1"
-        env["RINGER_NO_SELF_UPDATE"] = "1"
+        env["LAUFGITTER_NO_SELF_UPDATE"] = "1"
         proc = subprocess.Popen(
             cmd,
             cwd=ROOT,
@@ -423,7 +423,7 @@ class RingerCliTests(unittest.TestCase):
             ),
         )
 
-        result = self.run_ringer(manifest)
+        result = self.run_laufgitter(manifest)
 
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual([row["verdict"] for row in self.read_rows()], ["PASS"])
@@ -443,7 +443,7 @@ class RingerCliTests(unittest.TestCase):
             ),
         )
 
-        result = self.run_ringer(manifest)
+        result = self.run_laufgitter(manifest)
 
         self.assertEqual(result.returncode, 0, result.stdout)
         rows = self.read_rows()
@@ -459,9 +459,9 @@ class RingerCliTests(unittest.TestCase):
             [
                 "git",
                 "-c",
-                "user.name=Ringer Test",
+                "user.name=Laufgitter Test",
                 "-c",
-                "user.email=ringer-test@example.invalid",
+                "user.email=laufgitter-test@example.invalid",
                 "commit",
                 "-m",
                 "base",
@@ -492,7 +492,7 @@ class RingerCliTests(unittest.TestCase):
             },
         )
 
-        result = self.run_ringer(manifest)
+        result = self.run_laufgitter(manifest)
 
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertFalse((workdir / "wt-pass").exists())
@@ -509,9 +509,9 @@ class RingerCliTests(unittest.TestCase):
             [
                 "git",
                 "-c",
-                "user.name=Ringer Test",
+                "user.name=Laufgitter Test",
                 "-c",
-                "user.email=ringer-test@example.invalid",
+                "user.email=laufgitter-test@example.invalid",
                 "commit",
                 "-m",
                 "base",
@@ -543,7 +543,7 @@ class RingerCliTests(unittest.TestCase):
             },
         )
 
-        result = self.run_ringer(manifest)
+        result = self.run_laufgitter(manifest)
 
         self.assertEqual(result.returncode, 1, result.stdout)
         rows = self.read_rows()
@@ -564,7 +564,7 @@ class RingerCliTests(unittest.TestCase):
             ),
         )
 
-        result = self.run_ringer(manifest)
+        result = self.run_laufgitter(manifest)
 
         self.assertEqual(result.returncode, 2, result.stdout)
         self.assertIn("task key escapes workdir", result.stdout)
@@ -585,14 +585,14 @@ class RingerCliTests(unittest.TestCase):
             ),
         )
 
-        result = self.run_ringer(manifest)
+        result = self.run_laufgitter(manifest)
 
         self.assertEqual(result.returncode, 2, result.stdout)
         self.assertIn("reserved worktree logs directory", result.stdout)
 
     def test_final_state_file_is_finished_after_passing_run(self) -> None:
         # The per-run dashboard this test originally exercised was replaced by
-        # the persistent Ringside hud; the surviving contract is the state
+        # the persistent Zentrale hud; the surviving contract is the state
         # file: a completed run must land finished with the right summary.
         self.write_config({"slow": ["-c", "sleep 1; printf done > out.txt"]})
         manifest = self.write_manifest(
@@ -609,7 +609,7 @@ class RingerCliTests(unittest.TestCase):
             ),
         )
 
-        result = self.run_ringer(manifest, timeout=10)
+        result = self.run_laufgitter(manifest, timeout=10)
 
         self.assertEqual(result.returncode, 0, result.stdout)
         state = self.read_final_state()
@@ -619,23 +619,23 @@ class RingerCliTests(unittest.TestCase):
 
 
     def test_check_timeout_is_reported_separately_from_worker_timeout(self) -> None:
-        original_timeout = ringer.CHECK_TIMEOUT_S
-        ringer.CHECK_TIMEOUT_S = 1
-        with tempfile.TemporaryDirectory(prefix="ringer-check-timeout-") as tmp:
+        original_timeout = laufgitter.CHECK_TIMEOUT_S
+        laufgitter.CHECK_TIMEOUT_S = 1
+        with tempfile.TemporaryDirectory(prefix="laufgitter-check-timeout-") as tmp:
             try:
                 returncode, timed_out, output = asyncio.run(
-                    ringer.Verifier._run_check("sleep 5", Path(tmp))
+                    laufgitter.Verifier._run_check("sleep 5", Path(tmp))
                 )
             finally:
-                ringer.CHECK_TIMEOUT_S = original_timeout
+                laufgitter.CHECK_TIMEOUT_S = original_timeout
 
         self.assertTrue(timed_out)
         self.assertNotEqual(returncode, 0)
-        self.assertIn("[ringer.py] check timed out after 1s", output)
+        self.assertIn("[laufgitter.py] check timed out after 1s", output)
 
     def test_token_count_parser_accepts_colon_and_newline_formats(self) -> None:
-        self.assertEqual(ringer.parse_token_count("tokens used: 1,234", r"tokens\s+used\s*:?\s*([0-9][0-9,]*)"), 1234)
-        self.assertEqual(ringer.parse_token_count("tokens used\n5,678", r"tokens\s+used\s*:?\s*([0-9][0-9,]*)"), 5678)
+        self.assertEqual(laufgitter.parse_token_count("tokens used: 1,234", r"tokens\s+used\s*:?\s*([0-9][0-9,]*)"), 1234)
+        self.assertEqual(laufgitter.parse_token_count("tokens used\n5,678", r"tokens\s+used\s*:?\s*([0-9][0-9,]*)"), 5678)
 
 
 if __name__ == "__main__":

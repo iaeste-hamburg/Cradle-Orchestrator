@@ -1,12 +1,12 @@
-# Contributing to Ringer
+# Contributing to Laufgitter
 
 Honestly: we never asked for contributions, and the number of people showing up with well-built PRs has been a genuinely happy surprise. This guide exists so your work lands fast. Everything in it comes from real review decisions on real PRs, not hypothetical policy.
 
 ## The philosophy (read this first — it decides most reviews)
 
-**Verify outputs; don't confine workers.** Ringer's entire trust model is the executed check: exit 0 is the only thing it believes. That's where correctness lives — not in guardrails around the agents. PRs that add worker restrictions, credential deny-lists, read confinement, or other agent-safety machinery will be declined as out of scope, however well built (see #15, #28). Ringer is not a security product; an operator whose threat model includes hostile workers should run them in a container or VM, and process confinement belongs upstream in the engine CLIs. No safety theater — a partial guarantee that reads as a full one makes people less safe than an honest scope statement.
+**Verify outputs; don't confine workers.** Laufgitter's entire trust model is the executed check: exit 0 is the only thing it believes. That's where correctness lives — not in guardrails around the agents. PRs that add worker restrictions, credential deny-lists, read confinement, or other agent-safety machinery will be declined as out of scope, however well built (see #15, #28). Laufgitter is not a security product; an operator whose threat model includes hostile workers should run them in a container or VM, and process confinement belongs upstream in the engine CLIs. No safety theater — a partial guarantee that reads as a full one makes people less safe than an honest scope statement.
 
-**Ringer is not a model-testing harness.** Model-capability signal accrues from the eval log on real production work, not synthetic trials. Bakeoff machinery, benchmark modes, and comparison infrastructure are their own project — build them elsewhere and Ringer will happily be a component. What Ringer keeps is the scoreboard as a *byproduct of shipping*.
+**Laufgitter is not a model-testing harness.** Model-capability signal accrues from the eval log on real production work, not synthetic trials. Bakeoff machinery, benchmark modes, and comparison infrastructure are their own project — build them elsewhere and Laufgitter will happily be a component. What Laufgitter keeps is the scoreboard as a *byproduct of shipping*.
 
 **Displayed data must be true.** The one unforgivable bug class here is a surface that misstates what happened — wrong model attribution, wrong lab, a dead-engine run rendering as passed. [`docs/TAXONOMY.md`](docs/TAXONOMY.md) is normative for model identity. Registry facts require sources; opinions and observations go in [`docs/MODEL-NOTES.md`](docs/MODEL-NOTES.md) as dated entries, never dressed as capability facts.
 
@@ -15,15 +15,15 @@ Honestly: we never asked for contributions, and the number of people showing up 
 1. **Small and scoped — one feature or fix per PR.** The single biggest predictor. Four PRs merged same-day the week this guide was written; the two large bundles (52 files; 16 files) were both sent back for splitting regardless of quality. If your change has an "and," consider splitting it. Resist scope creep in your own diff: drive-by refactors, stale copies of main, and bonus features all slow the part we want.
 2. **Rebased on current main.** Main moves fast here. A conflicting PR can't be audited.
 3. **Executed proof for every claim.** A test that runs beats a screenshot; a check that prints *why* it fails beats a silent `exit 1`. CI runs the full suite on macOS and Linux (required) and a non-blocking `windows-latest` harness — platform claims must be proven by the job for that platform, not asserted.
-4. **Match the house style.** Single-file `ringer.py`, stdlib only, Python 3.12+, frozen dataclasses, tests in `tests/` runnable by `python3 -m unittest discover -s tests`. Set `RINGER_NO_SELF_UPDATE=1` in tests that spawn the CLI.
+4. **Match the house style.** Single-file `laufgitter.py`, stdlib only, Python 3.12+, frozen dataclasses, tests in `tests/` runnable by `python3 -m unittest discover -s tests`. Set `LAUFGITTER_NO_SELF_UPDATE=1` in tests that spawn the CLI.
 5. **Real motivation.** PRs that fix an observed failure (say so in the description — "burned 100k tokens against a broken check" is a great opening line) review better than speculative hardening.
 
-## Ringside UI contributions — actively encouraged
+## Zentrale UI contributions — actively encouraged
 
-We *want* people shipping alternative Ringside faces. The rules that make a UI PR mergeable:
+We *want* people shipping alternative Zentrale faces. The rules that make a UI PR mergeable:
 
 - **Honest data.** Build against the real `/api/runs`, `/api/library`, `/api/models` responses — capture them as test fixtures and test your rendering against the fixtures. The display contract (columns, identity taxonomy) is non-negotiable.
-- **Self-contained.** No CDNs, no external fonts, no phoning out. Ringside is a local tool; vendor everything.
+- **Self-contained.** No CDNs, no external fonts, no phoning out. Zentrale is a local tool; vendor everything.
 - **Escaped.** Run names and worker output are untrusted text.
 - **Opt-in, not takeover.** The stock UI stays default; alternates arrive through an explicit selection mechanism, never by file presence. (If the selection mechanism doesn't exist yet when you read this, a small PR adding it is the ideal first piece — see #39's thread.)
 

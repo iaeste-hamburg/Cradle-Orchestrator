@@ -17,15 +17,15 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-import ringer  # noqa: E402
+import laufgitter  # noqa: E402
 
-from ringer import (  # noqa: E402
+from laufgitter import (  # noqa: E402
     AppConfig,
     ArtifactConfig,
     EngineConfig,
     EvalConfig,
     Manifest,
-    RingerRunner,
+    LaufgitterRunner,
     SteeringConfig,
     SteeringProfile,
     SteeringRule,
@@ -256,7 +256,7 @@ class SteeringInjectionTests(unittest.TestCase):
 
         self.assertTrue(
             injected.startswith(
-                "[Steering profile openrouter/z-ai/glm-5.2 v1.2.3 — auto-injected by ringer.py]\n"
+                "[Steering profile openrouter/z-ai/glm-5.2 v1.2.3 — auto-injected by laufgitter.py]\n"
             )
         )
         self.assertIn("- Keep verification executable", injected)
@@ -310,7 +310,7 @@ class SteeringConfigAndDriverTests(unittest.TestCase):
             home = Path(temp_root)
             with mock.patch.dict(
                 os.environ,
-                {"HOME": str(home), "RINGER_STEERING_DIR": "~/env-steering"},
+                {"HOME": str(home), "LAUFGITTER_STEERING_DIR": "~/env-steering"},
                 clear=True,
             ):
                 config = load_steering_config(
@@ -328,7 +328,7 @@ class SteeringConfigAndDriverTests(unittest.TestCase):
                 encoding="utf-8",
             )
             with mock.patch.object(
-                ringer,
+                laufgitter,
                 "load_steering_config",
                 side_effect=RuntimeError("broken steering loader"),
             ):
@@ -414,7 +414,7 @@ class SteeringObservationTests(unittest.TestCase):
                 }
             )
             config = make_config(root, steering_dir)
-            runner = RingerRunner(manifest, config, "test", dashboard_enabled=False)
+            runner = LaufgitterRunner(manifest, config, "test", dashboard_enabled=False)
             runtime = runner.runtimes[0]
             runtime.attempts = 2
             runtime.steering = {
@@ -439,7 +439,7 @@ class SteeringObservationTests(unittest.TestCase):
             )
 
             date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-            path = steering_dir / "observations" / "ringer" / f"{date}.jsonl"
+            path = steering_dir / "observations" / "laufgitter" / f"{date}.jsonl"
             row = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(
                 {
@@ -463,7 +463,7 @@ class SteeringObservationTests(unittest.TestCase):
                 },
                 set(row),
             )
-            self.assertEqual("ringer.py", row["source"])
+            self.assertEqual("laufgitter.py", row["source"])
             self.assertEqual("observation-test", row["run_name"])
             self.assertEqual(["keep-checks-executable"], row["rules_injected"])
             self.assertEqual(2, row["attempt"])
@@ -485,7 +485,7 @@ class SteeringObservationTests(unittest.TestCase):
                 }
             )
             config = make_config(root, blocked)
-            runner = RingerRunner(manifest, config, "test", dashboard_enabled=False)
+            runner = LaufgitterRunner(manifest, config, "test", dashboard_enabled=False)
             runtime = runner.runtimes[0]
             runtime.log_path.parent.mkdir(parents=True)
             runner._write_steering_observation(
@@ -498,7 +498,7 @@ class SteeringObservationTests(unittest.TestCase):
                 duration_ms=1,
             )
             self.assertIn(
-                "[ringer.py] steering: observation write failed",
+                "[laufgitter.py] steering: observation write failed",
                 runtime.log_path.read_text(encoding="utf-8"),
             )
 
@@ -526,7 +526,7 @@ class SteeringIntegrationFailOpenTests(unittest.IsolatedAsyncioTestCase):
                     ],
                 }
             )
-            runner = RingerRunner(
+            runner = LaufgitterRunner(
                 manifest,
                 make_config(root, steering_dir),
                 "test",
@@ -534,7 +534,7 @@ class SteeringIntegrationFailOpenTests(unittest.IsolatedAsyncioTestCase):
             )
             runtime = runner.runtimes[0]
             injected_specs: list[str] = []
-            original_build_worker_command = ringer.build_worker_command
+            original_build_worker_command = laufgitter.build_worker_command
 
             def recording_build_worker_command(*args: object, **kwargs: object) -> list[str]:
                 spec = kwargs.get("spec")
@@ -543,7 +543,7 @@ class SteeringIntegrationFailOpenTests(unittest.IsolatedAsyncioTestCase):
                 return original_build_worker_command(*args, **kwargs)  # type: ignore[arg-type]
 
             with mock.patch.object(
-                ringer,
+                laufgitter,
                 "build_worker_command",
                 side_effect=recording_build_worker_command,
             ):
@@ -558,7 +558,7 @@ class SteeringIntegrationFailOpenTests(unittest.IsolatedAsyncioTestCase):
             )
             date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
             observation_path = (
-                steering_dir / "observations" / "ringer" / f"{date}.jsonl"
+                steering_dir / "observations" / "laufgitter" / f"{date}.jsonl"
             )
             rows = [
                 json.loads(line)
@@ -592,7 +592,7 @@ class SteeringIntegrationFailOpenTests(unittest.IsolatedAsyncioTestCase):
                     ],
                 }
             )
-            runner = RingerRunner(
+            runner = LaufgitterRunner(
                 manifest,
                 make_config(root, root / "steering"),
                 "test",
@@ -602,7 +602,7 @@ class SteeringIntegrationFailOpenTests(unittest.IsolatedAsyncioTestCase):
             runtime.taskdir.mkdir(parents=True)
 
             with mock.patch.object(
-                ringer,
+                laufgitter,
                 "resolve_steering_profile",
                 side_effect=RuntimeError("steering exploded"),
             ):
@@ -615,7 +615,7 @@ class SteeringIntegrationFailOpenTests(unittest.IsolatedAsyncioTestCase):
             )
             log = runtime.log_path.read_text(encoding="utf-8")
             self.assertNotIn("[Steering profile", log)
-            self.assertIn("[ringer.py] steering: no profile matched", log)
+            self.assertIn("[laufgitter.py] steering: no profile matched", log)
             self.assertEqual(
                 {"profile": None, "version": None, "rule_ids": []},
                 runtime.steering,
@@ -638,7 +638,7 @@ class SteeringIntegrationFailOpenTests(unittest.IsolatedAsyncioTestCase):
                     ],
                 }
             )
-            runner = RingerRunner(
+            runner = LaufgitterRunner(
                 manifest,
                 make_config(root, root / "steering"),
                 "test",
@@ -676,14 +676,14 @@ class SteeringMockEngineFunctionalTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_root:
             root = Path(temp_root)
             home = root / "home"
-            ringer_home = root / "ringer-home"
+            laufgitter_home = root / "laufgitter-home"
             state_dir = root / "state"
             steering_dir = root / "steering"
             workdir = root / "work"
             config_path = root / "config.toml"
             manifest_path = root / "manifest.json"
             home.mkdir()
-            ringer_home.mkdir()
+            laufgitter_home.mkdir()
             write_profile(
                 steering_dir / "profiles" / "mock-model.md",
                 model="mock/model",
@@ -743,16 +743,16 @@ class SteeringMockEngineFunctionalTests(unittest.TestCase):
             env.update(
                 {
                     "HOME": str(home),
-                    "RINGER_HOME": str(ringer_home),
+                    "LAUFGITTER_HOME": str(laufgitter_home),
                     "XDG_CONFIG_HOME": str(root / "xdg-config"),
                 }
             )
-            env.pop("RINGER_STEERING_DIR", None)
+            env.pop("LAUFGITTER_STEERING_DIR", None)
 
             proc = subprocess.run(
                 [
                     sys.executable,
-                    "ringer.py",
+                    "laufgitter.py",
                     "run",
                     str(manifest_path),
                     "--config",
@@ -774,11 +774,11 @@ class SteeringMockEngineFunctionalTests(unittest.TestCase):
             self.assertEqual(0, proc.returncode, combined)
             log = (workdir / "steered-task" / "worker.log").read_text(encoding="utf-8")
             self.assertIn(
-                "[Steering profile mock/model v4.5.6 — auto-injected by ringer.py]",
+                "[Steering profile mock/model v4.5.6 — auto-injected by laufgitter.py]",
                 log,
             )
             self.assertIn(
-                "[ringer.py] steering: profile=mock-model version=4.5.6",
+                "[laufgitter.py] steering: profile=mock-model version=4.5.6",
                 log,
             )
 
@@ -799,7 +799,7 @@ class SteeringMockEngineFunctionalTests(unittest.TestCase):
 
             date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
             observation_path = (
-                steering_dir / "observations" / "ringer" / f"{date}.jsonl"
+                steering_dir / "observations" / "laufgitter" / f"{date}.jsonl"
             )
             rows = [
                 json.loads(line)

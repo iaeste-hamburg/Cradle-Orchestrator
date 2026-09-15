@@ -6,7 +6,7 @@ Blueprint — adapt with care
 
 This kit is a blueprint for the one-task manifest pattern: a visible, verified probe for work that is too easy to lose in a chat thread. It covers model-calling probes, API smoke tests, and failed-worker post-mortem scouts.
 
-The rule is simple: if it calls a model or takes three steps, it runs under Ringer where it is visible, verified, and logged. This is the anti-"tiny-edit death spiral" tool.
+The rule is simple: if it calls a model or takes three steps, it runs under Laufgitter where it is visible, verified, and logged. This is the anti-"tiny-edit death spiral" tool.
 
 ## When to use
 
@@ -19,7 +19,7 @@ Do not use it for a true one-line local command whose output is already the answ
 | Placeholder | What goes there |
 |---|---|
 | `{{PROBE_KEY}}` | Stable slug for this probe. |
-| `{{WORKDIR}}` | Scratch run directory for Ringer task folders. |
+| `{{WORKDIR}}` | Scratch run directory for Laufgitter task folders. |
 | `{{TRANSCRIPT_FILE}}` | Transcript file path inside the task directory, usually `transcript.md`. |
 | `{{OUTPUT_FILE}}` | Raw output file path inside the task directory, usually `probe-output.txt` or `probe-output.json`. |
 | `{{PROBE_MODE}}` | One of `model`, `api`, `postmortem`, or `generic`. |
@@ -34,7 +34,7 @@ Do not use it for a true one-line local command whose output is already the answ
 | `{{API_URL}}` | API endpoint used by the API smoke prompt skeleton. |
 | `{{HTTP_METHOD}}` | HTTP method for the API smoke test. |
 | `{{EXPECTED_STATUS}}` | Expected HTTP status code or status family. |
-| `{{FAILED_RUN_PATH}}` | Path to a failed Ringer run, worker log, or task directory for post-mortem mode. |
+| `{{FAILED_RUN_PATH}}` | Path to a failed Laufgitter run, worker log, or task directory for post-mortem mode. |
 
 ## Checks
 

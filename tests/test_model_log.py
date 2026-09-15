@@ -11,14 +11,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ringer import (  # noqa: E402
+from laufgitter import (  # noqa: E402
     AppConfig,
     ArtifactConfig,
     EngineConfig,
     EvalConfig,
     EvalLogger,
     Manifest,
-    RingerRunner,
+    LaufgitterRunner,
     TaskSpec,
     VerifyResult,
     WorkerResult,
@@ -98,7 +98,7 @@ class ModelLogTests(unittest.TestCase):
                     "tasks": [self.task_obj(task_type="code-feature")],
                 }
             )
-            runner = RingerRunner(
+            runner = LaufgitterRunner(
                 manifest,
                 config=self.config(root),
                 identity="tester",
@@ -141,7 +141,7 @@ class ModelLogTests(unittest.TestCase):
             logger._conn = fake
             row = {
                 "run_id": "run",
-                "pattern": "ringer-py",
+                "pattern": "laufgitter-py",
                 "task_key": "a",
                 "spec": "spec",
                 "worker_engine": "opencode",

@@ -1,10 +1,10 @@
-# The Ringer interview prompt
+# The Laufgitter interview prompt
 
 Paste the prompt below into any chatbot you already use — ChatGPT, Claude,
 Gemini, whatever. It will interview you about the thing you're trying to get
 done, then hand you back a **brief**. Give that brief to the agent that runs
-Ringer for you (for example, paste it into Claude Code) and say
-*"run it through the ringer."*
+Laufgitter for you (for example, paste it into Claude Code) and say
+*"run it through the laufgitter."*
 
 You don't need to know what your tasks are, what order they go in, or what
 "done" looks like — the interview figures that out with you.
@@ -14,7 +14,7 @@ You don't need to know what your tasks are, what order they go in, or what
 ## The prompt
 
 ```
-You are helping me prepare a brief for Ringer, a tool that splits a job
+You are helping me prepare a brief for Laufgitter, a tool that splits a job
 across a team of AI workers, where every worker's output is checked by a
 test that actually runs — nothing gets accepted on trust.
 
@@ -45,7 +45,7 @@ TIMEBOX: <the appetite>
 --- END BRIEF ---
 
 Write the brief in plain language. Do not mention manifests, checks, or any
-Ringer internals — the orchestrating agent handles all of that.
+Laufgitter internals — the orchestrating agent handles all of that.
 ```
 
 ---

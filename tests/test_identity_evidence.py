@@ -10,13 +10,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ringer import (
+from laufgitter import (
     AppConfig,
     ArtifactConfig,
     EngineConfig,
     EvalConfig,
     Manifest,
-    RingerRunner,
+    LaufgitterRunner,
     VerifyResult,
     WorkerResult,
     build_models_api_payload,
@@ -51,7 +51,7 @@ class IdentityEvidenceTests(unittest.TestCase):
         self.old_environ = os.environ.copy()
         self.addCleanup(self.restore_environ)
         os.environ["HOME"] = str(self.root / "home")
-        os.environ["RINGER_HOME"] = str(self.root / "ringer-home")
+        os.environ["LAUFGITTER_HOME"] = str(self.root / "laufgitter-home")
         self.registry = self.root / "model-identity.toml"
         self.registry.write_text(
             """
@@ -121,7 +121,7 @@ access = "OpenRouter API"
         self.log_attempts(WorkerResult(0, False, 12, reported_model="gpt-5.7"))
         log = (self.root / "work" / "task" / "worker.log").read_text(encoding="utf-8")
         self.assertIn(
-            "[ringer.py] identity: harness reported gpt-5.7 but manifest/config expected gpt-5.6-sol",
+            "[laufgitter.py] identity: harness reported gpt-5.7 but manifest/config expected gpt-5.6-sol",
             log,
         )
 
@@ -148,7 +148,7 @@ access = "OpenRouter API"
                 ],
             }
         )
-        runner = RingerRunner(
+        runner = LaufgitterRunner(
             manifest,
             config=self.config(log_path, engine),
             identity="tester",
@@ -162,7 +162,7 @@ access = "OpenRouter API"
         return [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
 
     def test_schema_v3_migration_preserves_v2_attempt(self) -> None:
-        db = self.root / "ringer.db"
+        db = self.root / "laufgitter.db"
         with sqlite3.connect(db) as conn:
             conn.executescript(
                 """

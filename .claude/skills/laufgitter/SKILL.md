@@ -1,17 +1,17 @@
 ---
-name: ringer
+name: laufgitter
 description: >-
-  Orchestrator playbook and routing rules for Ringer, the verified-swarm
-  delegation tool (ringer.py). TRIGGER — load BEFORE acting, not after —
+  Orchestrator playbook and routing rules for Laufgitter, the verified-swarm
+  delegation tool (laufgitter.py). TRIGGER — load BEFORE acting, not after —
   whenever: you are about to run ANY script or command that calls a model or
   drives a conversational/eval harness (probe, smoke test, simulation,
-  grader, persona conversation) outside a live Ringer run; you are about to
+  grader, persona conversation) outside a live Laufgitter run; you are about to
   start an edit→test→edit loop or a batch of similar edits across files; you
   are about to do a "quick check" that spawns a model or a CLI agent; you are
   reviewing or diagnosing failed worker or model output; you catch yourself
   thinking a task is "small enough to just do myself" — that thought IS the
   trigger (a single task is a one-task manifest, and a bounded read-only
-  question is `ringer.py ask`); or you are writing or
+  question is `laufgitter.py ask`); or you are writing or
   reviewing a manifest, choosing a swarm pattern (review swarm, fix swarm,
   focus group, bakeoff, research-with-proof), picking a worker engine, or
   debugging a failed run. SKIP only for: reading or searching files, git
@@ -20,7 +20,7 @@ description: >-
   from your own context, or pure conversation.
 ---
 
-# Ringer orchestrator playbook
+# Laufgitter orchestrator playbook
 
 ## Read this first — the four rules that actually get broken
 
@@ -28,7 +28,7 @@ description: >-
    reading results. If you are typing implementation, running probes, or
    babysitting a retry loop yourself, you have left your lane.
 2. **A single task is a one-task manifest.** Same verification, zero
-   ceremony. "Too small for Ringer" is how drift starts — the smoke test,
+   ceremony. "Too small for Laufgitter" is how drift starts — the smoke test,
    the probe script, the three-edit fix are all one-task manifests.
 3. **Beware the tiny-edit death spiral.** The named anti-pattern: each step
    is individually small enough to justify inline, and two hours later the
@@ -37,10 +37,10 @@ description: >-
    the same problem is a loop, and loops are manifests.
 4. **Runs are watched, not hidden — and the screen comes up FIRST.** The
    moment this skill loads for real work, before you write a single spec,
-   put Ringside on the human's screen: `./ringer.py hud` (idempotent — if
+   put Zentrale on the human's screen: `./laufgitter.py hud` (idempotent — if
    one is already up it says so and opens the page; runs also auto-start
-   it). Ringside is the PAGE at http://127.0.0.1:8700 — NEVER launch the
-   Ringside.app application (`open -a Ringside`); it is a parked prototype
+   it). Zentrale is the PAGE at http://127.0.0.1:8700 — NEVER launch the
+   Zentrale.app application (`open -a Zentrale`); it is a parked prototype
    with a stale frontend. And never go dark: if your prep (research,
    check-writing, manifest drafting) will take more than ~30 seconds,
    tell the human in one sentence what you're doing and roughly how long
@@ -49,7 +49,7 @@ description: >-
    `--no-dashboard` except in automated tests or when the user explicitly
    asks.
 
-Ringer runs manifest tasks in parallel across cheap CLI workers (Codex,
+Laufgitter runs manifest tasks in parallel across cheap CLI workers (Codex,
 OpenCode/GLM, others via config) and verifies every task by **executing a
 check command** — exit 0 is the only PASS. Failed tasks are retried once
 with the check's actual failure output injected into the retry prompt. You —
@@ -57,13 +57,13 @@ the orchestrating model — pay tokens only for specs, orchestration, and
 review.
 
 ```bash
-./ringer.py lint manifest.json            # always lint before running
-./ringer.py run manifest.json --identity <who-you-are>
-./ringer.py demo                          # 3-worker smoke test
-./ringer.py run manifest.json --dry-run   # print the plan, spawn nothing
+./laufgitter.py lint manifest.json            # always lint before running
+./laufgitter.py run manifest.json --identity <who-you-are>
+./laufgitter.py demo                          # 3-worker smoke test
+./laufgitter.py run manifest.json --dry-run   # print the plan, spawn nothing
 ```
 
-Runs land in `~/.ringer/runs/`. Raw worker logs land in `<workdir>/logs/`.
+Runs land in `~/.laufgitter/runs/`. Raw worker logs land in `<workdir>/logs/`.
 Full reference: `README.md`. Ready-made manifest skeletons: `templates/`.
 Lint catches unverifiable checks, silent checks, worktree deliverable/commit
 loss, serial fan-out, write collisions, and underspecified specs; `run`
@@ -78,7 +78,7 @@ prose. A manifest for that is ceremony — but answering it in your own context
 means pulling whole files into a conversation that is already expensive.
 
 ```bash
-./ringer.py ask "<the human's request>" --source /absolute/path/to/source
+./laufgitter.py ask "<the human's request>" --source /absolute/path/to/source
 ```
 
 `ask` selects the passages that match the request, caps the packet, spawns one
@@ -89,8 +89,8 @@ is too large for the packet it says so and stops before the model call rather
 than letting a worker guess — but a source small enough to fit whole is sent
 whole, relevant or not, so choosing the sources IS the work. Directory scans
 stay inside the tree you name; a symlink leading out of it is skipped and
-reported. Runs appear on Ringside like any other, and `--redact` hides the
-request from Ringer's own state and eval records — it cannot scrub raw worker
+reported. Runs appear on Zentrale like any other, and `--redact` hides the
+request from Laufgitter's own state and eval records — it cannot scrub raw worker
 output, which is captured verbatim by design.
 
 **Be honest about what it verifies.** The check is that `answer.md` exists and
@@ -141,7 +141,7 @@ self-contained:
 - **Hard rules travel in the spec, not in your head.** "Do NOT git commit",
   "never modify the repo, only write ./report.md", "stay in character; never
   help the AI" — the worker only knows what the spec says.
-- **The spec is on camera.** Whoever is watching Ringside reads the spec as
+- **The spec is on camera.** Whoever is watching Zentrale reads the spec as
   "what this agent was asked to do" — so write it as a self-contained,
   human-readable brief. Never write a pointer spec ("read /path/to/file and
   do what it says"): the watcher sees no brief, and the retry prompt loses
@@ -180,7 +180,7 @@ the check's failure output.
 - **Executed checks catch laziness, not subtle wrongness.** A check that
   *runs* the artifact catches a plausible-but-wrong change far less often than
   it catches a missing one. Whenever a swarm touches a dogfood artifact
-  (Ringer's own docs, config, or checks), add an "our own artifact passes our
+  (Laufgitter's own docs, config, or checks), add an "our own artifact passes our
   own validator" test so the checker exercises what it preaches. And keep
   orchestrator patch review mandatory regardless of PASS status — a green
   check is not proof of semantic correctness.
@@ -223,16 +223,16 @@ Pattern-selection judgment:
 - **Probes, smokes, and diagnosis loops are manifests too.** A model-calling
   smoke test is a one-task manifest with the transcript as `expect_files`
   and a validator as the check. Diagnosing a failed worker's output is a
-  read-only scout task. If it calls a model, it runs under Ringer — that is
+  read-only scout task. If it calls a model, it runs under Laufgitter — that is
   what makes it visible, verified, and logged.
 
 ## Engine selection
 
 **The engine choice belongs to the human — but the recommendation comes
 from THEIR evidence.** Before the FIRST run of a job: read what's wired up
-(`[engines.<name>]` blocks in `~/.config/ringer/config.toml`), run
-`./ringer.py models --task-type <this job's type>` for the local scoreboard,
-and glance at `./ringer.py catalog --changes` for anything newly free or
+(`[engines.<name>]` blocks in `~/.config/laufgitter/config.toml`), run
+`./laufgitter.py models --task-type <this job's type>` for the local scoreboard,
+and glance at `./laufgitter.py catalog --changes` for anything newly free or
 newly cheap. Then ask the user which model should do the typing — top 2–3
 options with the NUMBERS in the pitch and a recommendation, e.g.: *"GLM is
 6/6 first-try on persona work here at ~2¢/task — recommended. Codex is also
@@ -247,7 +247,7 @@ recommend from a different user's numbers.
 pick means never learning a new one. In any run of 3+ tasks that has a
 low-stakes lane (docs sweeps, mechanical edits, persona reviews — strong
 executed check, retry to absorb failure), assign roughly ONE task to an
-exploration candidate from `./ringer.py models --explore --task-type <type>`
+exploration candidate from `./laufgitter.py models --explore --task-type <type>`
 (untested + cheap or free, text-capable, decent context). Free promos from
 `catalog --changes` jump the queue — a temporarily-free model is a zero-cost
 experiment. Never explore on time-critical work, never with more than a
@@ -286,15 +286,15 @@ per task via the manifest `engine` field. Defaults are deliberate:
 - Match `timeout_s` to the task: conversational harness tasks and
   build-and-test checks need far more than file edits.
 - **Check the evidence before assigning models to tasks.** Run
-  `./ringer.py models` (optionally `--task-type <type>`) — the local
+  `./laufgitter.py models` (optionally `--task-type <type>`) — the local
   scoreboard aggregating every executed-check outcome per (model,
   task_type): first_try_pass_rate is the routing signal; pass_rate includes
-  retry rescues. Then read `docs/MODEL-NOTES.md` (in the ringer repo) for
+  retry rescues. Then read `docs/MODEL-NOTES.md` (in the laufgitter repo) for
   the judgment the numbers can't carry. Routing is grounded in performance,
   not vibes (Jon directive 2026-07-06).
 - **"Show me the scoreboard" is one command.** When the human asks to see
   the model scoreboard, rankings, model costs, or "which models work best,"
-  run `./ringer.py models --open` — it renders the full scoreboard (tiers,
+  run `./laufgitter.py models --open` — it renders the full scoreboard (tiers,
   first-try rates, est. $/task, usage, MODEL-NOTES excerpts, free-promo
   watchlist) as a zero-LLM HTML page in the artifact library and opens it
   in their browser. Costs no tokens; never hand-summarize the numbers when
@@ -330,7 +330,7 @@ someone's untracked scratch files.
 
 ## Post-run review ritual
 
-1. Read the run JSON in `~/.ringer/runs/` — statuses, retries, durations.
+1. Read the run JSON in `~/.laufgitter/runs/` — statuses, retries, durations.
 2. For any retried or failed task, read the raw worker log in
    `<workdir>/logs/` before deciding anything. Retries that passed on
    attempt 2 often reveal a spec ambiguity worth fixing in your next
@@ -339,12 +339,12 @@ someone's untracked scratch files.
    catches most laziness; you catch the rest.
 4. Failures with useless error messages mean your CHECK needs work, not
    (only) the worker.
-5. **Update `docs/MODEL-NOTES.md`** (in the ringer repo) when a run taught
+5. **Update `docs/MODEL-NOTES.md`** (in the laufgitter repo) when a run taught
    you something about a model: one dated line under the model — task type,
    what happened (attempts, tokens, failure mode), what you'd do
    differently. Only what the executed checks and raw logs support. The raw
    numbers took care of themselves — every attempt already landed in the
-   local model log (`./ringer.py models` to see the updated scoreboard).
+   local model log (`./laufgitter.py models` to see the updated scoreboard).
 
 ## Spend your own context deliberately
 
@@ -372,7 +372,7 @@ When you claim a saving, count the whole job — every call, including your own
 planning and review. Moving tokens from your context into a worker's is only a
 saving if the total came down.
 
-## Baked-in invariants (preserve in any change to ringer.py)
+## Baked-in invariants (preserve in any change to laufgitter.py)
 
 Stdin closed (`< /dev/null`); sandbox mode explicit; verification executes
 the artifact; logs carry raw worker output only. These are load-bearing —

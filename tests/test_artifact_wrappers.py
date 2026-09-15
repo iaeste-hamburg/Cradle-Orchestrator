@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ringer import (  # noqa: E402
+from laufgitter import (  # noqa: E402
     ARTIFACT_BASE_CSS,
     ARTIFACT_WRAPPER_TAIL_BYTES,
     ArtifactRenderer,
@@ -29,7 +29,7 @@ class ArtifactWrapperTests(unittest.TestCase):
         self.addCleanup(self.restore_env)
         self.root = Path(self.tmp.name)
         os.environ["HOME"] = str(self.root / "home")
-        os.environ["RINGER_HOME"] = str(self.root / "ringer-home")
+        os.environ["LAUFGITTER_HOME"] = str(self.root / "laufgitter-home")
         self.artifact_path = self.root / "artifacts" / "run-123.html"
         self.renderer = ArtifactRenderer(self.artifact_path)
         self.taskdir = self.root / "work" / "task-one"
@@ -95,7 +95,7 @@ class ArtifactWrapperTests(unittest.TestCase):
         self.assertIn("<title>Work log</title>", wrapper_html)
         self.assertIn('<h1 class="briefing">Work log</h1>', wrapper_html)
         self.assertIn('<header class="corner">', wrapper_html)
-        self.assertIn('<span class="eyebrow">Ringer &nbsp;·&nbsp; <b>Wrapper Run</b> &nbsp;·&nbsp; task-one</span>', wrapper_html)
+        self.assertIn('<span class="eyebrow">Laufgitter &nbsp;·&nbsp; <b>Wrapper Run</b> &nbsp;·&nbsp; task-one</span>', wrapper_html)
         self.assertIn("task-one produced this on <b>", wrapper_html)
         self.assertNotIn(str(self.worker_log), wrapper_html)
         self.assertNotIn(file_href(self.worker_log), wrapper_html)
